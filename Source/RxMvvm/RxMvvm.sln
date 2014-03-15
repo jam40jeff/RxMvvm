@@ -14,6 +14,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C112BF
 EndProject
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "Documentation", "Documentation\Documentation.shfbproj", "{8D6D604D-435E-4616-B519-94887212D754}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Observable.Tests", "Observable.Tests\Observable.Tests.csproj", "{3B8FAEC7-0290-4207-BD68-0FA3F27C2420}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{083F17D2-F34C-461B-9D59-F94CD8FDE10F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +36,14 @@ Global
 		{8D6D604D-435E-4616-B519-94887212D754}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D6D604D-435E-4616-B519-94887212D754}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D6D604D-435E-4616-B519-94887212D754}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B8FAEC7-0290-4207-BD68-0FA3F27C2420}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B8FAEC7-0290-4207-BD68-0FA3F27C2420}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B8FAEC7-0290-4207-BD68-0FA3F27C2420}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B8FAEC7-0290-4207-BD68-0FA3F27C2420}.Release|Any CPU.Build.0 = Release|Any CPU
+		{083F17D2-F34C-461B-9D59-F94CD8FDE10F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{083F17D2-F34C-461B-9D59-F94CD8FDE10F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{083F17D2-F34C-461B-9D59-F94CD8FDE10F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{083F17D2-F34C-461B-9D59-F94CD8FDE10F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -213,7 +213,7 @@ namespace MorseCode.RxMvvm.Reactive
         }
 
         /// <summary>
-        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond}"/> holding a value of type <see cref="TFirst"/>.
+        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond}"/> holding a value of type <typeparamref name="TFirst"/>.
         /// </summary>
         /// <param name="value">
         /// The value to hold in the discriminated union.
@@ -235,7 +235,7 @@ namespace MorseCode.RxMvvm.Reactive
         }
 
         /// <summary>
-        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond}"/> holding a value of type <see cref="TSecond"/>.
+        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond}"/> holding a value of type <typeparamref name="TSecond"/>.
         /// </summary>
         /// <param name="value">
         /// The value to hold in the discriminated union.
@@ -272,7 +272,7 @@ namespace MorseCode.RxMvvm.Reactive
             }
 
             /// <summary>
-            /// Gets a value indicating whether is first.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
             /// </summary>
             public override bool IsFirst
             {
@@ -283,7 +283,7 @@ namespace MorseCode.RxMvvm.Reactive
             }
 
             /// <summary>
-            /// Gets a value indicating whether is second.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
             /// </summary>
             public override bool IsSecond
             {
@@ -293,10 +293,10 @@ namespace MorseCode.RxMvvm.Reactive
                 }
             }
 
-            // ReSharper disable MemberHidesStaticFromOuterClass
             /// <summary>
-            /// Gets the first.
+            /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
             /// </summary>
+            // ReSharper disable MemberHidesStaticFromOuterClass
             public override TFirst First
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
@@ -306,10 +306,10 @@ namespace MorseCode.RxMvvm.Reactive
                 }
             }
 
-            // ReSharper disable MemberHidesStaticFromOuterClass
             /// <summary>
-            /// Gets the second.
+            /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
             /// </summary>
+            // ReSharper disable MemberHidesStaticFromOuterClass
             public override TSecond Second
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
@@ -320,13 +320,13 @@ namespace MorseCode.RxMvvm.Reactive
             }
 
             /// <summary>
-            /// The switch.
+            /// Executes an action based on which value is contained in the discriminated union.
             /// </summary>
             /// <param name="first">
-            /// The first.
+            /// The action to run if <see cref="IsFirst"/> is <c>true</c>.
             /// </param>
             /// <param name="second">
-            /// The second.
+            /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
             /// </param>
             public override void Switch(Action<TFirst> first, Action<TSecond> second)
             {
@@ -334,18 +334,19 @@ namespace MorseCode.RxMvvm.Reactive
             }
 
             /// <summary>
-            /// The switch.
+            /// Executes a function based on which value is contained in the discriminated union.
             /// </summary>
             /// <param name="first">
-            /// The first.
+            /// The function to run if <see cref="IsFirst"/> is <c>true</c>.
             /// </param>
             /// <param name="second">
-            /// The second.
+            /// The function to run if <see cref="IsSecond"/> is <c>true</c>.
             /// </param>
             /// <typeparam name="TResult">
+            /// The type of the result.
             /// </typeparam>
             /// <returns>
-            /// The <see cref="TResult"/>.
+            /// The result of type <typeparamref name="TResult"/> of the function executed.
             /// </returns>
             public override TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second)
             {
@@ -369,7 +370,7 @@ namespace MorseCode.RxMvvm.Reactive
             }
 
             /// <summary>
-            /// Gets a value indicating whether is first.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
             /// </summary>
             public override bool IsFirst
             {
@@ -380,7 +381,7 @@ namespace MorseCode.RxMvvm.Reactive
             }
 
             /// <summary>
-            /// Gets a value indicating whether is second.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
             /// </summary>
             public override bool IsSecond
             {
@@ -390,10 +391,10 @@ namespace MorseCode.RxMvvm.Reactive
                 }
             }
 
-            // ReSharper disable MemberHidesStaticFromOuterClass
             /// <summary>
-            /// Gets the first.
+            /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
             /// </summary>
+            // ReSharper disable MemberHidesStaticFromOuterClass
             public override TFirst First
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
@@ -403,10 +404,10 @@ namespace MorseCode.RxMvvm.Reactive
                 }
             }
 
-            // ReSharper disable MemberHidesStaticFromOuterClass
             /// <summary>
-            /// Gets the second.
+            /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
             /// </summary>
+            // ReSharper disable MemberHidesStaticFromOuterClass
             public override TSecond Second
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
@@ -417,13 +418,13 @@ namespace MorseCode.RxMvvm.Reactive
             }
 
             /// <summary>
-            /// The switch.
+            /// Executes an action based on which value is contained in the discriminated union.
             /// </summary>
             /// <param name="first">
-            /// The first.
+            /// The action to run if <see cref="IsFirst"/> is <c>true</c>.
             /// </param>
             /// <param name="second">
-            /// The second.
+            /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
             /// </param>
             public override void Switch(Action<TFirst> first, Action<TSecond> second)
             {
@@ -431,18 +432,19 @@ namespace MorseCode.RxMvvm.Reactive
             }
 
             /// <summary>
-            /// The switch.
+            /// Executes a function based on which value is contained in the discriminated union.
             /// </summary>
             /// <param name="first">
-            /// The first.
+            /// The function to run if <see cref="IsFirst"/> is <c>true</c>.
             /// </param>
             /// <param name="second">
-            /// The second.
+            /// The function to run if <see cref="IsSecond"/> is <c>true</c>.
             /// </param>
             /// <typeparam name="TResult">
+            /// The type of the result.
             /// </typeparam>
             /// <returns>
-            /// The <see cref="TResult"/>.
+            /// The result of type <typeparamref name="TResult"/> of the function executed.
             /// </returns>
             public override TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second)
             {

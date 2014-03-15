@@ -30,22 +30,22 @@ namespace MorseCode.RxMvvm.Reactive
     public interface IDiscriminatedUnion<out TFirst, out TSecond>
     {
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparam name="TFirst" />.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
         /// </summary>
         bool IsFirst { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparam name="TSecond" />.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
         /// </summary>
         bool IsSecond { get; }
 
         /// <summary>
-        /// Gets the value of type <typeparam name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparam name="TFirst" />.
+        /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
         /// </summary>
         TFirst First { get; }
 
         /// <summary>
-        /// Gets the value of type <typeparam name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparam name="TSecond" />.
+        /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
         /// </summary>
         TSecond Second { get; }
 
@@ -73,7 +73,7 @@ namespace MorseCode.RxMvvm.Reactive
         /// The type of the result.
         /// </typeparam>
         /// <returns>
-        /// The <see cref="TResult"/> of the function executed.
+        /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
         TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second);
     }

@@ -15,8 +15,11 @@
 namespace MorseCode.RxMvvm.Observable
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
+
+    using MorseCode.RxMvvm.Common;
 
     internal class ObservableProperty<T> : IObservableProperty<T>
     {
@@ -34,9 +37,25 @@ namespace MorseCode.RxMvvm.Observable
         /// </param>
         public ObservableProperty(T initialValue)
         {
+            Contract.Ensures(this.behaviorSubject != null);
+            Contract.Ensures(this.changeObservable != null);
+            Contract.Ensures(this.allNotificationsObservable != null);
+
             this.behaviorSubject = new BehaviorSubject<T>(initialValue);
+
             this.changeObservable = this.behaviorSubject.DistinctUntilChanged();
+            if (this.changeObservable == null)
+            {
+                throw new InvalidOperationException(
+                    StaticReflection.GetInScopeSymbolInfo(() => this.changeObservable).Name + " may not be null.");
+            }
+
             this.allNotificationsObservable = this.behaviorSubject.AsObservable();
+            if (this.allNotificationsObservable == null)
+            {
+                throw new InvalidOperationException(
+                    StaticReflection.GetInScopeSymbolInfo(() => this.allNotificationsObservable).Name + " may not be null.");
+            }
         }
 
         /// <summary>
@@ -88,6 +107,14 @@ namespace MorseCode.RxMvvm.Observable
         public void Dispose()
         {
             this.behaviorSubject.Dispose();
+        }
+
+        [ContractInvariantMethod]
+        private void CodeContractsInvariants()
+        {
+            Contract.Invariant(this.behaviorSubject != null);
+            Contract.Invariant(this.changeObservable != null);
+            Contract.Invariant(this.allNotificationsObservable != null);
         }
     }
 }

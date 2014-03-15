@@ -21,7 +21,7 @@ namespace MorseCode.RxMvvm.Reactive
     internal abstract class DiscriminatedUnionContract<TFirst, TSecond> : DiscriminatedUnion<TFirst, TSecond>
     {
         /// <summary>
-        /// Gets a value indicating whether is first.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
         /// </summary>
         public override bool IsFirst
         {
@@ -32,7 +32,7 @@ namespace MorseCode.RxMvvm.Reactive
         }
 
         /// <summary>
-        /// Gets a value indicating whether is second.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
         /// </summary>
         public override bool IsSecond
         {
@@ -43,7 +43,7 @@ namespace MorseCode.RxMvvm.Reactive
         }
 
         /// <summary>
-        /// Gets the first.
+        /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
         /// </summary>
         public override TFirst First
         {
@@ -56,7 +56,7 @@ namespace MorseCode.RxMvvm.Reactive
         }
 
         /// <summary>
-        /// Gets the second.
+        /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
         /// </summary>
         public override TSecond Second
         {
@@ -69,13 +69,13 @@ namespace MorseCode.RxMvvm.Reactive
         }
 
         /// <summary>
-        /// The switch.
+        /// Executes an action based on which value is contained in the discriminated union.
         /// </summary>
         /// <param name="first">
-        /// The first.
+        /// The action to run if <see cref="IsFirst"/> is <c>true</c>.
         /// </param>
         /// <param name="second">
-        /// The second.
+        /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
         public override void Switch(Action<TFirst> first, Action<TSecond> second)
         {
@@ -84,18 +84,19 @@ namespace MorseCode.RxMvvm.Reactive
         }
 
         /// <summary>
-        /// The switch.
+        /// Executes a function based on which value is contained in the discriminated union.
         /// </summary>
         /// <param name="first">
-        /// The first.
+        /// The function to run if <see cref="IsFirst"/> is <c>true</c>.
         /// </param>
         /// <param name="second">
-        /// The second.
+        /// The function to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
         /// <typeparam name="TResult">
+        /// The type of the result.
         /// </typeparam>
         /// <returns>
-        /// The <see cref="TResult"/>.
+        /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
         public override TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second)
         {
