@@ -15,61 +15,64 @@
 namespace MorseCode.RxMvvm.Reactive
 {
     using System;
+    using System.Diagnostics.Contracts;
 
+    [ContractClass(typeof(DiscriminatedUnionContract<,>))]
     internal abstract class DiscriminatedUnion<TFirst, TSecond> : IDiscriminatedUnion<TFirst, TSecond>
     {
         /// <summary>
-        /// Gets a value indicating whether is first.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparam name="TFirst" />.
         /// </summary>
         public abstract bool IsFirst { get; }
 
         /// <summary>
-        /// Gets a value indicating whether is second.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparam name="TSecond" />.
         /// </summary>
         public abstract bool IsSecond { get; }
 
         /// <summary>
-        /// Gets the first.
+        /// Gets the value of type <typeparam name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparam name="TFirst" />.
         /// </summary>
         public abstract TFirst First { get; }
 
         /// <summary>
-        /// Gets the second.
+        /// Gets the value of type <typeparam name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparam name="TSecond" />.
         /// </summary>
         public abstract TSecond Second { get; }
 
         /// <summary>
-        /// The switch.
+        /// Executes an action based on which value is contained in the discriminated union.
         /// </summary>
         /// <param name="first">
-        /// The first.
+        /// The action to run if <see cref="IsFirst"/> is <c>true</c>.
         /// </param>
         /// <param name="second">
-        /// The second.
+        /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
         public abstract void Switch(Action<TFirst> first, Action<TSecond> second);
 
         /// <summary>
-        /// The switch.
+        /// Executes a function based on which value is contained in the discriminated union.
         /// </summary>
         /// <param name="first">
-        /// The first.
+        /// The function to run if <see cref="IsFirst"/> is <c>true</c>.
         /// </param>
         /// <param name="second">
-        /// The second.
+        /// The function to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
         /// <typeparam name="TResult">
+        /// The type of the result.
         /// </typeparam>
         /// <returns>
-        /// The <see cref="TResult"/>.
+        /// The <see cref="TResult"/> of the function executed.
         /// </returns>
         public abstract TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second);
 
         /// <summary>
-        /// The to string.
+        /// Override of the <see cref="ToString()"/> method.
         /// </summary>
         /// <returns>
-        /// The <see cref="string"/>.
+        /// The <see cref="string"/> representation of the discriminated union.
         /// </returns>
         public override string ToString()
         {

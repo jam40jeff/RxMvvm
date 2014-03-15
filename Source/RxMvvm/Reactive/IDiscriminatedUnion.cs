@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Reactive
 {
     using System;
+    using System.Diagnostics.Contracts;
 
     /// <summary>
     /// Interface representing the F# discriminated union with two possible types.  A value may only be specified for one of the types at a time.
@@ -25,25 +26,26 @@ namespace MorseCode.RxMvvm.Reactive
     /// <typeparam name="TSecond">
     /// The second type of the discriminated union.
     /// </typeparam>
+    [ContractClass(typeof(DiscriminatedUnionInterfaceContract<,>))]
     public interface IDiscriminatedUnion<out TFirst, out TSecond>
     {
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <see cref="TFirst"/>.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparam name="TFirst" />.
         /// </summary>
         bool IsFirst { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <see cref="TSecond"/>.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparam name="TSecond" />.
         /// </summary>
         bool IsSecond { get; }
 
         /// <summary>
-        /// Gets the value of type <see cref="TFirst"/> if <see cref="IsFirst"/> is <value>true</value>, otherwise returns the default value for type <see cref="TFirst"/>.
+        /// Gets the value of type <typeparam name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparam name="TFirst" />.
         /// </summary>
         TFirst First { get; }
 
         /// <summary>
-        /// Gets the value of type <see cref="TSecond"/> if <see cref="IsSecond"/> is <value>true</value>, otherwise returns the default value for type <see cref="TSecond"/>.
+        /// Gets the value of type <typeparam name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparam name="TSecond" />.
         /// </summary>
         TSecond Second { get; }
 
@@ -51,18 +53,10 @@ namespace MorseCode.RxMvvm.Reactive
         /// Executes an action based on which value is contained in the discriminated union.
         /// </summary>
         /// <param name="first">
-        /// The action to run if <see cref="IsFirst"/> is 
-        /// <value>
-        /// true
-        /// </value>
-        /// .
+        /// The action to run if <see cref="IsFirst"/> is <c>true</c>.
         /// </param>
         /// <param name="second">
-        /// The action to run if <see cref="IsSecond"/> is 
-        /// <value>
-        /// true
-        /// </value>
-        /// .
+        /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
         void Switch(Action<TFirst> first, Action<TSecond> second);
 
@@ -70,18 +64,10 @@ namespace MorseCode.RxMvvm.Reactive
         /// Executes a function based on which value is contained in the discriminated union.
         /// </summary>
         /// <param name="first">
-        /// The function to run if <see cref="IsFirst"/> is 
-        /// <value>
-        /// true
-        /// </value>
-        /// .
+        /// The function to run if <see cref="IsFirst"/> is <c>true</c>.
         /// </param>
         /// <param name="second">
-        /// The function to run if <see cref="IsSecond"/> is 
-        /// <value>
-        /// true
-        /// </value>
-        /// .
+        /// The function to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
         /// <typeparam name="TResult">
         /// The type of the result.

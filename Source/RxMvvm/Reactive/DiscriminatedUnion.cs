@@ -229,7 +229,7 @@ namespace MorseCode.RxMvvm.Reactive
         /// </returns>
         public static IDiscriminatedUnion<TFirst, TSecond> First<TFirst, TSecond>(TFirst value)
         {
-            Contract.Ensures(Contract.Result<DiscriminatedUnion<TFirst, TSecond>>() != null);
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TFirst, TSecond>>() != null);
 
             return new DiscriminatedUnionFirst<TFirst, TSecond>(value);
         }
