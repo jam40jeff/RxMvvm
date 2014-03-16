@@ -33,8 +33,8 @@ namespace MorseCode.RxMvvm.Observable.Tests
         {
             string testLocalVariable = null;
 
-            string testFieldName = StaticReflection.GetInScopeSymbolInfo(() => this.testField).Name;
-            string testLocalVariableName = StaticReflection.GetInScopeSymbolInfo(() => testLocalVariable).Name;
+            string testFieldName = StaticReflection.GetInScopeMemberInfo(() => this.testField).Name;
+            string testLocalVariableName = StaticReflection.GetInScopeMemberInfo(() => testLocalVariable).Name;
 
             Assert.AreEqual("testField", testFieldName);
             Assert.AreEqual("testLocalVariable", testLocalVariableName);

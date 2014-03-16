@@ -47,14 +47,14 @@ namespace MorseCode.RxMvvm.Observable
             if (this.changeObservable == null)
             {
                 throw new InvalidOperationException(
-                    StaticReflection.GetInScopeSymbolInfo(() => this.changeObservable).Name + " may not be null.");
+                    StaticReflection.GetInScopeMemberInfo(() => this.changeObservable).Name + " may not be null.");
             }
 
             this.allNotificationsObservable = this.behaviorSubject.AsObservable();
             if (this.allNotificationsObservable == null)
             {
                 throw new InvalidOperationException(
-                    StaticReflection.GetInScopeSymbolInfo(() => this.allNotificationsObservable).Name + " may not be null.");
+                    StaticReflection.GetInScopeMemberInfo(() => this.allNotificationsObservable).Name + " may not be null.");
             }
         }
 
