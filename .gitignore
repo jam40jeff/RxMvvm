@@ -216,3 +216,5 @@ pip-log.txt
 /src/Core/.nuget/NuGet.exe
 /src/Core/packages
 /src/Examples/CalculatorsAndStopwatch/Server.Web.UI/Scripts
+
+/Source/RxMvvm/Documentation/Help/
