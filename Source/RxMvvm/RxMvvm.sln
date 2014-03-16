@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Observable.Tests", "Observa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{083F17D2-F34C-461B-9D59-F94CD8FDE10F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tests", "Common.Tests\Common.Tests.csproj", "{3EC40014-16BB-4326-B0AF-8FF9BE3CCCF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{083F17D2-F34C-461B-9D59-F94CD8FDE10F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{083F17D2-F34C-461B-9D59-F94CD8FDE10F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{083F17D2-F34C-461B-9D59-F94CD8FDE10F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EC40014-16BB-4326-B0AF-8FF9BE3CCCF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EC40014-16BB-4326-B0AF-8FF9BE3CCCF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EC40014-16BB-4326-B0AF-8FF9BE3CCCF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EC40014-16BB-4326-B0AF-8FF9BE3CCCF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
