@@ -89,11 +89,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DiscriminatedUnion.cs" />
-    <Compile Include="DiscriminatedUnionContract.cs" />
-    <Compile Include="DiscriminatedUnionInterfaceContract.cs" />
-    <Compile Include="DiscriminatedUnion{TFirst,TSecond}.cs" />
-    <Compile Include="IDiscriminatedUnion.cs" />
+    <Compile Include="Observable - DiscriminatedUnion - Create.cs" />
     <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Subscribe.cs" />
     <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Take.cs" />
     <Compile Include="ObserverExtensionMethods - DiscriminatedUnion.cs" />

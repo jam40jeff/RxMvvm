@@ -17,6 +17,8 @@ namespace MorseCode.RxMvvm.Reactive
     using System;
     using System.Diagnostics.Contracts;
 
+    using MorseCode.RxMvvm.Common;
+
     /// <summary>
     /// Provides <see langword="static"/> extension methods for <see cref="IObserver{T}"/>.
     /// </summary>

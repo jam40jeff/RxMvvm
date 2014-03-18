@@ -12,33 +12,65 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Reactive
+namespace MorseCode.RxMvvm.Common
 {
     using System;
     using System.Diagnostics.Contracts;
 
-    [ContractClass(typeof(DiscriminatedUnionContract<,>))]
-    internal abstract class DiscriminatedUnion<TFirst, TSecond> : IDiscriminatedUnion<TFirst, TSecond>
+    [ContractClassFor(typeof(IDiscriminatedUnion<,>))]
+    internal abstract class DiscriminatedUnionInterfaceContract<TFirst, TSecond> : IDiscriminatedUnion<TFirst, TSecond>
     {
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
         /// </summary>
-        public abstract bool IsFirst { get; }
+        public bool IsFirst
+        {
+            get
+            {
+                Contract.Ensures(this.IsFirst ^ this.IsSecond);
+
+                return false;
+            }
+        }
 
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
         /// </summary>
-        public abstract bool IsSecond { get; }
+        public bool IsSecond
+        {
+            get
+            {
+                Contract.Ensures(this.IsSecond ^ this.IsFirst);
+
+                return false;
+            }
+        }
 
         /// <summary>
         /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
         /// </summary>
-        public abstract TFirst First { get; }
+        public TFirst First
+        {
+            get
+            {
+                Contract.Requires(this.IsFirst);
+
+                return default(TFirst);
+            }
+        }
 
         /// <summary>
         /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
         /// </summary>
-        public abstract TSecond Second { get; }
+        public TSecond Second
+        {
+            get
+            {
+                Contract.Requires(this.IsSecond);
+
+                return default(TSecond);
+            }
+        }
 
         /// <summary>
         /// Executes an action based on which value is contained in the discriminated union.
@@ -49,7 +81,11 @@ namespace MorseCode.RxMvvm.Reactive
         /// <param name="second">
         /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
-        public abstract void Switch(Action<TFirst> first, Action<TSecond> second);
+        public void Switch(Action<TFirst> first, Action<TSecond> second)
+        {
+            Contract.Requires(first != null);
+            Contract.Requires(second != null);
+        }
 
         /// <summary>
         /// Executes a function based on which value is contained in the discriminated union.
@@ -66,22 +102,11 @@ namespace MorseCode.RxMvvm.Reactive
         /// <returns>
         /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
-        public abstract TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second);
-
-        /// <summary>
-        /// Override of the <see cref="ToString()"/> method.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="string"/> representation of the discriminated union.
-        /// </returns>
-        public override string ToString()
+        public TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second)
         {
-            if (this.IsFirst)
-            {
-                return "{First:" + (ReferenceEquals(this.First, null) ? null : this.First.ToString()) + '}';
-            }
-
-            return "{Second:" + (ReferenceEquals(this.Second, null) ? null : this.Second.ToString()) + '}';
+            Contract.Requires(first != null);
+            Contract.Requires(second != null);
+            return default(TResult);
         }
     }
 }

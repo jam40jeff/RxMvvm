@@ -18,6 +18,8 @@ namespace MorseCode.RxMvvm.Reactive
     using System.Diagnostics.Contracts;
     using System.Reactive.Linq;
 
+    using MorseCode.RxMvvm.Common;
+
     /// <summary>
     /// Provides <see langword="static"/> extension methods for <see cref="IObservable{T}"/>.
     /// </summary>
@@ -112,7 +114,7 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Requires(count >= 0);
             Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<TFirst, TSecond>>>() != null);
 
-            return DiscriminatedUnion.CreateDiscriminatedUnion<TFirst, TSecond>(
+            return ObservableRxMvvm.CreateDiscriminatedUnion<TFirst, TSecond>(
                 observer =>
                     {
                         int remaining = count;
@@ -165,7 +167,7 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Requires(count >= 0);
             Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<TFirst, TSecond>>>() != null);
 
-            return DiscriminatedUnion.CreateDiscriminatedUnion<TFirst, TSecond>(
+            return ObservableRxMvvm.CreateDiscriminatedUnion<TFirst, TSecond>(
                 observer =>
                     {
                         int remaining = count;

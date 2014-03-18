@@ -77,6 +77,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DiscriminatedUnion - 3.cs" />
+    <Compile Include="DiscriminatedUnionInterfaceContract{TFirst,TSecond,TThird}.cs" />
+    <Compile Include="IDiscriminatedUnion{TFirst,TSecond,TThird}.cs" />
+    <Compile Include="DiscriminatedUnionContract{TFirst,TSecond,TThird}.cs" />
+    <Compile Include="DiscriminatedUnion{TFirst,TSecond,TThird}.cs" />
+    <Compile Include="DiscriminatedUnion - 2.cs" />
+    <Compile Include="DiscriminatedUnionContract{TFirst,TSecond}.cs" />
+    <Compile Include="DiscriminatedUnionInterfaceContract{TFirst,TSecond}.cs" />
+    <Compile Include="DiscriminatedUnion{TFirst,TSecond}.cs" />
+    <Compile Include="IDiscriminatedUnion{TFirst,TSecond}.cs" />
     <Compile Include="StaticReflection{T}.cs" />
     <Compile Include="StaticReflection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

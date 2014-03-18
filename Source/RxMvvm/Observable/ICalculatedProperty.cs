@@ -16,6 +16,7 @@ namespace MorseCode.RxMvvm.Observable
 {
     using System;
 
+    using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Reactive;
 
     /// <summary>

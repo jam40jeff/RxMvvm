@@ -17,6 +17,8 @@ namespace MorseCode.RxMvvm.Reactive
     using System;
     using System.Diagnostics.Contracts;
 
+    using MorseCode.RxMvvm.Common;
+
     /// <summary>
     /// Provides <see langword="static"/> extension methods for <see cref="IObservable{T}"/>.
     /// </summary>
@@ -44,8 +46,8 @@ namespace MorseCode.RxMvvm.Reactive
         /// The observer's interface that enables cancelation of the subscription so that it stops receiving notifications.
         /// </returns>
         public static IDisposable SubscribeDiscriminatedUnion<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source, 
-            Action<TFirst> onNextFirst, 
+            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source,
+            Action<TFirst> onNextFirst,
             Action<TSecond> onNextSecond)
         {
             Contract.Requires(source != null);
@@ -53,7 +55,7 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Requires(onNextSecond != null);
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            return source.Subscribe(DiscriminatedUnion.CreateDiscriminatedUnion(onNextFirst, onNextSecond));
+            return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion(onNextFirst, onNextSecond));
         }
 
         /// <summary>
@@ -81,9 +83,9 @@ namespace MorseCode.RxMvvm.Reactive
         /// The observer's interface that enables cancelation of the subscription so that it stops receiving notifications.
         /// </returns>
         public static IDisposable SubscribeDiscriminatedUnion<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source, 
-            Action<TFirst> onNextFirst, 
-            Action<TSecond> onNextSecond, 
+            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source,
+            Action<TFirst> onNextFirst,
+            Action<TSecond> onNextSecond,
             Action<Exception> onError)
         {
             Contract.Requires(source != null);
@@ -92,7 +94,7 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Requires(onError != null);
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            return source.Subscribe(DiscriminatedUnion.CreateDiscriminatedUnion(onNextFirst, onNextSecond, onError));
+            return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion(onNextFirst, onNextSecond, onError));
         }
 
         /// <summary>
@@ -120,9 +122,9 @@ namespace MorseCode.RxMvvm.Reactive
         /// The observer's interface that enables cancelation of the subscription so that it stops receiving notifications.
         /// </returns>
         public static IDisposable SubscribeDiscriminatedUnion<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source, 
-            Action<TFirst> onNextFirst, 
-            Action<TSecond> onNextSecond, 
+            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source,
+            Action<TFirst> onNextFirst,
+            Action<TSecond> onNextSecond,
             Action onCompleted)
         {
             Contract.Requires(source != null);
@@ -131,7 +133,7 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Requires(onCompleted != null);
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            return source.Subscribe(DiscriminatedUnion.CreateDiscriminatedUnion(onNextFirst, onNextSecond, onCompleted));
+            return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion(onNextFirst, onNextSecond, onCompleted));
         }
 
         /// <summary>
@@ -162,10 +164,10 @@ namespace MorseCode.RxMvvm.Reactive
         /// The observer's interface that enables cancelation of the subscription so that it stops receiving notifications.
         /// </returns>
         public static IDisposable SubscribeDiscriminatedUnion<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source, 
-            Action<TFirst> onNextFirst, 
-            Action<TSecond> onNextSecond, 
-            Action<Exception> onError, 
+            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source,
+            Action<TFirst> onNextFirst,
+            Action<TSecond> onNextSecond,
+            Action<Exception> onError,
             Action onCompleted)
         {
             Contract.Requires(source != null);
@@ -177,7 +179,7 @@ namespace MorseCode.RxMvvm.Reactive
 
             return
                 source.Subscribe(
-                    DiscriminatedUnion.CreateDiscriminatedUnion(onNextFirst, onNextSecond, onError, onCompleted));
+                    ObservableRxMvvm.CreateDiscriminatedUnion(onNextFirst, onNextSecond, onError, onCompleted));
         }
     }
 }

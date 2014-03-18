@@ -12,61 +12,42 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Reactive
+namespace MorseCode.RxMvvm.Common
 {
     using System;
     using System.Diagnostics.Contracts;
 
-    [ContractClassFor(typeof(IDiscriminatedUnion<,>))]
-    internal abstract class DiscriminatedUnionInterfaceContract<TFirst, TSecond> : IDiscriminatedUnion<TFirst, TSecond>
+    /// <summary>
+    /// Interface representing the F# discriminated union with two possible types.  A value may only be specified for one of the types at a time.
+    /// </summary>
+    /// <typeparam name="TFirst">
+    /// The first type of the discriminated union.
+    /// </typeparam>
+    /// <typeparam name="TSecond">
+    /// The second type of the discriminated union.
+    /// </typeparam>
+    [ContractClass(typeof(DiscriminatedUnionInterfaceContract<,>))]
+    public interface IDiscriminatedUnion<out TFirst, out TSecond>
     {
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
         /// </summary>
-        public bool IsFirst
-        {
-            get
-            {
-                return false;
-            }
-        }
+        bool IsFirst { get; }
 
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
         /// </summary>
-        public bool IsSecond
-        {
-            get
-            {
-                return false;
-            }
-        }
+        bool IsSecond { get; }
 
         /// <summary>
         /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
         /// </summary>
-        public TFirst First
-        {
-            get
-            {
-                Contract.Requires(this.IsFirst);
-
-                return default(TFirst);
-            }
-        }
+        TFirst First { get; }
 
         /// <summary>
         /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
         /// </summary>
-        public TSecond Second
-        {
-            get
-            {
-                Contract.Requires(!this.IsSecond);
-
-                return default(TSecond);
-            }
-        }
+        TSecond Second { get; }
 
         /// <summary>
         /// Executes an action based on which value is contained in the discriminated union.
@@ -77,11 +58,7 @@ namespace MorseCode.RxMvvm.Reactive
         /// <param name="second">
         /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
-        public void Switch(Action<TFirst> first, Action<TSecond> second)
-        {
-            Contract.Requires(first != null);
-            Contract.Requires(second != null);
-        }
+        void Switch(Action<TFirst> first, Action<TSecond> second);
 
         /// <summary>
         /// Executes a function based on which value is contained in the discriminated union.
@@ -98,11 +75,6 @@ namespace MorseCode.RxMvvm.Reactive
         /// <returns>
         /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
-        public TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second)
-        {
-            Contract.Requires(first != null);
-            Contract.Requires(second != null);
-            return default(TResult);
-        }
+        TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second);
     }
 }

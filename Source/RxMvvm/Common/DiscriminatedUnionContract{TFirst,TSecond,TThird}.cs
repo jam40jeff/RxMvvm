@@ -12,13 +12,13 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Reactive
+namespace MorseCode.RxMvvm.Common
 {
     using System;
     using System.Diagnostics.Contracts;
 
-    [ContractClassFor(typeof(DiscriminatedUnion<,>))]
-    internal abstract class DiscriminatedUnionContract<TFirst, TSecond> : DiscriminatedUnion<TFirst, TSecond>
+    [ContractClassFor(typeof(DiscriminatedUnion<,,>))]
+    internal abstract class DiscriminatedUnionContract<TFirst, TSecond, TThird> : DiscriminatedUnion<TFirst, TSecond, TThird>
     {
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
@@ -27,6 +27,8 @@ namespace MorseCode.RxMvvm.Reactive
         {
             get
             {
+                Contract.Ensures(this.IsFirst ^ (this.IsSecond || this.IsThird));
+
                 return false;
             }
         }
@@ -38,6 +40,21 @@ namespace MorseCode.RxMvvm.Reactive
         {
             get
             {
+                Contract.Ensures(this.IsSecond ^ (this.IsFirst || this.IsThird));
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TThird" />.
+        /// </summary>
+        public override bool IsThird
+        {
+            get
+            {
+                Contract.Ensures(this.IsThird ^ (this.IsFirst || this.IsSecond));
+
                 return false;
             }
         }
@@ -62,9 +79,22 @@ namespace MorseCode.RxMvvm.Reactive
         {
             get
             {
-                Contract.Requires(!this.IsSecond);
+                Contract.Requires(this.IsSecond);
 
                 return default(TSecond);
+            }
+        }
+
+        /// <summary>
+        /// Gets the value of type <typeparamref name="TThird" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TThird" />.
+        /// </summary>
+        public override TThird Third
+        {
+            get
+            {
+                Contract.Requires(this.IsThird);
+
+                return default(TThird);
             }
         }
 
@@ -77,10 +107,14 @@ namespace MorseCode.RxMvvm.Reactive
         /// <param name="second">
         /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
-        public override void Switch(Action<TFirst> first, Action<TSecond> second)
+        /// <param name="third">
+        /// The action to run if <see cref="IsThird"/> is <c>true</c>.
+        /// </param>
+        public override void Switch(Action<TFirst> first, Action<TSecond> second, Action<TThird> third)
         {
             Contract.Requires(first != null);
             Contract.Requires(second != null);
+            Contract.Requires(third != null);
         }
 
         /// <summary>
@@ -92,16 +126,20 @@ namespace MorseCode.RxMvvm.Reactive
         /// <param name="second">
         /// The function to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
+        /// <param name="third">
+        /// The function to run if <see cref="IsThird"/> is <c>true</c>.
+        /// </param>
         /// <typeparam name="TResult">
         /// The type of the result.
         /// </typeparam>
         /// <returns>
         /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
-        public override TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second)
+        public override TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second, Func<TThird, TResult> third)
         {
             Contract.Requires(first != null);
             Contract.Requires(second != null);
+            Contract.Requires(third != null);
             return default(TResult);
         }
     }

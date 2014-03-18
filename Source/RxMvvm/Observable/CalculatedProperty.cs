@@ -4,6 +4,7 @@
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
+    using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
