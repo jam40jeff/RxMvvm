@@ -17,7 +17,6 @@ namespace MorseCode.RxMvvm.Observable
     using System;
 
     using MorseCode.RxMvvm.Common;
-    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// Interface representing a property that is automatically calculated when its dependencies change.
@@ -25,12 +24,17 @@ namespace MorseCode.RxMvvm.Observable
     /// <typeparam name="T">
     /// The type of the property.
     /// </typeparam>
-    public interface ICalculatedProperty<out T> : IReadableObservableProperty<T>
+    public interface ICalculatedProperty<out T> : IReadableObservableProperty<IDiscriminatedUnion<T, Exception>>
     {
         /// <summary>
-        /// Gets an observable which notifies when either a change or a calculation error occurs.
+        /// Gets an observable which notifies when a successful calculation results in a value change.
         /// </summary>
-        IObservable<IDiscriminatedUnion<T, Exception>> OnChangeOrCalculationException { get; }
+        IObservable<T> OnSuccessfulValueChanged { get; }
+
+        /// <summary>
+        /// Gets the on successful value changed.
+        /// </summary>
+        IObservable<T> OnSuccessfulValueSet { get; }
 
         /// <summary>
         /// Gets an observable which notifies when a calculation error occurs.
@@ -38,13 +42,24 @@ namespace MorseCode.RxMvvm.Observable
         IObservable<Exception> OnCalculationException { get; }
 
         /// <summary>
-        /// Gets the latest value or calculation error.
+        /// Gets the latest value from a successful calculation.
         /// </summary>
-        IDiscriminatedUnion<T, Exception> ValueOrCalculationException { get; }
+        T LatestSuccessfulValue { get; }
 
         /// <summary>
-        /// Gets the latest calculation error.
+        /// Gets the latest calculation exception.
         /// </summary>
-        Exception CalculationException { get; }
+        Exception LatestCalculationException { get; }
+
+        /// <summary>
+        /// Gets the latest successful value or throws an exception if the latest calculation resulted in an error.
+        /// </summary>
+        /// <returns>
+        /// The latest successful value.
+        /// </returns>
+        /// <exception cref="Exception">
+        /// The latest calculation exception.
+        /// </exception>
+        T GetSuccessfulValueOrThrowException();
     }
 }

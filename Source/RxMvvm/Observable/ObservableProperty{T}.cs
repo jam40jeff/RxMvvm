@@ -87,7 +87,7 @@ namespace MorseCode.RxMvvm.Observable
         {
             get
             {
-                return this.behaviorSubject.FirstAsync().Wait();
+                return this.behaviorSubject.Value;
             }
 
             set

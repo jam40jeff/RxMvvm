@@ -31,7 +31,7 @@ namespace MorseCode.RxMvvm.Common
         /// Gets the <see cref="MemberInfo"/> for a field or property.
         /// </summary>
         /// <param name="memberExpression">
-        /// The expression for the member, which should be of the format <c>o => o.[member]</c>.  <c>[member]</c> may be a field or property.
+        /// The expression for the member, which should be of the format <c>o =&gt; o.[member]</c>.  <c>[member]</c> may be a field or property.
         /// </param>
         /// <typeparam name="TMember">
         /// The type of the member.
@@ -51,7 +51,7 @@ namespace MorseCode.RxMvvm.Common
         /// Gets the <see cref="MethodInfo"/> for a method.
         /// </summary>
         /// <param name="methodCallExpression">
-        /// The expression for method call, which should be of the format <c>o => o.[method]()</c>.  If <c>[method]</c> has parameters, the default value for each may be passed as they are only used to determine which overload to choose.
+        /// The expression for method call, which should be of the format <c>o =&gt; o.[method]()</c>.  If <c>[method]</c> has parameters, the default value for each may be passed as they are only used to determine which overload to choose.
         /// </param>
         /// <returns>
         /// The <see cref="MethodInfo"/> for the method.
@@ -68,7 +68,7 @@ namespace MorseCode.RxMvvm.Common
         /// Gets the <see cref="MethodInfo"/> for a method.
         /// </summary>
         /// <param name="methodCallExpression">
-        /// The expression for method call, which should be of the format <c>o => o.[method]()</c>.  If <c>[method]</c> has parameters, the default value for each may be passed as they are only used to determine which overload to choose.
+        /// The expression for method call, which should be of the format <c>o =&gt; o.[method]()</c>.  If <c>[method]</c> has parameters, the default value for each may be passed as they are only used to determine which overload to choose.
         /// </param>
         /// <typeparam name="TReturn">
         /// The type of the return value of the function.

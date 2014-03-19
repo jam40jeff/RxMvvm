@@ -89,15 +89,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CalculatedProperty.cs" />
-    <Compile Include="ICalculatedProperty.cs" />
-    <Compile Include="ObservableProperty.cs" />
-    <Compile Include="IObservableProperty.cs" />
-    <Compile Include="IReadableObservableProperty.cs" />
-    <Compile Include="IWritableObservableProperty.cs" />
+    <Compile Include="CalculatedProperty{T}.cs" />
+    <Compile Include="ICalculatedProperty{T}.cs" />
+    <Compile Include="ObservableProperty{T}.cs" />
+    <Compile Include="IObservableProperty{T}.cs" />
+    <Compile Include="IReadableObservableProperty{T}.cs" />
+    <Compile Include="IWritableObservableProperty{T}.cs" />
     <Compile Include="ObservablePropertyFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadOnlyProperty.cs" />
+    <Compile Include="ReadOnlyProperty{T}.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
