@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CalculatedProperty{T}.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="ICalculatedProperty{T}.cs" />
     <Compile Include="ObservableProperty{T}.cs" />
     <Compile Include="IObservableProperty{T}.cs" />

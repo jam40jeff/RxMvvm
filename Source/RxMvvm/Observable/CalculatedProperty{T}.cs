@@ -1,6 +1,7 @@
 ﻿namespace MorseCode.RxMvvm.Observable
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
@@ -46,23 +47,51 @@
             IObservable<IDiscriminatedUnion<T, Exception>> setOrExceptionObservable,
             IDiscriminatedUnion<T, Exception> initialValue)
         {
+            Contract.Requires<ArgumentNullException>(setOrExceptionObservable != null, "setOrExceptionObservable");
+            Contract.Requires<ArgumentNullException>(initialValue != null, "initialValue");
+            Contract.Ensures(this.valueOrExceptionSubject != null);
+            Contract.Ensures(this.valueSubject != null);
+            Contract.Ensures(this.exceptionSubject != null);
+            Contract.Ensures(this.allNotificationsObservable != null);
+            Contract.Ensures(this.changeObservable != null);
+            Contract.Ensures(this.exceptionObservable != null);
+            Contract.Ensures(this.setOrExceptionObservable != null);
+            Contract.Ensures(this.changeOrExceptionObservable != null);
+            Contract.Ensures(this.valueOrExceptionSubjectSubscription != null);
+
             this.setOrExceptionObservable = setOrExceptionObservable;
             this.valueOrExceptionSubject = new BehaviorSubject<IDiscriminatedUnion<T, Exception>>(initialValue);
             this.valueSubject = new BehaviorSubject<T>(initialValue.IsFirst ? initialValue.First : default(T));
             this.exceptionSubject = new BehaviorSubject<Exception>(initialValue.IsSecond ? initialValue.Second : null);
             this.valueOrExceptionSubjectSubscription = this.setOrExceptionObservable.Subscribe(
                 v =>
-                    {
-                        this.valueOrExceptionSubject.OnNext(v);
-                        v.Switch(this.valueSubject.OnNext, this.exceptionSubject.OnNext);
-                    });
+                {
+                    this.valueOrExceptionSubject.OnNext(v);
+                    v.Switch(this.valueSubject.OnNext, this.exceptionSubject.OnNext);
+                });
+
+            if (this.valueOrExceptionSubjectSubscription == null)
+            {
+                throw new InvalidOperationException("Result of Subscribe cannot be null.");
+            }
 
             this.allNotificationsObservable = this.setOrExceptionObservable.TakeFirst();
             this.changeObservable = this.allNotificationsObservable.DistinctUntilChanged();
+
+            if (this.changeObservable == null)
+            {
+                throw new InvalidOperationException("Result of DistinctUntilChanged cannot be null.");
+            }
+
             this.exceptionObservable = this.setOrExceptionObservable.TakeSecond();
             this.changeOrExceptionObservable =
                 this.changeObservable.Select(DiscriminatedUnion.First<T, Exception>)
                     .Merge(this.exceptionObservable.Select(DiscriminatedUnion.Second<T, Exception>));
+
+            if (this.changeOrExceptionObservable == null)
+            {
+                throw new InvalidOperationException("Result of Merge cannot be null.");
+            }
         }
 
         /// <summary>
@@ -152,6 +181,11 @@
         {
             get
             {
+                if (this.valueOrExceptionSubject.Value == null)
+                {
+                    throw new InvalidOperationException("Latest value or exception discriminated union cannot be null.");
+                }
+
                 return this.valueOrExceptionSubject.Value;
             }
         }
@@ -166,13 +200,18 @@
         /// The get value or throw exception.
         /// </summary>
         /// <returns>
-        /// The <see cref="T"/>.
+        /// The latest successful value.
         /// </returns>
         /// <exception cref="Exception">
         /// The latest calculation exception.
         /// </exception>
         public T GetSuccessfulValueOrThrowException()
         {
+            if (this.valueOrExceptionSubject.Value == null)
+            {
+                throw new InvalidOperationException("Latest value or exception discriminated union cannot be null.");
+            }
+
             return this.valueOrExceptionSubject.Value.Switch(v => v, e => { throw e; });
         }
 
@@ -183,6 +222,20 @@
         {
             this.valueOrExceptionSubject.Dispose();
             this.valueOrExceptionSubjectSubscription.Dispose();
+        }
+
+        [ContractInvariantMethod]
+        private void CodeContractsInvariants()
+        {
+            Contract.Invariant(this.valueOrExceptionSubject != null);
+            Contract.Invariant(this.valueSubject != null);
+            Contract.Invariant(this.exceptionSubject != null);
+            Contract.Invariant(this.allNotificationsObservable != null);
+            Contract.Invariant(this.changeObservable != null);
+            Contract.Invariant(this.exceptionObservable != null);
+            Contract.Invariant(this.setOrExceptionObservable != null);
+            Contract.Invariant(this.changeOrExceptionObservable != null);
+            Contract.Invariant(this.valueOrExceptionSubjectSubscription != null);
         }
     }
 }
