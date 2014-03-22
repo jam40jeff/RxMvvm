@@ -16,7 +16,7 @@
     /// </typeparam>
     public class CalculatedProperty<T> : ICalculatedProperty<T>
     {
-        private readonly BehaviorSubject<IDiscriminatedUnion<T, Exception>> valueOrExceptionSubject;
+        private readonly BehaviorSubject<IDiscriminatedUnion<object, T, Exception>> valueOrExceptionSubject;
 
         private readonly BehaviorSubject<T> valueSubject;
 
@@ -28,9 +28,9 @@
 
         private readonly IObservable<Exception> exceptionObservable;
 
-        private readonly IObservable<IDiscriminatedUnion<T, Exception>> setOrExceptionObservable;
+        private readonly IObservable<IDiscriminatedUnion<object, T, Exception>> setOrExceptionObservable;
 
-        private readonly IObservable<IDiscriminatedUnion<T, Exception>> changeOrExceptionObservable;
+        private readonly IObservable<IDiscriminatedUnion<object, T, Exception>> changeOrExceptionObservable;
 
         private readonly IDisposable valueOrExceptionSubjectSubscription;
 
@@ -44,8 +44,8 @@
         /// The initial Value.
         /// </param>
         public CalculatedProperty(
-            IObservable<IDiscriminatedUnion<T, Exception>> setOrExceptionObservable,
-            IDiscriminatedUnion<T, Exception> initialValue)
+            IObservable<IDiscriminatedUnion<object, T, Exception>> setOrExceptionObservable,
+            IDiscriminatedUnion<object, T, Exception> initialValue)
         {
             Contract.Requires<ArgumentNullException>(setOrExceptionObservable != null, "setOrExceptionObservable");
             Contract.Requires<ArgumentNullException>(initialValue != null, "initialValue");
@@ -60,7 +60,7 @@
             Contract.Ensures(this.valueOrExceptionSubjectSubscription != null);
 
             this.setOrExceptionObservable = setOrExceptionObservable;
-            this.valueOrExceptionSubject = new BehaviorSubject<IDiscriminatedUnion<T, Exception>>(initialValue);
+            this.valueOrExceptionSubject = new BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>(initialValue);
             this.valueSubject = new BehaviorSubject<T>(initialValue.IsFirst ? initialValue.First : default(T));
             this.exceptionSubject = new BehaviorSubject<Exception>(initialValue.IsSecond ? initialValue.Second : null);
             this.valueOrExceptionSubjectSubscription = this.setOrExceptionObservable.Subscribe(
@@ -85,8 +85,8 @@
 
             this.exceptionObservable = this.setOrExceptionObservable.TakeSecond();
             this.changeOrExceptionObservable =
-                this.changeObservable.Select(DiscriminatedUnion.First<T, Exception>)
-                    .Merge(this.exceptionObservable.Select(DiscriminatedUnion.Second<T, Exception>));
+                this.changeObservable.Select(DiscriminatedUnion.First<object, T, Exception>)
+                    .Merge(this.exceptionObservable.Select(DiscriminatedUnion.Second<object, T, Exception>));
 
             if (this.changeOrExceptionObservable == null)
             {
@@ -97,7 +97,7 @@
         /// <summary>
         /// Gets an observable which notifies when a value change occurs.
         /// </summary>
-        public IObservable<IDiscriminatedUnion<T, Exception>> OnChanged
+        public IObservable<IDiscriminatedUnion<object, T, Exception>> OnChanged
         {
             get
             {
@@ -108,7 +108,7 @@
         /// <summary>
         /// Gets an observable which notifies when a value set occurs.
         /// </summary>
-        public IObservable<IDiscriminatedUnion<T, Exception>> OnSet
+        public IObservable<IDiscriminatedUnion<object, T, Exception>> OnSet
         {
             get
             {
@@ -177,7 +177,7 @@
         /// <returns>
         /// The latest successful value.
         /// </returns>
-        public IDiscriminatedUnion<T, Exception> Value
+        public IDiscriminatedUnion<object, T, Exception> Value
         {
             get
             {
@@ -190,8 +190,8 @@
             }
         }
 
-        IDisposable IObservable<IDiscriminatedUnion<T, Exception>>.Subscribe(
-            IObserver<IDiscriminatedUnion<T, Exception>> observer)
+        IDisposable IObservable<IDiscriminatedUnion<object, T, Exception>>.Subscribe(
+            IObserver<IDiscriminatedUnion<object, T, Exception>> observer)
         {
             return this.changeOrExceptionObservable.Subscribe(observer);
         }

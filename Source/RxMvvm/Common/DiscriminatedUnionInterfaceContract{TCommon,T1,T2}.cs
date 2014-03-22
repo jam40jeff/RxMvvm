@@ -30,8 +30,6 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
-                Contract.Ensures(this.IsFirst ^ this.IsSecond);
-
                 return false;
             }
         }
@@ -43,8 +41,6 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
-                Contract.Ensures(this.IsSecond ^ this.IsFirst);
-
                 return false;
             }
         }
@@ -56,8 +52,6 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
-                Contract.Requires(this.IsFirst);
-
                 return default(T1);
             }
         }
@@ -69,8 +63,6 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
-                Contract.Requires(this.IsSecond);
-
                 return default(T2);
             }
         }
@@ -97,8 +89,6 @@ namespace MorseCode.RxMvvm.Common
         /// </param>
         public void Switch(Action<T1> first, Action<T2> second)
         {
-            Contract.Requires(first != null);
-            Contract.Requires(second != null);
         }
 
         /// <summary>
@@ -118,8 +108,6 @@ namespace MorseCode.RxMvvm.Common
         /// </returns>
         public TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second)
         {
-            Contract.Requires(first != null);
-            Contract.Requires(second != null);
             return default(TResult);
         }
     }

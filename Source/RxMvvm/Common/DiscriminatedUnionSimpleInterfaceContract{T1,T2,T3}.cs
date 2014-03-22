@@ -17,13 +17,9 @@ namespace MorseCode.RxMvvm.Common
     using System;
     using System.Diagnostics.Contracts;
 
-    [ContractClassFor(typeof(IDiscriminatedUnion<,,,>))]
-    internal abstract class DiscriminatedUnionInterfaceContract<TCommon, T1, T2, T3> :
-        IDiscriminatedUnion<TCommon, T1, T2, T3>
-        where T1 : TCommon
-        where T2 : TCommon
-        where T3 : TCommon
-        where TCommon : class
+    [ContractClassFor(typeof(IDiscriminatedUnionSimple<,,>))]
+    internal abstract class DiscriminatedUnionSimpleInterfaceContract<T1, T2, T3> :
+        IDiscriminatedUnionSimple<T1, T2, T3>
     {
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T1" />.
@@ -32,6 +28,8 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
+                Contract.Ensures(this.IsFirst ^ (this.IsSecond || this.IsThird));
+
                 return false;
             }
         }
@@ -43,6 +41,8 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
+                Contract.Ensures(this.IsSecond ^ (this.IsFirst || this.IsThird));
+
                 return false;
             }
         }
@@ -54,6 +54,8 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
+                Contract.Ensures(this.IsThird ^ (this.IsFirst || this.IsSecond));
+
                 return false;
             }
         }
@@ -65,6 +67,8 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
+                Contract.Requires(this.IsFirst);
+
                 return default(T1);
             }
         }
@@ -76,6 +80,8 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
+                Contract.Requires(this.IsSecond);
+
                 return default(T2);
             }
         }
@@ -87,18 +93,9 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
-                return default(T3);
-            }
-        }
+                Contract.Requires(this.IsThird);
 
-        /// <summary>
-        /// Gets the value as <typeparamref name="TCommon" /> regardless of which of the three values are held in the discriminated union.
-        /// </summary>
-        public TCommon Value
-        {
-            get
-            {
-                return default(TCommon);
+                return default(T3);
             }
         }
 
@@ -116,6 +113,9 @@ namespace MorseCode.RxMvvm.Common
         /// </param>
         public void Switch(Action<T1> first, Action<T2> second, Action<T3> third)
         {
+            Contract.Requires(first != null);
+            Contract.Requires(second != null);
+            Contract.Requires(third != null);
         }
 
         /// <summary>
@@ -138,6 +138,9 @@ namespace MorseCode.RxMvvm.Common
         /// </returns>
         public TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second, Func<T3, TResult> third)
         {
+            Contract.Requires(first != null);
+            Contract.Requires(second != null);
+            Contract.Requires(third != null);
             return default(TResult);
         }
     }

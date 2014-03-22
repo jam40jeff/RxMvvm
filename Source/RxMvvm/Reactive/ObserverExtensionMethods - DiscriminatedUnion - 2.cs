@@ -22,15 +22,18 @@ namespace MorseCode.RxMvvm.Reactive
     /// <summary>
     /// Provides <see langword="static"/> extension methods for <see cref="IObserver{T}"/>.
     /// </summary>
-    public static class ObserverExtensionMethods
+    public static partial class ObserverExtensionMethods
     {
         /// <summary>
         /// Provides the observer with new data in the first notification channel.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="observer">
@@ -39,21 +42,27 @@ namespace MorseCode.RxMvvm.Reactive
         /// <param name="first">
         /// The current first notification information.
         /// </param>
-        public static void OnNextFirst<TFirst, TSecond>(
-            this IObserver<IDiscriminatedUnion<TFirst, TSecond>> observer, TFirst first)
+        public static void OnNextFirst<TCommon, T1, T2>(
+            this IObserver<IDiscriminatedUnion<TCommon, T1, T2>> observer, T1 first)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(observer != null);
 
-            observer.OnNext(DiscriminatedUnion.First<TFirst, TSecond>(first));
+            observer.OnNext(DiscriminatedUnion.First<TCommon, T1, T2>(first));
         }
 
         /// <summary>
         /// Provides the observer with new data in the second notification channel.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="observer">
@@ -62,12 +71,15 @@ namespace MorseCode.RxMvvm.Reactive
         /// <param name="second">
         /// The current second notification information.
         /// </param>
-        public static void OnNextSecond<TFirst, TSecond>(
-            this IObserver<IDiscriminatedUnion<TFirst, TSecond>> observer, TSecond second)
+        public static void OnNextSecond<TCommon, T1, T2>(
+            this IObserver<IDiscriminatedUnion<TCommon, T1, T2>> observer, T2 second)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(observer != null);
 
-            observer.OnNext(DiscriminatedUnion.Second<TFirst, TSecond>(second));
+            observer.OnNext(DiscriminatedUnion.Second<TCommon, T1, T2>(second));
         }
     }
 }

@@ -89,10 +89,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Observable - DiscriminatedUnion - Create.cs" />
-    <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Subscribe.cs" />
-    <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Take.cs" />
-    <Compile Include="ObserverExtensionMethods - DiscriminatedUnion.cs" />
+    <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Subscribe - 3.cs" />
+    <Compile Include="Observable - DiscriminatedUnion - Create - 3.cs" />
+    <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Take - 3.cs" />
+    <Compile Include="ObserverExtensionMethods - DiscriminatedUnion - 3.cs" />
+    <Compile Include="Observable - DiscriminatedUnion - Create - 2.cs" />
+    <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Subscribe - 2.cs" />
+    <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Take - 2.cs" />
+    <Compile Include="ObserverExtensionMethods - DiscriminatedUnion - 2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

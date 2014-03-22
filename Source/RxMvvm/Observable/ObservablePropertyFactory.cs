@@ -89,29 +89,29 @@ namespace MorseCode.RxMvvm.Observable
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
             Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
 
-            Func<TFirst, IDiscriminatedUnion<T, Exception>> calculate = first =>
+            Func<TFirst, IDiscriminatedUnion<object, T, Exception>> calculate = first =>
                 {
-                    IDiscriminatedUnion<T, Exception> discriminatedUnion;
+                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                     try
                     {
-                        discriminatedUnion = DiscriminatedUnion.First<T, Exception>(calculateValue(first));
+                        discriminatedUnion = DiscriminatedUnion.First<object, T, Exception>(calculateValue(first));
                     }
                     catch (Exception e)
                     {
-                        discriminatedUnion = DiscriminatedUnion.Second<T, Exception>(e);
+                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
                     }
 
                     return discriminatedUnion;
                 };
 
-            IObservable<IDiscriminatedUnion<T, Exception>> setOrExceptionObservable = firstProperty.Select(calculate);
+            IObservable<IDiscriminatedUnion<object, T, Exception>> setOrExceptionObservable = firstProperty.Select(calculate);
 
             if (setOrExceptionObservable == null)
             {
                 throw new InvalidOperationException("Result of CombineLatest cannot be null.");
             }
 
-            IDiscriminatedUnion<T, Exception> initialValue = calculate(firstProperty.Value);
+            IDiscriminatedUnion<object, T, Exception> initialValue = calculate(firstProperty.Value);
 
             if (initialValue == null)
             {
@@ -155,22 +155,22 @@ namespace MorseCode.RxMvvm.Observable
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
             Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
 
-            Func<TFirst, TSecond, IDiscriminatedUnion<T, Exception>> calculate = (first, second) =>
+            Func<TFirst, TSecond, IDiscriminatedUnion<object, T, Exception>> calculate = (first, second) =>
                 {
-                    IDiscriminatedUnion<T, Exception> discriminatedUnion;
+                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                     try
                     {
-                        discriminatedUnion = DiscriminatedUnion.First<T, Exception>(calculateValue(first, second));
+                        discriminatedUnion = DiscriminatedUnion.First<object, T, Exception>(calculateValue(first, second));
                     }
                     catch (Exception e)
                     {
-                        discriminatedUnion = DiscriminatedUnion.Second<T, Exception>(e);
+                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
                     }
 
                     return discriminatedUnion;
                 };
 
-            IObservable<IDiscriminatedUnion<T, Exception>> setOrExceptionObservable =
+            IObservable<IDiscriminatedUnion<object, T, Exception>> setOrExceptionObservable =
                 firstProperty.CombineLatest(secondProperty, calculate);
 
             if (setOrExceptionObservable == null)
@@ -178,7 +178,7 @@ namespace MorseCode.RxMvvm.Observable
                 throw new InvalidOperationException("Result of CombineLatest cannot be null.");
             }
 
-            IDiscriminatedUnion<T, Exception> initialValue = calculate(firstProperty.Value, secondProperty.Value);
+            IDiscriminatedUnion<object, T, Exception> initialValue = calculate(firstProperty.Value, secondProperty.Value);
 
             if (initialValue == null)
             {
@@ -230,23 +230,23 @@ namespace MorseCode.RxMvvm.Observable
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
             Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
 
-            Func<TFirst, TSecond, TThird, IDiscriminatedUnion<T, Exception>> calculate = (first, second, third) =>
+            Func<TFirst, TSecond, TThird, IDiscriminatedUnion<object, T, Exception>> calculate = (first, second, third) =>
                 {
-                    IDiscriminatedUnion<T, Exception> discriminatedUnion;
+                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                     try
                     {
-                        discriminatedUnion = DiscriminatedUnion.First<T, Exception>(
+                        discriminatedUnion = DiscriminatedUnion.First<object, T, Exception>(
                             calculateValue(first, second, third));
                     }
                     catch (Exception e)
                     {
-                        discriminatedUnion = DiscriminatedUnion.Second<T, Exception>(e);
+                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
                     }
 
                     return discriminatedUnion;
                 };
 
-            IObservable<IDiscriminatedUnion<T, Exception>> setOrExceptionObservable =
+            IObservable<IDiscriminatedUnion<object, T, Exception>> setOrExceptionObservable =
                 firstProperty.CombineLatest(secondProperty, thirdProperty, calculate);
 
             if (setOrExceptionObservable == null)
@@ -254,7 +254,7 @@ namespace MorseCode.RxMvvm.Observable
                 throw new InvalidOperationException("Result of CombineLatest cannot be null.");
             }
 
-            IDiscriminatedUnion<T, Exception> initialValue = calculate(
+            IDiscriminatedUnion<object, T, Exception> initialValue = calculate(
                 firstProperty.Value, secondProperty.Value, thirdProperty.Value);
 
             if (initialValue == null)
@@ -315,26 +315,26 @@ namespace MorseCode.RxMvvm.Observable
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
             Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
 
-            Func<TFirst, TSecond, TThird, TFourth, IDiscriminatedUnion<T, Exception>> calculate =
+            Func<TFirst, TSecond, TThird, TFourth, IDiscriminatedUnion<object, T, Exception>> calculate =
                 (first, second, third, fourth) =>
                 {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<T, Exception>>() != null);
+                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
 
-                    IDiscriminatedUnion<T, Exception> discriminatedUnion;
+                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                     try
                     {
                         discriminatedUnion =
-                            DiscriminatedUnion.First<T, Exception>(calculateValue(first, second, third, fourth));
+                            DiscriminatedUnion.First<object, T, Exception>(calculateValue(first, second, third, fourth));
                     }
                     catch (Exception e)
                     {
-                        discriminatedUnion = DiscriminatedUnion.Second<T, Exception>(e);
+                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
                     }
 
                     return discriminatedUnion;
                 };
 
-            IObservable<IDiscriminatedUnion<T, Exception>> setOrExceptionObservable =
+            IObservable<IDiscriminatedUnion<object, T, Exception>> setOrExceptionObservable =
                 firstProperty.CombineLatest(secondProperty, thirdProperty, fourthProperty, calculate);
 
             if (setOrExceptionObservable == null)
@@ -342,7 +342,7 @@ namespace MorseCode.RxMvvm.Observable
                 throw new InvalidOperationException("Result of CombineLatest cannot be null.");
             }
 
-            IDiscriminatedUnion<T, Exception> initialValue = calculate(
+            IDiscriminatedUnion<object, T, Exception> initialValue = calculate(
                 firstProperty.Value, secondProperty.Value, thirdProperty.Value, fourthProperty.Value);
 
             if (initialValue == null)
@@ -409,20 +409,20 @@ namespace MorseCode.RxMvvm.Observable
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
             Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
 
-            Func<TFirst, TSecond, TThird, TFourth, IDiscriminatedUnion<T, Exception>> calculate =
+            Func<TFirst, TSecond, TThird, TFourth, IDiscriminatedUnion<object, T, Exception>> calculate =
                 (first, second, third, fourth) =>
                 {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<T, Exception>>() != null);
+                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
 
-                    IDiscriminatedUnion<T, Exception> discriminatedUnion;
+                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                     try
                     {
                         discriminatedUnion =
-                            DiscriminatedUnion.First<T, Exception>(calculateValue(first, second, third, fourth));
+                            DiscriminatedUnion.First<object, T, Exception>(calculateValue(first, second, third, fourth));
                     }
                     catch (Exception e)
                     {
-                        discriminatedUnion = DiscriminatedUnion.Second<T, Exception>(e);
+                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
                     }
 
                     return discriminatedUnion;
@@ -452,7 +452,7 @@ namespace MorseCode.RxMvvm.Observable
 
             o = throttleTime > TimeSpan.Zero ? o.Throttle(throttleTime, scheduler) : o.ObserveOn(scheduler);
 
-            IObservable<IDiscriminatedUnion<T, Exception>> setOrExceptionObservable =
+            IObservable<IDiscriminatedUnion<object, T, Exception>> setOrExceptionObservable =
                 o.Select(v => calculate(v.Item1, v.Item2, v.Item3, v.Item4));
 
             if (setOrExceptionObservable == null)
@@ -460,7 +460,7 @@ namespace MorseCode.RxMvvm.Observable
                 throw new InvalidOperationException("Result of CombineLatest cannot be null.");
             }
 
-            IDiscriminatedUnion<T, Exception> initialValue = calculate(
+            IDiscriminatedUnion<object, T, Exception> initialValue = calculate(
                 firstProperty.Value, secondProperty.Value, thirdProperty.Value, fourthProperty.Value);
 
             if (initialValue == null)

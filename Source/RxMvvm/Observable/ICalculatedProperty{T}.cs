@@ -24,7 +24,7 @@ namespace MorseCode.RxMvvm.Observable
     /// <typeparam name="T">
     /// The type of the property.
     /// </typeparam>
-    public interface ICalculatedProperty<out T> : IReadableObservableProperty<IDiscriminatedUnion<T, Exception>>
+    public interface ICalculatedProperty<out T> : IReadableObservableProperty<IDiscriminatedUnion<object, T, Exception>>
     {
         /// <summary>
         /// Gets an observable which notifies when a successful calculation results in a value change.

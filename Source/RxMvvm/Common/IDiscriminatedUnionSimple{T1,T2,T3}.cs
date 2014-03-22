@@ -17,90 +17,50 @@ namespace MorseCode.RxMvvm.Common
     using System;
     using System.Diagnostics.Contracts;
 
-    [ContractClassFor(typeof(IDiscriminatedUnion<,,,>))]
-    internal abstract class DiscriminatedUnionInterfaceContract<TCommon, T1, T2, T3> :
-        IDiscriminatedUnion<TCommon, T1, T2, T3>
-        where T1 : TCommon
-        where T2 : TCommon
-        where T3 : TCommon
-        where TCommon : class
+    /// <summary>
+    /// Interface representing the F# discriminated union with two possible types.  A value may only be specified for one of the types at a time.
+    /// </summary>
+    /// <typeparam name="T1">
+    /// The first type of the discriminated union.
+    /// </typeparam>
+    /// <typeparam name="T2">
+    /// The second type of the discriminated union.
+    /// </typeparam>
+    /// <typeparam name="T3">
+    /// The third type of the discriminated union.
+    /// </typeparam>
+    [ContractClass(typeof(DiscriminatedUnionSimpleInterfaceContract<,,>))]
+    public interface IDiscriminatedUnionSimple<out T1, out T2, out T3>
     {
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T1" />.
         /// </summary>
-        public bool IsFirst
-        {
-            get
-            {
-                return false;
-            }
-        }
+        bool IsFirst { get; }
 
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T2" />.
         /// </summary>
-        public bool IsSecond
-        {
-            get
-            {
-                return false;
-            }
-        }
+        bool IsSecond { get; }
 
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T3" />.
         /// </summary>
-        public bool IsThird
-        {
-            get
-            {
-                return false;
-            }
-        }
+        bool IsThird { get; }
 
         /// <summary>
         /// Gets the value of type <typeparamref name="T1" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T1" />.
         /// </summary>
-        public T1 First
-        {
-            get
-            {
-                return default(T1);
-            }
-        }
+        T1 First { get; }
 
         /// <summary>
         /// Gets the value of type <typeparamref name="T2" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T2" />.
         /// </summary>
-        public T2 Second
-        {
-            get
-            {
-                return default(T2);
-            }
-        }
+        T2 Second { get; }
 
         /// <summary>
         /// Gets the value of type <typeparamref name="T3" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T3" />.
         /// </summary>
-        public T3 Third
-        {
-            get
-            {
-                return default(T3);
-            }
-        }
-
-        /// <summary>
-        /// Gets the value as <typeparamref name="TCommon" /> regardless of which of the three values are held in the discriminated union.
-        /// </summary>
-        public TCommon Value
-        {
-            get
-            {
-                return default(TCommon);
-            }
-        }
+        T3 Third { get; }
 
         /// <summary>
         /// Executes an action based on which value is contained in the discriminated union.
@@ -114,9 +74,7 @@ namespace MorseCode.RxMvvm.Common
         /// <param name="third">
         /// The action to run if <see cref="IsThird"/> is <c>true</c>.
         /// </param>
-        public void Switch(Action<T1> first, Action<T2> second, Action<T3> third)
-        {
-        }
+        void Switch(Action<T1> first, Action<T2> second, Action<T3> third);
 
         /// <summary>
         /// Executes a function based on which value is contained in the discriminated union.
@@ -136,9 +94,6 @@ namespace MorseCode.RxMvvm.Common
         /// <returns>
         /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
-        public TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second, Func<T3, TResult> third)
-        {
-            return default(TResult);
-        }
+        TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second, Func<T3, TResult> third);
     }
 }

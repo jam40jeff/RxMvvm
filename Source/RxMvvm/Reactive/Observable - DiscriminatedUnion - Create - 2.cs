@@ -24,15 +24,18 @@ namespace MorseCode.RxMvvm.Reactive
     /// <summary>
     /// Provides <see langword="static"/> methods for <see cref="IObservable{T}"/>.
     /// </summary>
-    public static class ObservableRxMvvm
+    public static partial class ObservableRxMvvm
     {
         /// <summary>
         /// Creates an observer that is capable of observing an observable with two notification channels using the specified actions.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="onNextFirst">
@@ -44,27 +47,33 @@ namespace MorseCode.RxMvvm.Reactive
         /// <returns>
         /// An observer capable of observing an observable with two notification channels.
         /// </returns>
-        public static IObserver<IDiscriminatedUnion<TFirst, TSecond>> CreateDiscriminatedUnion<TFirst, TSecond>(
-            Action<TFirst> onNextFirst, Action<TSecond> onNextSecond)
+        public static IObserver<IDiscriminatedUnion<TCommon, T1, T2>> CreateDiscriminatedUnion<TCommon, T1, T2>(
+            Action<T1> onNextFirst, Action<T2> onNextSecond)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(onNextFirst != null);
             Contract.Requires(onNextSecond != null);
-            Contract.Ensures(Contract.Result<IObserver<IDiscriminatedUnion<TFirst, TSecond>>>() != null);
+            Contract.Ensures(Contract.Result<IObserver<IDiscriminatedUnion<TCommon, T1, T2>>>() != null);
 
-            return CreateDiscriminatedUnion(
-                onNextFirst, 
-                onNextSecond, 
-                ex => { throw ex; /*.PrepareForRethrow(); changed to internal in Rx 1.1.10425 */ }, 
+            return CreateDiscriminatedUnion<TCommon, T1, T2>(
+                onNextFirst,
+                onNextSecond,
+                ex => { throw ex; },
                 () => { });
         }
 
         /// <summary>
         /// Creates an observer that is capable of observing an observable with two notification channels using the specified actions.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="onNextFirst">
@@ -79,24 +88,30 @@ namespace MorseCode.RxMvvm.Reactive
         /// <returns>
         /// An observer capable of observing an observable with two notification channels.
         /// </returns>
-        public static IObserver<IDiscriminatedUnion<TFirst, TSecond>> CreateDiscriminatedUnion<TFirst, TSecond>(
-            Action<TFirst> onNextFirst, Action<TSecond> onNextSecond, Action<Exception> onError)
+        public static IObserver<IDiscriminatedUnion<TCommon, T1, T2>> CreateDiscriminatedUnion<TCommon, T1, T2>(
+            Action<T1> onNextFirst, Action<T2> onNextSecond, Action<Exception> onError)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(onNextFirst != null);
             Contract.Requires(onNextSecond != null);
             Contract.Requires(onError != null);
-            Contract.Ensures(Contract.Result<IObserver<IDiscriminatedUnion<TFirst, TSecond>>>() != null);
+            Contract.Ensures(Contract.Result<IObserver<IDiscriminatedUnion<TCommon, T1, T2>>>() != null);
 
-            return CreateDiscriminatedUnion(onNextFirst, onNextSecond, onError, () => { });
+            return CreateDiscriminatedUnion<TCommon, T1, T2>(onNextFirst, onNextSecond, onError, () => { });
         }
 
         /// <summary>
         /// Creates an observer that is capable of observing an observable with two notification channels using the specified actions.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="onNextFirst">
@@ -111,28 +126,34 @@ namespace MorseCode.RxMvvm.Reactive
         /// <returns>
         /// An observer capable of observing an observable with two notification channels.
         /// </returns>
-        public static IObserver<IDiscriminatedUnion<TFirst, TSecond>> CreateDiscriminatedUnion<TFirst, TSecond>(
-            Action<TFirst> onNextFirst, Action<TSecond> onNextSecond, Action onCompleted)
+        public static IObserver<IDiscriminatedUnion<TCommon, T1, T2>> CreateDiscriminatedUnion<TCommon, T1, T2>(
+            Action<T1> onNextFirst, Action<T2> onNextSecond, Action onCompleted)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(onNextFirst != null);
             Contract.Requires(onNextSecond != null);
             Contract.Requires(onCompleted != null);
-            Contract.Ensures(Contract.Result<IObserver<IDiscriminatedUnion<TFirst, TSecond>>>() != null);
+            Contract.Ensures(Contract.Result<IObserver<IDiscriminatedUnion<TCommon, T1, T2>>>() != null);
 
-            return CreateDiscriminatedUnion(
-                onNextFirst, 
-                onNextSecond, 
-                ex => { throw ex; /*.PrepareForRethrow(); changed to internal in Rx 1.1.10425 */ }, 
+            return CreateDiscriminatedUnion<TCommon, T1, T2>(
+                onNextFirst,
+                onNextSecond,
+                ex => { throw ex; },
                 onCompleted);
         }
 
         /// <summary>
         /// Creates an observer that is capable of observing an observable with two notification channels using the specified actions.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="onNextFirst">
@@ -150,27 +171,33 @@ namespace MorseCode.RxMvvm.Reactive
         /// <returns>
         /// An observer capable of observing an observable with two notification channels.
         /// </returns>
-        public static IObserver<IDiscriminatedUnion<TFirst, TSecond>> CreateDiscriminatedUnion<TFirst, TSecond>(
-            Action<TFirst> onNextFirst, Action<TSecond> onNextSecond, Action<Exception> onError, Action onCompleted)
+        public static IObserver<IDiscriminatedUnion<TCommon, T1, T2>> CreateDiscriminatedUnion<TCommon, T1, T2>(
+            Action<T1> onNextFirst, Action<T2> onNextSecond, Action<Exception> onError, Action onCompleted)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(onNextFirst != null);
             Contract.Requires(onNextSecond != null);
             Contract.Requires(onError != null);
             Contract.Requires(onCompleted != null);
-            Contract.Ensures(Contract.Result<IObserver<IDiscriminatedUnion<TFirst, TSecond>>>() != null);
+            Contract.Ensures(Contract.Result<IObserver<IDiscriminatedUnion<TCommon, T1, T2>>>() != null);
 
             return
-                Observer.Create<IDiscriminatedUnion<TFirst, TSecond>>(
+                Observer.Create<IDiscriminatedUnion<TCommon, T1, T2>>(
                     value => value.Switch(onNextFirst, onNextSecond), onError, onCompleted);
         }
 
         /// <summary>
         /// Creates an observable sequence with two notification channels from the <paramref name="subscribe"/> implementation.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="subscribe">
@@ -180,11 +207,14 @@ namespace MorseCode.RxMvvm.Reactive
         /// An observable with two notification channels that calls the specified <paramref name="subscribe"/> function 
         /// when an observer subscribes.
         /// </returns>
-        public static IObservable<IDiscriminatedUnion<TFirst, TSecond>> CreateDiscriminatedUnion<TFirst, TSecond>(
-            Func<IObserver<IDiscriminatedUnion<TFirst, TSecond>>, Action> subscribe)
+        public static IObservable<IDiscriminatedUnion<TCommon, T1, T2>> CreateDiscriminatedUnion<TCommon, T1, T2>(
+            Func<IObserver<IDiscriminatedUnion<TCommon, T1, T2>>, Action> subscribe)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(subscribe != null);
-            Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<TFirst, TSecond>>>() != null);
+            Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<TCommon, T1, T2>>>() != null);
 
             return Observable.Create(subscribe);
         }
@@ -192,10 +222,13 @@ namespace MorseCode.RxMvvm.Reactive
         /// <summary>
         /// Creates an observable sequence with two notification channels from the <paramref name="subscribe"/> implementation.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="subscribe">
@@ -205,11 +238,14 @@ namespace MorseCode.RxMvvm.Reactive
         /// An observable with two notification channels that calls the specified <paramref name="subscribe"/> function
         /// when an observer subscribes.
         /// </returns>
-        public static IObservable<IDiscriminatedUnion<TFirst, TSecond>> CreateDiscriminatedUnion<TFirst, TSecond>(
-            Func<IObserver<IDiscriminatedUnion<TFirst, TSecond>>, IDisposable> subscribe)
+        public static IObservable<IDiscriminatedUnion<TCommon, T1, T2>> CreateDiscriminatedUnion<TCommon, T1, T2>(
+            Func<IObserver<IDiscriminatedUnion<TCommon, T1, T2>>, IDisposable> subscribe)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(subscribe != null);
-            Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<TFirst, TSecond>>>() != null);
+            Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<TCommon, T1, T2>>>() != null);
 
             return Observable.Create(subscribe);
         }

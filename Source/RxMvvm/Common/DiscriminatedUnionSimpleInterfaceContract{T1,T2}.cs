@@ -17,13 +17,8 @@ namespace MorseCode.RxMvvm.Common
     using System;
     using System.Diagnostics.Contracts;
 
-    [ContractClassFor(typeof(IDiscriminatedUnion<,,,>))]
-    internal abstract class DiscriminatedUnionInterfaceContract<TCommon, T1, T2, T3> :
-        IDiscriminatedUnion<TCommon, T1, T2, T3>
-        where T1 : TCommon
-        where T2 : TCommon
-        where T3 : TCommon
-        where TCommon : class
+    [ContractClassFor(typeof(IDiscriminatedUnionSimple<,>))]
+    internal abstract class DiscriminatedUnionSimpleInterfaceContract<T1, T2> : IDiscriminatedUnionSimple<T1, T2>
     {
         /// <summary>
         /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T1" />.
@@ -32,6 +27,8 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
+                Contract.Ensures(this.IsFirst ^ this.IsSecond);
+
                 return false;
             }
         }
@@ -43,17 +40,8 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
-                return false;
-            }
-        }
+                Contract.Ensures(this.IsSecond ^ this.IsFirst);
 
-        /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T3" />.
-        /// </summary>
-        public bool IsThird
-        {
-            get
-            {
                 return false;
             }
         }
@@ -65,6 +53,8 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
+                Contract.Requires(this.IsFirst);
+
                 return default(T1);
             }
         }
@@ -76,29 +66,9 @@ namespace MorseCode.RxMvvm.Common
         {
             get
             {
+                Contract.Requires(this.IsSecond);
+
                 return default(T2);
-            }
-        }
-
-        /// <summary>
-        /// Gets the value of type <typeparamref name="T3" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T3" />.
-        /// </summary>
-        public T3 Third
-        {
-            get
-            {
-                return default(T3);
-            }
-        }
-
-        /// <summary>
-        /// Gets the value as <typeparamref name="TCommon" /> regardless of which of the three values are held in the discriminated union.
-        /// </summary>
-        public TCommon Value
-        {
-            get
-            {
-                return default(TCommon);
             }
         }
 
@@ -111,11 +81,10 @@ namespace MorseCode.RxMvvm.Common
         /// <param name="second">
         /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
-        /// <param name="third">
-        /// The action to run if <see cref="IsThird"/> is <c>true</c>.
-        /// </param>
-        public void Switch(Action<T1> first, Action<T2> second, Action<T3> third)
+        public void Switch(Action<T1> first, Action<T2> second)
         {
+            Contract.Requires(first != null);
+            Contract.Requires(second != null);
         }
 
         /// <summary>
@@ -127,17 +96,16 @@ namespace MorseCode.RxMvvm.Common
         /// <param name="second">
         /// The function to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
-        /// <param name="third">
-        /// The function to run if <see cref="IsThird"/> is <c>true</c>.
-        /// </param>
         /// <typeparam name="TResult">
         /// The type of the result.
         /// </typeparam>
         /// <returns>
         /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
-        public TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second, Func<T3, TResult> third)
+        public TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second)
         {
+            Contract.Requires(first != null);
+            Contract.Requires(second != null);
             return default(TResult);
         }
     }

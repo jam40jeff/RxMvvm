@@ -77,6 +77,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DiscriminatedUnionSimpleInterfaceContract{T1,T2,T3}.cs" />
+    <Compile Include="DiscriminatedUnionSimpleInterfaceContract{T1,T2}.cs" />
+    <Compile Include="IDiscriminatedUnionSimple{T1,T2,T3}.cs" />
+    <Compile Include="IDiscriminatedUnionSimple{T1,T2}.cs" />
     <Compile Include="DiscriminatedUnion - 3.cs" />
     <Compile Include="DiscriminatedUnionInterfaceContract{TCommon,T1,T2,T3}.cs" />
     <Compile Include="IDiscriminatedUnion{TCommon,T1,T2,T3}.cs" />

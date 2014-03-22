@@ -31,7 +31,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
     using MorseCode.RxMvvm.Common;
 
     [TestClass]
-    //[Ignore]
+    [Ignore]
     public class Sandbox
     {
         private readonly string testField = null;

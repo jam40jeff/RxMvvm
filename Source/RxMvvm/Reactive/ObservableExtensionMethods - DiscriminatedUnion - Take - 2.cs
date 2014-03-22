@@ -28,10 +28,13 @@ namespace MorseCode.RxMvvm.Reactive
         /// <summary>
         /// Returns an observable that contains only the values from the first notification channel.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="source">
@@ -40,29 +43,35 @@ namespace MorseCode.RxMvvm.Reactive
         /// <returns>
         /// An observable of values from the first notification channel.
         /// </returns>
-        public static IObservable<TFirst> TakeFirst<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source)
+        public static IObservable<T1> TakeFirst<TCommon, T1, T2>(
+            this IObservable<IDiscriminatedUnion<TCommon, T1, T2>> source)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(source != null);
-            Contract.Ensures(Contract.Result<IObservable<TFirst>>() != null);
+            Contract.Ensures(Contract.Result<IObservable<T1>>() != null);
 
-            return Observable.Create<TFirst>(
+            return Observable.Create<T1>(
                 observer =>
-                    {
-                        // ReSharper disable ConvertToLambdaExpression
-                        return source.SubscribeDiscriminatedUnion(
-                            // ReSharper restore ConvertToLambdaExpression
-                            observer.OnNext, second => { }, observer.OnError, observer.OnCompleted);
-                    });
+                {
+                    // ReSharper disable ConvertToLambdaExpression
+                    return source.SubscribeDiscriminatedUnion(
+                        // ReSharper restore ConvertToLambdaExpression
+                        observer.OnNext, second => { }, observer.OnError, observer.OnCompleted);
+                });
         }
 
         /// <summary>
         /// Returns an observable that contains only the values from the second notification channel.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="source">
@@ -71,20 +80,23 @@ namespace MorseCode.RxMvvm.Reactive
         /// <returns>
         /// An observable of values from the second notification channel.
         /// </returns>
-        public static IObservable<TSecond> TakeSecond<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source)
+        public static IObservable<T2> TakeSecond<TCommon, T1, T2>(
+            this IObservable<IDiscriminatedUnion<TCommon, T1, T2>> source)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(source != null);
-            Contract.Ensures(Contract.Result<IObservable<TSecond>>() != null);
+            Contract.Ensures(Contract.Result<IObservable<T2>>() != null);
 
-            return Observable.Create<TSecond>(
+            return Observable.Create<T2>(
                 observer =>
-                    {
-                        // ReSharper disable ConvertToLambdaExpression
-                        return source.SubscribeDiscriminatedUnion(
-                            // ReSharper restore ConvertToLambdaExpression
-                            first => { }, observer.OnNext, observer.OnError, observer.OnCompleted);
-                    });
+                {
+                    // ReSharper disable ConvertToLambdaExpression
+                    return source.SubscribeDiscriminatedUnion(
+                        // ReSharper restore ConvertToLambdaExpression
+                        first => { }, observer.OnNext, observer.OnError, observer.OnCompleted);
+                });
         }
     }
 }

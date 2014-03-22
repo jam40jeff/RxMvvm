@@ -27,10 +27,13 @@ namespace MorseCode.RxMvvm.Reactive
         /// <summary>
         /// Notifies the observable that an observer is to receive notifications.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="source">
@@ -43,28 +46,34 @@ namespace MorseCode.RxMvvm.Reactive
         /// The handler of notifications in the second channel.
         /// </param>
         /// <returns>
-        /// The observer's interface that enables cancelation of the subscription so that it stops receiving notifications.
+        /// The observer's interface that enables cancellation of the subscription so that it stops receiving notifications.
         /// </returns>
-        public static IDisposable SubscribeDiscriminatedUnion<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source,
-            Action<TFirst> onNextFirst,
-            Action<TSecond> onNextSecond)
+        public static IDisposable SubscribeDiscriminatedUnion<TCommon, T1, T2>(
+            this IObservable<IDiscriminatedUnion<TCommon, T1, T2>> source,
+            Action<T1> onNextFirst,
+            Action<T2> onNextSecond)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(source != null);
             Contract.Requires(onNextFirst != null);
             Contract.Requires(onNextSecond != null);
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion(onNextFirst, onNextSecond));
+            return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2>(onNextFirst, onNextSecond));
         }
 
         /// <summary>
         /// Notifies the observable that an observer is to receive notifications.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="source">
@@ -80,13 +89,16 @@ namespace MorseCode.RxMvvm.Reactive
         /// The handler of an error notification.
         /// </param>
         /// <returns>
-        /// The observer's interface that enables cancelation of the subscription so that it stops receiving notifications.
+        /// The observer's interface that enables cancellation of the subscription so that it stops receiving notifications.
         /// </returns>
-        public static IDisposable SubscribeDiscriminatedUnion<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source,
-            Action<TFirst> onNextFirst,
-            Action<TSecond> onNextSecond,
+        public static IDisposable SubscribeDiscriminatedUnion<TCommon, T1, T2>(
+            this IObservable<IDiscriminatedUnion<TCommon, T1, T2>> source,
+            Action<T1> onNextFirst,
+            Action<T2> onNextSecond,
             Action<Exception> onError)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(source != null);
             Contract.Requires(onNextFirst != null);
@@ -94,16 +106,19 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Requires(onError != null);
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion(onNextFirst, onNextSecond, onError));
+            return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2>(onNextFirst, onNextSecond, onError));
         }
 
         /// <summary>
         /// Notifies the observable that an observer is to receive notifications.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="source">
@@ -119,13 +134,16 @@ namespace MorseCode.RxMvvm.Reactive
         /// The handler of a completion notification.
         /// </param>
         /// <returns>
-        /// The observer's interface that enables cancelation of the subscription so that it stops receiving notifications.
+        /// The observer's interface that enables cancellation of the subscription so that it stops receiving notifications.
         /// </returns>
-        public static IDisposable SubscribeDiscriminatedUnion<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source,
-            Action<TFirst> onNextFirst,
-            Action<TSecond> onNextSecond,
+        public static IDisposable SubscribeDiscriminatedUnion<TCommon, T1, T2>(
+            this IObservable<IDiscriminatedUnion<TCommon, T1, T2>> source,
+            Action<T1> onNextFirst,
+            Action<T2> onNextSecond,
             Action onCompleted)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(source != null);
             Contract.Requires(onNextFirst != null);
@@ -133,16 +151,19 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Requires(onCompleted != null);
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion(onNextFirst, onNextSecond, onCompleted));
+            return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2>(onNextFirst, onNextSecond, onCompleted));
         }
 
         /// <summary>
         /// Notifies the observable that an observer is to receive notifications.
         /// </summary>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// Common type of the notification channels.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// Type of the first notification channel.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// Type of the second notification channel.
         /// </typeparam>
         /// <param name="source">
@@ -161,14 +182,17 @@ namespace MorseCode.RxMvvm.Reactive
         /// The handler of a completion notification.
         /// </param>
         /// <returns>
-        /// The observer's interface that enables cancelation of the subscription so that it stops receiving notifications.
+        /// The observer's interface that enables cancellation of the subscription so that it stops receiving notifications.
         /// </returns>
-        public static IDisposable SubscribeDiscriminatedUnion<TFirst, TSecond>(
-            this IObservable<IDiscriminatedUnion<TFirst, TSecond>> source,
-            Action<TFirst> onNextFirst,
-            Action<TSecond> onNextSecond,
+        public static IDisposable SubscribeDiscriminatedUnion<TCommon, T1, T2>(
+            this IObservable<IDiscriminatedUnion<TCommon, T1, T2>> source,
+            Action<T1> onNextFirst,
+            Action<T2> onNextSecond,
             Action<Exception> onError,
             Action onCompleted)
+            where T1 : TCommon
+            where T2 : TCommon
+            where TCommon : class
         {
             Contract.Requires(source != null);
             Contract.Requires(onNextFirst != null);
@@ -179,7 +203,7 @@ namespace MorseCode.RxMvvm.Reactive
 
             return
                 source.Subscribe(
-                    ObservableRxMvvm.CreateDiscriminatedUnion(onNextFirst, onNextSecond, onError, onCompleted));
+                    ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2>(onNextFirst, onNextSecond, onError, onCompleted));
         }
     }
 }
