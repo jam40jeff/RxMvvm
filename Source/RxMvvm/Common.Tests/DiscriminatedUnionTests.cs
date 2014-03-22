@@ -541,6 +541,174 @@ namespace MorseCode.RxMvvm.Common.Tests
 
         #endregion DiscriminatedUnionThree
 
+        #region Extension Methods
+
+        #region DiscriminatedUnionTwo
+
+        [TestMethod]
+        public void DiscriminatedUnionTwoUsingFirstCreateFirstWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2> d = DiscriminatedUnion.First<Base, Derived1, Derived2>(new Derived1());
+            Derived1 d1 = new Derived1();
+            IDiscriminatedUnion<Base, Derived1, Derived2> dd = d.CreateFirst(d1);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d1, dd.Value);
+            Assert.IsTrue(dd.IsFirst);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionTwoUsingFirstCreateSecondWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2> d = DiscriminatedUnion.First<Base, Derived1, Derived2>(new Derived1());
+            Derived2 d2 = new Derived2();
+            IDiscriminatedUnion<Base, Derived1, Derived2> dd = d.CreateSecond(d2);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d2, dd.Value);
+            Assert.IsTrue(dd.IsSecond);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionTwoUsingSecondCreateFirstWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2> d = DiscriminatedUnion.Second<Base, Derived1, Derived2>(new Derived2());
+            Derived1 d1 = new Derived1();
+            IDiscriminatedUnion<Base, Derived1, Derived2> dd = d.CreateFirst(d1);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d1, dd.Value);
+            Assert.IsTrue(dd.IsFirst);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionTwoUsingSecondCreateSecondWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2> d = DiscriminatedUnion.Second<Base, Derived1, Derived2>(new Derived2());
+            Derived2 d2 = new Derived2();
+            IDiscriminatedUnion<Base, Derived1, Derived2> dd = d.CreateSecond(d2);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d2, dd.Value);
+            Assert.IsTrue(dd.IsSecond);
+        }
+
+        #endregion DiscriminatedUnionTwo
+
+        #region DiscriminatedUnionThree
+
+        [TestMethod]
+        public void DiscriminatedUnionThreeUsingFirstCreateFirstWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> d = DiscriminatedUnion.First<Base, Derived1, Derived2, Derived3>(new Derived1());
+            Derived1 d1 = new Derived1();
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> dd = d.CreateFirst(d1);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d1, dd.Value);
+            Assert.IsTrue(dd.IsFirst);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionThreeUsingFirstCreateSecondWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> d = DiscriminatedUnion.First<Base, Derived1, Derived2, Derived3>(new Derived1());
+            Derived2 d2 = new Derived2();
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> dd = d.CreateSecond(d2);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d2, dd.Value);
+            Assert.IsTrue(dd.IsSecond);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionThreeUsingFirstCreateThirdWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> d = DiscriminatedUnion.First<Base, Derived1, Derived2, Derived3>(new Derived1());
+            Derived3 d3 = new Derived3();
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> dd = d.CreateThird(d3);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d3, dd.Value);
+            Assert.IsTrue(dd.IsThird);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionThreeUsingSecondCreateFirstWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> d = DiscriminatedUnion.Second<Base, Derived1, Derived2, Derived3>(new Derived2());
+            Derived1 d1 = new Derived1();
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> dd = d.CreateFirst(d1);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d1, dd.Value);
+            Assert.IsTrue(dd.IsFirst);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionThreeUsingSecondCreateSecondWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> d = DiscriminatedUnion.Second<Base, Derived1, Derived2, Derived3>(new Derived2());
+            Derived2 d2 = new Derived2();
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> dd = d.CreateSecond(d2);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d2, dd.Value);
+            Assert.IsTrue(dd.IsSecond);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionThreeUsingSecondCreateThirdWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> d = DiscriminatedUnion.Second<Base, Derived1, Derived2, Derived3>(new Derived2());
+            Derived3 d3 = new Derived3();
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> dd = d.CreateThird(d3);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d3, dd.Value);
+            Assert.IsTrue(dd.IsThird);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionThreeUsingThirdCreateFirstWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> d = DiscriminatedUnion.Third<Base, Derived1, Derived2, Derived3>(new Derived3());
+            Derived1 d1 = new Derived1();
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> dd = d.CreateFirst(d1);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d1, dd.Value);
+            Assert.IsTrue(dd.IsFirst);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionThreeUsingThirdCreateSecondWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> d = DiscriminatedUnion.Third<Base, Derived1, Derived2, Derived3>(new Derived3());
+            Derived2 d2 = new Derived2();
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> dd = d.CreateSecond(d2);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d2, dd.Value);
+            Assert.IsTrue(dd.IsSecond);
+        }
+
+        [TestMethod]
+        public void DiscriminatedUnionThreeUsingThirdCreateThirdWorks()
+        {
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> d = DiscriminatedUnion.Third<Base, Derived1, Derived2, Derived3>(new Derived3());
+            Derived3 d3 = new Derived3();
+            IDiscriminatedUnion<Base, Derived1, Derived2, Derived3> dd = d.CreateThird(d3);
+            Assert.AreNotSame(d, dd);
+            Assert.AreNotSame(d.Value, dd.Value);
+            Assert.AreSame(d3, dd.Value);
+            Assert.IsTrue(dd.IsThird);
+        }
+
+        #endregion DiscriminatedUnionThree
+
+        #endregion Extension Methods
+
         private abstract class Base
         {
         }
