@@ -17,38 +17,37 @@ namespace MorseCode.RxMvvm.Common
     using System;
     using System.Diagnostics.Contracts;
 
+    [Serializable]
     [ContractClass(typeof(DiscriminatedUnionContract<,,>))]
-    internal abstract class DiscriminatedUnion<TFirst, TSecond, TThird> : IDiscriminatedUnion<TFirst, TSecond, TThird>
+    internal abstract class DiscriminatedUnion<TCommon, T1, T2> : IDiscriminatedUnion<TCommon, T1, T2>
+        where T1 : TCommon
+        where T2 : TCommon
+        where TCommon : class
     {
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T1" />.
         /// </summary>
         public abstract bool IsFirst { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T2" />.
         /// </summary>
         public abstract bool IsSecond { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TThird" />.
+        /// Gets the value of type <typeparamref name="T1" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T1" />.
         /// </summary>
-        public abstract bool IsThird { get; }
+        public abstract T1 First { get; }
 
         /// <summary>
-        /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
+        /// Gets the value of type <typeparamref name="T2" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T2" />.
         /// </summary>
-        public abstract TFirst First { get; }
+        public abstract T2 Second { get; }
 
         /// <summary>
-        /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
+        /// Gets the value as <typeparamref name="TCommon" /> regardless of which of the two values are held in the discriminated union.
         /// </summary>
-        public abstract TSecond Second { get; }
-
-        /// <summary>
-        /// Gets the value of type <typeparamref name="TThird" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TThird" />.
-        /// </summary>
-        public abstract TThird Third { get; }
+        public abstract TCommon Value { get; }
 
         /// <summary>
         /// Executes an action based on which value is contained in the discriminated union.
@@ -59,10 +58,7 @@ namespace MorseCode.RxMvvm.Common
         /// <param name="second">
         /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
-        /// <param name="third">
-        /// The action to run if <see cref="IsThird"/> is <c>true</c>.
-        /// </param>
-        public abstract void Switch(Action<TFirst> first, Action<TSecond> second, Action<TThird> third);
+        public abstract void Switch(Action<T1> first, Action<T2> second);
 
         /// <summary>
         /// Executes a function based on which value is contained in the discriminated union.
@@ -73,17 +69,13 @@ namespace MorseCode.RxMvvm.Common
         /// <param name="second">
         /// The function to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
-        /// <param name="third">
-        /// The function to run if <see cref="IsThird"/> is <c>true</c>.
-        /// </param>
         /// <typeparam name="TResult">
         /// The type of the result.
         /// </typeparam>
         /// <returns>
         /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
-        public abstract TResult Switch<TResult>(
-            Func<TFirst, TResult> first, Func<TSecond, TResult> second, Func<TThird, TResult> third);
+        public abstract TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second);
 
         /// <summary>
         /// Override of the <see cref="ToString()"/> method.
@@ -98,17 +90,7 @@ namespace MorseCode.RxMvvm.Common
                 return "{First:" + (ReferenceEquals(this.First, null) ? null : this.First.ToString()) + '}';
             }
 
-            if (this.IsSecond)
-            {
-                return "{Second:" + (ReferenceEquals(this.Second, null) ? null : this.Second.ToString()) + '}';
-            }
-
-            if (this.IsThird)
-            {
-                return "{Third:" + (ReferenceEquals(this.Third, null) ? null : this.Third.ToString()) + '}';
-            }
-
-            throw new InvalidOperationException("IsFirst, IsSecond, or IsThird must be true.");
+            return "{Second:" + (ReferenceEquals(this.Second, null) ? null : this.Second.ToString()) + '}';
         }
     }
 }

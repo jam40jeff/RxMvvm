@@ -23,97 +23,123 @@ namespace MorseCode.RxMvvm.Common
     public static partial class DiscriminatedUnion
     {
         /// <summary>
-        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond,TThird}"/> holding a value of type <typeparamref name="TFirst"/>.
+        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TCommon,T1,T2,T3}"/> holding a value of type <typeparamref name="T1"/>.
         /// </summary>
         /// <param name="value">
         /// The value to hold in the discriminated union.
         /// </param>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// The common type of all types allowed in the discriminated union.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// The first type of the discriminated union.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// The second type of the discriminated union.
         /// </typeparam>
-        /// <typeparam name="TThird">
+        /// <typeparam name="T3">
         /// The third type of the discriminated union.
         /// </typeparam>
         /// <returns>
-        /// An instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond,TThird}"/>.
+        /// An instance of a class implementing <see cref="IDiscriminatedUnion{TCommon,T1,T2,T3}"/>.
         /// </returns>
-        public static IDiscriminatedUnion<TFirst, TSecond, TThird> First<TFirst, TSecond, TThird>(TFirst value)
+        public static IDiscriminatedUnion<TCommon, T1, T2, T3> First<TCommon, T1, T2, T3>(T1 value)
+            where T1 : TCommon
+            where T2 : TCommon
+            where T3 : TCommon
+            where TCommon : class
         {
-            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TFirst, TSecond, TThird>>() != null);
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TCommon, T1, T2, T3>>() != null);
 
-            return new DiscriminatedUnionFirst<TFirst, TSecond, TThird>(value);
+            return new DiscriminatedUnionFirst<TCommon, T1, T2, T3>(value);
         }
 
         /// <summary>
-        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond,TThird}"/> holding a value of type <typeparamref name="TSecond"/>.
+        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{T1,T2,TThird}"/> holding a value of type <typeparamref name="T2"/>.
         /// </summary>
         /// <param name="value">
         /// The value to hold in the discriminated union.
         /// </param>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// The common type of all types allowed in the discriminated union.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// The first type of the discriminated union.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// The second type of the discriminated union.
         /// </typeparam>
-        /// <typeparam name="TThird">
+        /// <typeparam name="T3">
         /// The third type of the discriminated union.
         /// </typeparam>
         /// <returns>
-        /// An instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond,TThird}"/>.
+        /// An instance of a class implementing <see cref="IDiscriminatedUnion{T1,T2,TThird}"/>.
         /// </returns>
-        public static IDiscriminatedUnion<TFirst, TSecond, TThird> Second<TFirst, TSecond, TThird>(TSecond value)
+        public static IDiscriminatedUnion<TCommon, T1, T2, T3> Second<TCommon, T1, T2, T3>(T2 value)
+            where T1 : TCommon
+            where T2 : TCommon
+            where T3 : TCommon
+            where TCommon : class
         {
-            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TFirst, TSecond, TThird>>() != null);
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TCommon, T1, T2, T3>>() != null);
 
-            return new DiscriminatedUnionSecond<TFirst, TSecond, TThird>(value);
+            return new DiscriminatedUnionSecond<TCommon, T1, T2, T3>(value);
         }
 
         /// <summary>
-        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond,TThird}"/> holding a value of type <typeparamref name="TThird"/>.
+        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{T1,T2,TThird}"/> holding a value of type <typeparamref name="T3"/>.
         /// </summary>
         /// <param name="value">
         /// The value to hold in the discriminated union.
         /// </param>
-        /// <typeparam name="TFirst">
+        /// <typeparam name="TCommon">
+        /// The common type of all types allowed in the discriminated union.
+        /// </typeparam>
+        /// <typeparam name="T1">
         /// The first type of the discriminated union.
         /// </typeparam>
-        /// <typeparam name="TSecond">
+        /// <typeparam name="T2">
         /// The second type of the discriminated union.
         /// </typeparam>
-        /// <typeparam name="TThird">
+        /// <typeparam name="T3">
         /// The third type of the discriminated union.
         /// </typeparam>
         /// <returns>
-        /// An instance of a class implementing <see cref="IDiscriminatedUnion{TFirst,TSecond,TThird}"/>.
+        /// An instance of a class implementing <see cref="IDiscriminatedUnion{T1,T2,TThird}"/>.
         /// </returns>
-        public static IDiscriminatedUnion<TFirst, TSecond, TThird> Third<TFirst, TSecond, TThird>(TThird value)
+        public static IDiscriminatedUnion<TCommon, T1, T2, T3> Third<TCommon, T1, T2, T3>(T3 value)
+            where T1 : TCommon
+            where T2 : TCommon
+            where T3 : TCommon
+            where TCommon : class
         {
-            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TFirst, TSecond, TThird>>() != null);
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TCommon, T1, T2, T3>>() != null);
 
-            return new DiscriminatedUnionThird<TFirst, TSecond, TThird>(value);
+            return new DiscriminatedUnionThird<TCommon, T1, T2, T3>(value);
         }
 
-        private class DiscriminatedUnionFirst<TFirst, TSecond, TThird> : DiscriminatedUnion<TFirst, TSecond, TThird>
+        [Serializable]
+        private class DiscriminatedUnionFirst<TCommon, T1, T2, T3> : DiscriminatedUnion<TCommon, T1, T2, T3>
+            where T1 : TCommon
+            where T2 : TCommon
+            where T3 : TCommon
+            where TCommon : class
         {
-            private readonly TFirst value;
+            private readonly T1 value;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="DiscriminatedUnionFirst{TFirst,TSecond,TThird}"/> class.
+            /// Initializes a new instance of the <see cref="DiscriminatedUnionFirst{TCommon,T1,T2,T3}"/> class.
             /// </summary>
             /// <param name="value">
             /// The value.
             /// </param>
-            public DiscriminatedUnionFirst(TFirst value)
+            public DiscriminatedUnionFirst(T1 value)
             {
                 this.value = value;
             }
 
             /// <summary>
-            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T1" />.
             /// </summary>
             public override bool IsFirst
             {
@@ -124,7 +150,7 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T2" />.
             /// </summary>
             public override bool IsSecond
             {
@@ -135,7 +161,7 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TThird" />.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T3" />.
             /// </summary>
             public override bool IsThird
             {
@@ -146,10 +172,10 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
+            /// Gets the value of type <typeparamref name="T1" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T1" />.
             /// </summary>
             // ReSharper disable MemberHidesStaticFromOuterClass
-            public override TFirst First
+            public override T1 First
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
                 get
@@ -159,28 +185,39 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
+            /// Gets the value of type <typeparamref name="T2" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T2" />.
             /// </summary>
             // ReSharper disable MemberHidesStaticFromOuterClass
-            public override TSecond Second
+            public override T2 Second
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
                 get
                 {
-                    return default(TSecond);
+                    return default(T2);
                 }
             }
 
             /// <summary>
-            /// Gets the value of type <typeparamref name="TThird" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TThird" />.
+            /// Gets the value of type <typeparamref name="T3" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T3" />.
             /// </summary>
             // ReSharper disable MemberHidesStaticFromOuterClass
-            public override TThird Third
+            public override T3 Third
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
                 get
                 {
-                    return default(TThird);
+                    return default(T3);
+                }
+            }
+
+            /// <summary>
+            /// Gets the value as <typeparamref name="TCommon" /> regardless of which of the two values are held in the discriminated union.
+            /// </summary>
+            public override TCommon Value
+            {
+                get
+                {
+                    return this.value;
                 }
             }
 
@@ -196,7 +233,7 @@ namespace MorseCode.RxMvvm.Common
             /// <param name="third">
             /// The action to run if <see cref="IsThird"/> is <c>true</c>.
             /// </param>
-            public override void Switch(Action<TFirst> first, Action<TSecond> second, Action<TThird> third)
+            public override void Switch(Action<T1> first, Action<T2> second, Action<T3> third)
             {
                 first(this.value);
             }
@@ -219,29 +256,34 @@ namespace MorseCode.RxMvvm.Common
             /// <returns>
             /// The result of type <typeparamref name="TResult"/> of the function executed.
             /// </returns>
-            public override TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second, Func<TThird, TResult> third)
+            public override TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second, Func<T3, TResult> third)
             {
                 return first(this.value);
             }
         }
 
-        private class DiscriminatedUnionSecond<TFirst, TSecond, TThird> : DiscriminatedUnion<TFirst, TSecond, TThird>
+        [Serializable]
+        private class DiscriminatedUnionSecond<TCommon, T1, T2, T3> : DiscriminatedUnion<TCommon, T1, T2, T3>
+            where T1 : TCommon
+            where T2 : TCommon
+            where T3 : TCommon
+            where TCommon : class
         {
-            private readonly TSecond value;
+            private readonly T2 value;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="DiscriminatedUnionSecond{TFirst,TSecond,TThird}"/> class.
+            /// Initializes a new instance of the <see cref="DiscriminatedUnionSecond{TCommon,T1,T2,T3}"/> class.
             /// </summary>
             /// <param name="value">
             /// The value.
             /// </param>
-            public DiscriminatedUnionSecond(TSecond value)
+            public DiscriminatedUnionSecond(T2 value)
             {
                 this.value = value;
             }
 
             /// <summary>
-            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T1" />.
             /// </summary>
             public override bool IsFirst
             {
@@ -252,7 +294,7 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T2" />.
             /// </summary>
             public override bool IsSecond
             {
@@ -263,7 +305,7 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TThird" />.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T3" />.
             /// </summary>
             public override bool IsThird
             {
@@ -274,23 +316,23 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
+            /// Gets the value of type <typeparamref name="T1" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T1" />.
             /// </summary>
             // ReSharper disable MemberHidesStaticFromOuterClass
-            public override TFirst First
+            public override T1 First
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
                 get
                 {
-                    return default(TFirst);
+                    return default(T1);
                 }
             }
 
             /// <summary>
-            /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
+            /// Gets the value of type <typeparamref name="T2" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T2" />.
             /// </summary>
             // ReSharper disable MemberHidesStaticFromOuterClass
-            public override TSecond Second
+            public override T2 Second
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
                 get
@@ -300,15 +342,26 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets the value of type <typeparamref name="TThird" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TThird" />.
+            /// Gets the value of type <typeparamref name="T3" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T3" />.
             /// </summary>
             // ReSharper disable MemberHidesStaticFromOuterClass
-            public override TThird Third
+            public override T3 Third
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
                 get
                 {
-                    return default(TThird);
+                    return default(T3);
+                }
+            }
+
+            /// <summary>
+            /// Gets the value as <typeparamref name="TCommon" /> regardless of which of the two values are held in the discriminated union.
+            /// </summary>
+            public override TCommon Value
+            {
+                get
+                {
+                    return this.value;
                 }
             }
 
@@ -324,7 +377,7 @@ namespace MorseCode.RxMvvm.Common
             /// <param name="third">
             /// The action to run if <see cref="IsThird"/> is <c>true</c>.
             /// </param>
-            public override void Switch(Action<TFirst> first, Action<TSecond> second, Action<TThird> third)
+            public override void Switch(Action<T1> first, Action<T2> second, Action<T3> third)
             {
                 second(this.value);
             }
@@ -347,29 +400,34 @@ namespace MorseCode.RxMvvm.Common
             /// <returns>
             /// The result of type <typeparamref name="TResult"/> of the function executed.
             /// </returns>
-            public override TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second, Func<TThird, TResult> third)
+            public override TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second, Func<T3, TResult> third)
             {
                 return second(this.value);
             }
         }
 
-        private class DiscriminatedUnionThird<TFirst, TSecond, TThird> : DiscriminatedUnion<TFirst, TSecond, TThird>
+        [Serializable]
+        private class DiscriminatedUnionThird<TCommon, T1, T2, T3> : DiscriminatedUnion<TCommon, T1, T2, T3>
+            where T1 : TCommon
+            where T2 : TCommon
+            where T3 : TCommon
+            where TCommon : class
         {
-            private readonly TThird value;
+            private readonly T3 value;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="DiscriminatedUnionThird{TFirst,TSecond,TThird}"/> class.
+            /// Initializes a new instance of the <see cref="DiscriminatedUnionThird{TCommon,T1,T2,T3}"/> class.
             /// </summary>
             /// <param name="value">
             /// The value.
             /// </param>
-            public DiscriminatedUnionThird(TThird value)
+            public DiscriminatedUnionThird(T3 value)
             {
                 this.value = value;
             }
 
             /// <summary>
-            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T1" />.
             /// </summary>
             public override bool IsFirst
             {
@@ -380,7 +438,7 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T2" />.
             /// </summary>
             public override bool IsSecond
             {
@@ -391,7 +449,7 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TThird" />.
+            /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T3" />.
             /// </summary>
             public override bool IsThird
             {
@@ -402,38 +460,49 @@ namespace MorseCode.RxMvvm.Common
             }
 
             /// <summary>
-            /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
+            /// Gets the value of type <typeparamref name="T1" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T1" />.
             /// </summary>
             // ReSharper disable MemberHidesStaticFromOuterClass
-            public override TFirst First
+            public override T1 First
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
                 get
                 {
-                    return default(TFirst);
+                    return default(T1);
                 }
             }
 
             /// <summary>
-            /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
+            /// Gets the value of type <typeparamref name="T2" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T2" />.
             /// </summary>
             // ReSharper disable MemberHidesStaticFromOuterClass
-            public override TSecond Second
+            public override T2 Second
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
                 get
                 {
-                    return default(TSecond);
+                    return default(T2);
                 }
             }
 
             /// <summary>
-            /// Gets the value of type <typeparamref name="TThird" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TThird" />.
+            /// Gets the value of type <typeparamref name="T3" /> if <see cref="IsThird"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T3" />.
             /// </summary>
             // ReSharper disable MemberHidesStaticFromOuterClass
-            public override TThird Third
+            public override T3 Third
             {
                 // ReSharper restore MemberHidesStaticFromOuterClass
+                get
+                {
+                    return this.value;
+                }
+            }
+
+            /// <summary>
+            /// Gets the value as <typeparamref name="TCommon" /> regardless of which of the two values are held in the discriminated union.
+            /// </summary>
+            public override TCommon Value
+            {
                 get
                 {
                     return this.value;
@@ -452,7 +521,7 @@ namespace MorseCode.RxMvvm.Common
             /// <param name="third">
             /// The action to run if <see cref="IsThird"/> is <c>true</c>.
             /// </param>
-            public override void Switch(Action<TFirst> first, Action<TSecond> second, Action<TThird> third)
+            public override void Switch(Action<T1> first, Action<T2> second, Action<T3> third)
             {
                 third(this.value);
             }
@@ -475,7 +544,7 @@ namespace MorseCode.RxMvvm.Common
             /// <returns>
             /// The result of type <typeparamref name="TResult"/> of the function executed.
             /// </returns>
-            public override TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second, Func<TThird, TResult> third)
+            public override TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second, Func<T3, TResult> third)
             {
                 return third(this.value);
             }

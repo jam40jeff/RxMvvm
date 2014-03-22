@@ -17,28 +17,48 @@ namespace MorseCode.RxMvvm.Common
     using System;
     using System.Diagnostics.Contracts;
 
-    [ContractClass(typeof(DiscriminatedUnionContract<,>))]
-    internal abstract class DiscriminatedUnion<TFirst, TSecond> : IDiscriminatedUnion<TFirst, TSecond>
+    /// <summary>
+    /// Interface representing the F# discriminated union with two possible types.  A value may only be specified for one of the types at a time.
+    /// </summary>
+    /// <typeparam name="TCommon">
+    /// The common type of all types allowed in the discriminated union.
+    /// </typeparam>
+    /// <typeparam name="T1">
+    /// The first type of the discriminated union.
+    /// </typeparam>
+    /// <typeparam name="T2">
+    /// The second type of the discriminated union.
+    /// </typeparam>
+    [ContractClass(typeof(DiscriminatedUnionInterfaceContract<,,>))]
+    public interface IDiscriminatedUnion<out TCommon, out T1, out T2>
+        where T1 : TCommon
+        where T2 : TCommon
+        where TCommon : class
     {
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T1" />.
         /// </summary>
-        public abstract bool IsFirst { get; }
+        bool IsFirst { get; }
 
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T2" />.
         /// </summary>
-        public abstract bool IsSecond { get; }
+        bool IsSecond { get; }
 
         /// <summary>
-        /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
+        /// Gets the value of type <typeparamref name="T1" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T1" />.
         /// </summary>
-        public abstract TFirst First { get; }
+        T1 First { get; }
 
         /// <summary>
-        /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
+        /// Gets the value of type <typeparamref name="T2" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T2" />.
         /// </summary>
-        public abstract TSecond Second { get; }
+        T2 Second { get; }
+
+        /// <summary>
+        /// Gets the value as <typeparamref name="TCommon" /> regardless of which of the two values are held in the discriminated union.
+        /// </summary>
+        TCommon Value { get; }
 
         /// <summary>
         /// Executes an action based on which value is contained in the discriminated union.
@@ -49,7 +69,7 @@ namespace MorseCode.RxMvvm.Common
         /// <param name="second">
         /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
-        public abstract void Switch(Action<TFirst> first, Action<TSecond> second);
+        void Switch(Action<T1> first, Action<T2> second);
 
         /// <summary>
         /// Executes a function based on which value is contained in the discriminated union.
@@ -66,22 +86,6 @@ namespace MorseCode.RxMvvm.Common
         /// <returns>
         /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
-        public abstract TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second);
-
-        /// <summary>
-        /// Override of the <see cref="ToString()"/> method.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="string"/> representation of the discriminated union.
-        /// </returns>
-        public override string ToString()
-        {
-            if (this.IsFirst)
-            {
-                return "{First:" + (ReferenceEquals(this.First, null) ? null : this.First.ToString()) + '}';
-            }
-
-            return "{Second:" + (ReferenceEquals(this.Second, null) ? null : this.Second.ToString()) + '}';
-        }
+        TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second);
     }
 }

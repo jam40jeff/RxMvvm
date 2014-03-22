@@ -78,15 +78,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DiscriminatedUnion - 3.cs" />
-    <Compile Include="DiscriminatedUnionInterfaceContract{TFirst,TSecond,TThird}.cs" />
-    <Compile Include="IDiscriminatedUnion{TFirst,TSecond,TThird}.cs" />
-    <Compile Include="DiscriminatedUnionContract{TFirst,TSecond,TThird}.cs" />
-    <Compile Include="DiscriminatedUnion{TFirst,TSecond,TThird}.cs" />
+    <Compile Include="DiscriminatedUnionInterfaceContract{TCommon,T1,T2,T3}.cs" />
+    <Compile Include="IDiscriminatedUnion{TCommon,T1,T2,T3}.cs" />
+    <Compile Include="DiscriminatedUnionContract{TCommon,T1,T2,T3}.cs" />
+    <Compile Include="DiscriminatedUnion{TCommon,T1,T2,T3}.cs" />
     <Compile Include="DiscriminatedUnion - 2.cs" />
-    <Compile Include="DiscriminatedUnionContract{TFirst,TSecond}.cs" />
-    <Compile Include="DiscriminatedUnionInterfaceContract{TFirst,TSecond}.cs" />
-    <Compile Include="DiscriminatedUnion{TFirst,TSecond}.cs" />
-    <Compile Include="IDiscriminatedUnion{TFirst,TSecond}.cs" />
+    <Compile Include="DiscriminatedUnionContract{TCommon,T1,T2}.cs" />
+    <Compile Include="DiscriminatedUnionInterfaceContract{TCommon,T1,T2}.cs" />
+    <Compile Include="DiscriminatedUnion{TCommon,T1,T2}.cs" />
+    <Compile Include="IDiscriminatedUnion{TCommon,T1,T2}.cs" />
     <Compile Include="StaticReflection{T}.cs" />
     <Compile Include="StaticReflection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

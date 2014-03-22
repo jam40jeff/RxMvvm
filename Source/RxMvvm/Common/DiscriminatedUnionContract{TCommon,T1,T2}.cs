@@ -17,11 +17,14 @@ namespace MorseCode.RxMvvm.Common
     using System;
     using System.Diagnostics.Contracts;
 
-    [ContractClassFor(typeof(DiscriminatedUnion<,>))]
-    internal abstract class DiscriminatedUnionContract<TFirst, TSecond> : DiscriminatedUnion<TFirst, TSecond>
+    [ContractClassFor(typeof(DiscriminatedUnion<,,>))]
+    internal abstract class DiscriminatedUnionContract<TCommon, T1, T2> : DiscriminatedUnion<TCommon, T1, T2>
+        where T1 : TCommon
+        where T2 : TCommon
+        where TCommon : class
     {
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TFirst" />.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T1" />.
         /// </summary>
         public override bool IsFirst
         {
@@ -34,7 +37,7 @@ namespace MorseCode.RxMvvm.Common
         }
 
         /// <summary>
-        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="TSecond" />.
+        /// Gets a value indicating whether the discriminated union is holding a value of the type <typeparamref name="T2" />.
         /// </summary>
         public override bool IsSecond
         {
@@ -47,28 +50,39 @@ namespace MorseCode.RxMvvm.Common
         }
 
         /// <summary>
-        /// Gets the value of type <typeparamref name="TFirst" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TFirst" />.
+        /// Gets the value of type <typeparamref name="T1" /> if <see cref="IsFirst"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T1" />.
         /// </summary>
-        public override TFirst First
+        public override T1 First
         {
             get
             {
                 Contract.Requires(this.IsFirst);
 
-                return default(TFirst);
+                return default(T1);
             }
         }
 
         /// <summary>
-        /// Gets the value of type <typeparamref name="TSecond" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="TSecond" />.
+        /// Gets the value of type <typeparamref name="T2" /> if <see cref="IsSecond"/> is <c>true</c>, otherwise returns the default value for type <typeparamref name="T2" />.
         /// </summary>
-        public override TSecond Second
+        public override T2 Second
         {
             get
             {
                 Contract.Requires(this.IsSecond);
 
-                return default(TSecond);
+                return default(T2);
+            }
+        }
+
+        /// <summary>
+        /// Gets the value as <typeparamref name="TCommon" /> regardless of which of the two values are held in the discriminated union.
+        /// </summary>
+        public override TCommon Value
+        {
+            get
+            {
+                return default(TCommon);
             }
         }
 
@@ -81,7 +95,7 @@ namespace MorseCode.RxMvvm.Common
         /// <param name="second">
         /// The action to run if <see cref="IsSecond"/> is <c>true</c>.
         /// </param>
-        public override void Switch(Action<TFirst> first, Action<TSecond> second)
+        public override void Switch(Action<T1> first, Action<T2> second)
         {
             Contract.Requires(first != null);
             Contract.Requires(second != null);
@@ -102,7 +116,7 @@ namespace MorseCode.RxMvvm.Common
         /// <returns>
         /// The result of type <typeparamref name="TResult"/> of the function executed.
         /// </returns>
-        public override TResult Switch<TResult>(Func<TFirst, TResult> first, Func<TSecond, TResult> second)
+        public override TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second)
         {
             Contract.Requires(first != null);
             Contract.Requires(second != null);
