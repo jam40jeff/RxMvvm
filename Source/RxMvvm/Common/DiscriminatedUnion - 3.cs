@@ -55,7 +55,7 @@ namespace MorseCode.RxMvvm.Common
         }
 
         /// <summary>
-        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{T1,T2,TThird}"/> holding a value of type <typeparamref name="T2"/>.
+        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TCommon,T1,T2,T3}"/> holding a value of type <typeparamref name="T2"/>.
         /// </summary>
         /// <param name="value">
         /// The value to hold in the discriminated union.
@@ -73,7 +73,7 @@ namespace MorseCode.RxMvvm.Common
         /// The third type of the discriminated union.
         /// </typeparam>
         /// <returns>
-        /// An instance of a class implementing <see cref="IDiscriminatedUnion{T1,T2,TThird}"/>.
+        /// An instance of a class implementing <see cref="IDiscriminatedUnion{TCommon,T1,T2,T3}"/>.
         /// </returns>
         public static IDiscriminatedUnion<TCommon, T1, T2, T3> Second<TCommon, T1, T2, T3>(T2 value)
             where T1 : TCommon
@@ -87,7 +87,7 @@ namespace MorseCode.RxMvvm.Common
         }
 
         /// <summary>
-        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{T1,T2,TThird}"/> holding a value of type <typeparamref name="T3"/>.
+        /// Creates an instance of a class implementing <see cref="IDiscriminatedUnion{TCommon,T1,T2,T3}"/> holding a value of type <typeparamref name="T3"/>.
         /// </summary>
         /// <param name="value">
         /// The value to hold in the discriminated union.
@@ -105,7 +105,7 @@ namespace MorseCode.RxMvvm.Common
         /// The third type of the discriminated union.
         /// </typeparam>
         /// <returns>
-        /// An instance of a class implementing <see cref="IDiscriminatedUnion{T1,T2,TThird}"/>.
+        /// An instance of a class implementing <see cref="IDiscriminatedUnion{TCommon,T1,T2,T3}"/>.
         /// </returns>
         public static IDiscriminatedUnion<TCommon, T1, T2, T3> Third<TCommon, T1, T2, T3>(T3 value)
             where T1 : TCommon
