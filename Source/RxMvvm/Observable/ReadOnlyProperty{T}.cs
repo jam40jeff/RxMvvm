@@ -15,11 +15,13 @@
 namespace MorseCode.RxMvvm.Observable
 {
     using System;
+    using System.Diagnostics.Contracts;
+    using System.Reactive.Disposables;
     using System.Reactive.Linq;
 
     internal class ReadOnlyProperty<T> : IReadableObservableProperty<T>
     {
-        private readonly T value;
+        private readonly Lazy<T> value;
 
         private readonly IObservable<T> observable;
 
@@ -29,10 +31,25 @@ namespace MorseCode.RxMvvm.Observable
         /// <param name="value">
         /// The value.
         /// </param>
-        public ReadOnlyProperty(T value)
+        public ReadOnlyProperty(Lazy<T> value)
         {
+            Contract.Requires(value != null);
+            Contract.Ensures(this.value != null);
+            Contract.Ensures(this.observable != null);
+
             this.value = value;
-            this.observable = Observable.Return(value);
+            this.observable = Observable.Create<T>(
+                o =>
+                    {
+                        o.OnNext(value.Value);
+                        o.OnCompleted();
+                        return Disposable.Empty;
+                    });
+
+            if (this.observable == null)
+            {
+                throw new InvalidOperationException("Result of Observable.Create cannot be null.");
+            }
         }
 
         /// <summary>
@@ -64,7 +81,7 @@ namespace MorseCode.RxMvvm.Observable
         {
             get
             {
-                return this.value;
+                return this.value.Value;
             }
         }
 
@@ -78,6 +95,13 @@ namespace MorseCode.RxMvvm.Observable
         /// </summary>
         public void Dispose()
         {
+        }
+
+        [ContractInvariantMethod]
+        private void CodeContractsInvariants()
+        {
+            Contract.Invariant(this.value != null);
+            Contract.Invariant(this.observable != null);
         }
     }
 }

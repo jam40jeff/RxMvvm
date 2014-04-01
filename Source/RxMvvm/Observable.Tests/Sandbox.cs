@@ -21,12 +21,14 @@ namespace MorseCode.RxMvvm.Observable.Tests
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Linq;
     using System.Reactive.Concurrency;
     using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
     using System.Threading;
+    using System.Threading.Tasks;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -198,12 +200,11 @@ namespace MorseCode.RxMvvm.Observable.Tests
             BehaviorSubject<int> sum = new BehaviorSubject<int>(5);
             List<int> computeThreads = new List<int>();
             List<int> receiveThreads = new List<int>();
-            IScheduler computeScheduler = new EventLoopScheduler();
 
             IObservable<int> sumObservable =
                 s1.Select(v => new Tuple<int, int>(v, s2.Value))
                   .Merge(s2.Select(v => new Tuple<int, int>(s1.Value, v)))
-                  .Throttle(TimeSpan.FromMilliseconds(100), computeScheduler)
+                  .Throttle(TimeSpan.FromMilliseconds(100), new NewThreadScheduler())
                   .Select(
                       v =>
                       {
@@ -257,9 +258,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
             IScheduler receiveScheduler = new EventLoopScheduler();
 
             IObservable<Tuple<int, int>> sumObservable =
-                s1.Select(v => new Tuple<int, int>(v, s2.Value))
-                  .Merge(s2.Select(v => new Tuple<int, int>(s1.Value, v)))
-                  .Throttle(TimeSpan.FromMilliseconds(100), throttleScheduler);
+                s1.CombineLatest(s2, Tuple.Create).Throttle(TimeSpan.FromMilliseconds(100), throttleScheduler);
 
             IDisposable sumObservableSubscription = null;
             using (sumObservable.Subscribe(
@@ -273,10 +272,10 @@ namespace MorseCode.RxMvvm.Observable.Tests
                     sumObservableSubscription = Observable.Create<int>(
                         o =>
                         {
+                            Thread.Sleep(200);
                             Console.WriteLine(
                                 "Computing value " + v.Item1 + " + " + v.Item2 + " = " + (v.Item1 + v.Item2)
                                 + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
-                            Thread.Sleep(200);
                             computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
                             o.OnNext(v.Item1 + v.Item2);
                             o.OnCompleted();
@@ -405,6 +404,442 @@ namespace MorseCode.RxMvvm.Observable.Tests
             {
                 Console.WriteLine(p.Value + " receives on Thread " + p.Key);
             }
+        }
+
+        [TestMethod]
+        public void TaskTest()
+        {
+            IObservable<int> observable = Observable.Create<int>(
+                o =>
+                {
+                    Thread.Sleep(1000);
+                    Console.WriteLine("Sending synchronous value.");
+                    o.OnNext(3);
+                    o.OnCompleted();
+                    return Disposable.Empty;
+                });
+            IObservable<int> observableAsync = Observable.Create<int>(
+                (o, token) => Task.Factory.StartNew(
+                    () =>
+                    {
+                        Thread.Sleep(1000);
+                        if (!token.IsCancellationRequested)
+                        {
+                            Console.WriteLine("Sending asynchronous value.");
+                            o.OnNext(5);
+                        }
+                        o.OnCompleted();
+                    }));
+
+            Console.WriteLine("Observing synchronous.");
+            IDisposable syncSubscription = observable.Subscribe(Console.WriteLine);
+            Console.WriteLine("Observed synchronous.");
+            syncSubscription.Dispose();
+            Console.WriteLine("Disposed synchronous.");
+            Console.WriteLine("Observing asynchronous.");
+            IDisposable asyncSubscription1 = observableAsync.Subscribe(Console.WriteLine);
+            Console.WriteLine("Observed asynchronous.");
+            asyncSubscription1.Dispose();
+            Console.WriteLine("Disposed asynchronous.");
+            Thread.Sleep(1500);
+        }
+
+        [TestMethod]
+        public void AsyncObservableThreadsWithBetterThrottleOnComputeAndIsCalculating()
+        {
+            Console.WriteLine("Starting Thread " + Thread.CurrentThread.ManagedThreadId);
+            BehaviorSubject<int> s1 = new BehaviorSubject<int>(2);
+            BehaviorSubject<int> s2 = new BehaviorSubject<int>(3);
+            BehaviorSubject<int> sum = new BehaviorSubject<int>(5);
+            List<int> computeThreads = new List<int>();
+            List<int> receiveThreads = new List<int>();
+            IScheduler throttleScheduler = new EventLoopScheduler();
+            Func<IScheduler> getComputeScheduler = () => new EventLoopScheduler();
+            IScheduler receiveScheduler = new EventLoopScheduler();
+
+            IObservable<Tuple<int, int>> sumObservable =
+                s1.CombineLatest(s2, Tuple.Create).Throttle(TimeSpan.FromMilliseconds(100), throttleScheduler);
+
+            IDisposable sumObservableSubscription = null;
+            using (sumObservable.Subscribe(
+                v =>
+                {
+                    if (sumObservableSubscription != null)
+                    {
+                        Console.WriteLine("Canceling previous.");
+                        sumObservableSubscription.Dispose();
+                    }
+                    sumObservableSubscription = Observable.Create<int>(
+                        (o, token) => Task.Factory.StartNew(
+                            () =>
+                            {
+                                Thread.Sleep(200);
+                                if (!token.IsCancellationRequested)
+                                {
+                                    Console.WriteLine(
+                                        "Computing value " + v.Item1 + " + " + v.Item2 + " = "
+                                        + (v.Item1 + v.Item2) + " on Thread "
+                                        + Thread.CurrentThread.ManagedThreadId + ".");
+                                    computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                                    o.OnNext(v.Item1 + v.Item2);
+                                }
+                                o.OnCompleted();
+                                return Disposable.Empty;
+                            })).ObserveOn(receiveScheduler).Subscribe(
+                                    v2 =>
+                                    {
+                                        Console.WriteLine(
+                                            "Received value " + v2 + " on Thread "
+                                            + Thread.CurrentThread.ManagedThreadId + ".");
+                                        receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                                    });
+                }))
+            {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                Thread.Sleep(150);
+                s2.OnNext(1);
+                Thread.Sleep(50);
+                s1.OnNext(4);
+                Thread.Sleep(250);
+                s2.OnNext(4);
+                Thread.Sleep(150);
+                s1.OnNext(1);
+                Thread.Sleep(350);
+
+                stopwatch.Stop();
+                Console.WriteLine("Total Time: " + stopwatch.ElapsedMilliseconds + " ms");
+
+                foreach (KeyValuePair<int, int> p in
+                    computeThreads.GroupBy(v => v).Select(g => new KeyValuePair<int, int>(g.Key, g.Count())))
+                {
+                    Console.WriteLine(p.Value + " computes on Thread " + p.Key);
+                }
+                foreach (KeyValuePair<int, int> p in
+                    receiveThreads.GroupBy(v => v).Select(g => new KeyValuePair<int, int>(g.Key, g.Count())))
+                {
+                    Console.WriteLine(p.Value + " receives on Thread " + p.Key);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void RxOnlyAsyncObservableThreadsWithBetterThrottleOnComputeAndIsCalculating()
+        {
+            Console.WriteLine("Starting Thread " + Thread.CurrentThread.ManagedThreadId);
+            BehaviorSubject<int> s1 = new BehaviorSubject<int>(2);
+            BehaviorSubject<int> s2 = new BehaviorSubject<int>(3);
+            List<int> computeThreads = new List<int>();
+            List<int> receiveThreads = new List<int>();
+            IScheduler throttleScheduler = new EventLoopScheduler();
+            IScheduler computeScheduler = NewThreadScheduler.Default;
+            IScheduler receiveScheduler = new EventLoopScheduler();
+
+            IObservable<Tuple<int, int>> sumObservable =
+                s1.CombineLatest(s2, Tuple.Create).Throttle(TimeSpan.FromMilliseconds(100), throttleScheduler);
+
+            Func<CalculatedPropertyHelper, int, int, Task<int>> calculate = async (helper, v1, v2) =>
+                {
+                    Thread.Sleep(200);
+                    helper.CheckCancellationToken();
+                    Console.WriteLine(
+                        "Computing value " + v1 + " + " + v2 + " = " + (v1 + v2) + " on Thread "
+                        + Thread.CurrentThread.ManagedThreadId + ".");
+                    computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                    return await Task.FromResult(v1 + v2);
+                };
+
+            BehaviorSubject<int> sum = new BehaviorSubject<int>(0);
+            IDisposable scheduledTask = computeScheduler.ScheduleAsync(
+                        async (scheduler, token) =>
+                        {
+                            await scheduler.Yield();
+                            sum.OnNext(
+                                await
+                                calculate(new CalculatedPropertyHelper(scheduler, token), s1.Value, s2.Value));
+                        });
+            using (sumObservable.Subscribe(
+                v =>
+                {
+                    if (scheduledTask != null)
+                    {
+                        Console.WriteLine("Canceling previous.");
+                        scheduledTask.Dispose();
+                    }
+                    scheduledTask = computeScheduler.ScheduleAsync(
+                        async (scheduler, token) =>
+                        {
+                            await scheduler.Yield();
+                            sum.OnNext(
+                                await
+                                calculate(new CalculatedPropertyHelper(scheduler, token), v.Item1, v.Item2));
+                        });
+                }))
+            {
+                using (sum.ObserveOn(receiveScheduler).Subscribe(
+                    v2 =>
+                    {
+                        Console.WriteLine(
+                            "Received value " + v2 + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
+                        receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                    }))
+                {
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
+
+                    Thread.Sleep(150);
+                    s2.OnNext(1);
+                    Thread.Sleep(50);
+                    s1.OnNext(4);
+                    Thread.Sleep(250);
+                    s2.OnNext(4);
+                    Thread.Sleep(150);
+                    s1.OnNext(1);
+                    Thread.Sleep(350);
+
+                    stopwatch.Stop();
+                    Console.WriteLine("Total Time: " + stopwatch.ElapsedMilliseconds + " ms");
+
+                    foreach (KeyValuePair<int, int> p in
+                        computeThreads.GroupBy(v => v).Select(g => new KeyValuePair<int, int>(g.Key, g.Count())))
+                    {
+                        Console.WriteLine(p.Value + " computes on Thread " + p.Key);
+                    }
+                    foreach (KeyValuePair<int, int> p in
+                        receiveThreads.GroupBy(v => v).Select(g => new KeyValuePair<int, int>(g.Key, g.Count())))
+                    {
+                        Console.WriteLine(p.Value + " receives on Thread " + p.Key);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void ScheduleAsync()
+        {
+            RunScheduleAsync(
+                () =>
+                {
+                    Console.WriteLine("Originally running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                    Thread.Sleep(500);
+                    Console.WriteLine("Running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                    Thread.Sleep(500);
+                    Console.WriteLine("Still running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                    return 5;
+                });
+        }
+
+        [TestMethod]
+        public void ScheduleAsyncCancellable()
+        {
+            RunScheduleAsync(
+                async checkCancellationToken =>
+                {
+                    Console.WriteLine("Originally running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                    Thread.Sleep(500);
+                    await checkCancellationToken();
+                    Console.WriteLine("Running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                    Thread.Sleep(500);
+                    await checkCancellationToken();
+                    Console.WriteLine("Still running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                    return 5;
+                });
+        }
+
+        private void RunScheduleAsync(Func<int> calculate)
+        {
+            RunScheduleAsync(async checkCancellationToken => await Task.FromResult(calculate()));
+        }
+
+        private void RunScheduleAsync(Func<Func<SchedulerOperation>, Task<int>> calculate)
+        {
+            Console.WriteLine("Running on thread: " + Thread.CurrentThread.ManagedThreadId);
+            IObservable<int> observable = Observable.Create<int>(
+                o =>
+                {
+                    IDisposable d = new NewThreadScheduler().ScheduleAsync(
+                        async (scheduler, token) =>
+                        {
+                            o.OnNext(await calculate(scheduler.Yield));
+                            o.OnCompleted();
+                        });
+                    return Disposable.Create(
+                        () =>
+                        {
+                            d.Dispose();
+                            Console.WriteLine("Disposed!");
+                        });
+                });
+            Console.WriteLine("Subscribing.");
+            CompositeDisposable s = new CompositeDisposable();
+            for (int i = 0; i < 12; i++)
+            {
+                s.Add(observable.Subscribe(Console.WriteLine, () => Console.WriteLine("Completed.")));
+            }
+            Console.WriteLine("Subscribed.");
+            Thread.Sleep(700);
+            s.Dispose();
+            Console.WriteLine("Should have disposed.");
+            Thread.Sleep(2000);
+            Console.WriteLine("Done.");
+        }
+
+        private string GetElapsedTimeString(DateTime start)
+        {
+            return (DateTime.Now - start).TotalMilliseconds.ToString(CultureInfo.InvariantCulture);
+        }
+
+        [TestMethod]
+        public void TwoScheduleAsync()
+        {
+            DateTime start = DateTime.Now;
+            RunTwoScheduleAsync(
+                start,
+                async helper =>
+                {
+                    Console.WriteLine(
+                        GetElapsedTimeString(start) + ": Originally running 1 on thread: "
+                        + Thread.CurrentThread.ManagedThreadId);
+
+                    //await Task.Delay(500, cancellationToken);
+                    //await scheduler.Sleep(TimeSpan.FromSeconds(0.5), cancellationToken);
+                    Thread.Sleep(500);
+                    helper.CheckCancellationToken();
+                    Console.WriteLine(GetElapsedTimeString(start) + ": Checking token.");
+
+                    Console.WriteLine(
+                        GetElapsedTimeString(start) + ": Running 1 on thread: "
+                        + Thread.CurrentThread.ManagedThreadId);
+
+                    //await Task.Delay(500, cancellationToken);
+                    //await scheduler.Sleep(TimeSpan.FromSeconds(0.5), cancellationToken);
+                    Thread.Sleep(500);
+                    helper.CheckCancellationToken();
+                    Console.WriteLine(GetElapsedTimeString(start) + ": Checking token.");
+
+                    Console.WriteLine(
+                        GetElapsedTimeString(start) + ": Still running 1 on thread: "
+                        + Thread.CurrentThread.ManagedThreadId);
+                    return await Task.FromResult(5);
+                },
+                () =>
+                {
+                    Console.WriteLine(
+                        GetElapsedTimeString(start) + ": Originally running 2 on thread: "
+                        + Thread.CurrentThread.ManagedThreadId);
+                    Thread.Sleep(500);
+                    Console.WriteLine(
+                        GetElapsedTimeString(start) + ": Running 2 on thread: "
+                        + Thread.CurrentThread.ManagedThreadId);
+                    Thread.Sleep(500);
+                    Console.WriteLine(
+                        GetElapsedTimeString(start) + ": Still running 2 on thread: "
+                        + Thread.CurrentThread.ManagedThreadId);
+                    return 5;
+                });
+        }
+
+        private class CalculatedPropertyHelper
+        {
+            private readonly IScheduler scheduler;
+
+            private readonly CancellationToken token;
+
+            public CalculatedPropertyHelper(IScheduler scheduler, CancellationToken token)
+            {
+                this.scheduler = scheduler;
+                this.token = token;
+            }
+
+            public IScheduler Scheduler
+            {
+                get
+                {
+                    return this.scheduler;
+                }
+            }
+
+            public CancellationToken Token
+            {
+                get
+                {
+                    return this.token;
+                }
+            }
+
+            public void CheckCancellationToken()
+            {
+                if (token.IsCancellationRequested)
+                {
+                    token.ThrowIfCancellationRequested();
+                }
+            }
+
+            public async Task CheckCancellationTokenAndYield()
+            {
+                await Scheduler.Yield();
+            }
+        }
+
+        private void RunTwoScheduleAsync(
+            DateTime start, Func<CalculatedPropertyHelper, Task<int>> calculate1, Func<int> calculate2)
+        {
+            IScheduler eventLoopScheduler = new EventLoopScheduler();
+            Console.WriteLine(
+                GetElapsedTimeString(start) + ": Running on thread: " + Thread.CurrentThread.ManagedThreadId);
+            IObservable<int> observable1 = Observable.Create<int>(
+                o =>
+                {
+                    IDisposable d = eventLoopScheduler.ScheduleAsync(
+                        async (scheduler, token) =>
+                        {
+                            await scheduler.Yield();
+                            o.OnNext(await calculate1(new CalculatedPropertyHelper(scheduler, token)));
+                            o.OnCompleted();
+                        });
+                    return Disposable.Create(
+                        () =>
+                        {
+                            d.Dispose();
+                            Console.WriteLine(GetElapsedTimeString(start) + ": Disposed!");
+                        });
+                });
+            IObservable<int> observable2 = Observable.Create<int>(
+                o =>
+                {
+                    IDisposable d = eventLoopScheduler.ScheduleAsync(
+                        async (scheduler, token) =>
+                        {
+                            o.OnNext(await Task.FromResult(calculate2()));
+                            o.OnCompleted();
+                        });
+                    return Disposable.Create(
+                        () =>
+                        {
+                            d.Dispose();
+                            Console.WriteLine(GetElapsedTimeString(start) + ": Disposed!");
+                        });
+                });
+            Console.WriteLine(GetElapsedTimeString(start) + ": Subscribing.");
+            CompositeDisposable s = new CompositeDisposable();
+            for (int i = 0; i < 8; i++)
+            {
+                s.Add(
+                    observable1.Subscribe(
+                        Console.WriteLine, () => Console.WriteLine(GetElapsedTimeString(start) + ": Completed 1.")));
+            }
+
+            //for (int i = 0; i < 8; i++)
+            //{
+            //    s.Add(observable2.Subscribe(Console.WriteLine, () => Console.WriteLine(GetElapsedTimeString(start) + ": Completed 2.")));
+            //}
+            Console.WriteLine(GetElapsedTimeString(start) + ": Subscribed.");
+            Thread.Sleep(1700);
+            s.Dispose();
+            Console.WriteLine(GetElapsedTimeString(start) + ": Should have disposed.");
+            Thread.Sleep(2000);
+            Console.WriteLine(GetElapsedTimeString(start) + ": Done.");
         }
 
         [TestMethod]

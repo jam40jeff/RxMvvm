@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics.Contracts;
+    using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
@@ -18,11 +19,13 @@
     {
         private readonly BehaviorSubject<IDiscriminatedUnion<object, T, Exception>> valueOrExceptionSubject;
 
+        private readonly BehaviorSubject<bool> isCalculatingSubject;
+
         private readonly BehaviorSubject<T> valueSubject;
 
         private readonly BehaviorSubject<Exception> exceptionSubject;
 
-        private readonly IObservable<T> allNotificationsObservable;
+        private readonly IObservable<T> setObservable;
 
         private readonly IObservable<T> changeObservable;
 
@@ -32,51 +35,51 @@
 
         private readonly IObservable<IDiscriminatedUnion<object, T, Exception>> changeOrExceptionObservable;
 
-        private readonly IDisposable valueOrExceptionSubjectSubscription;
+        private readonly CompositeDisposable subscriptionsDisposable = new CompositeDisposable();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CalculatedProperty{T}"/> class. 
         /// </summary>
-        /// <param name="setOrExceptionObservable">
-        /// The observable that is the result of the calculation.
+        /// <param name="registerCalculation">
+        /// Registers the calculation.
         /// </param>
-        /// <param name="initialValue">
-        /// The initial Value.
-        /// </param>
-        public CalculatedProperty(
-            IObservable<IDiscriminatedUnion<object, T, Exception>> setOrExceptionObservable,
-            IDiscriminatedUnion<object, T, Exception> initialValue)
+        public CalculatedProperty(Func<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>, BehaviorSubject<bool>, IDisposable> registerCalculation)
         {
-            Contract.Requires<ArgumentNullException>(setOrExceptionObservable != null, "setOrExceptionObservable");
-            Contract.Requires<ArgumentNullException>(initialValue != null, "initialValue");
+            Contract.Requires<ArgumentNullException>(registerCalculation != null, "registerCalculation");
             Contract.Ensures(this.valueOrExceptionSubject != null);
+            Contract.Ensures(this.isCalculatingSubject != null);
             Contract.Ensures(this.valueSubject != null);
             Contract.Ensures(this.exceptionSubject != null);
-            Contract.Ensures(this.allNotificationsObservable != null);
+            Contract.Ensures(this.setObservable != null);
             Contract.Ensures(this.changeObservable != null);
             Contract.Ensures(this.exceptionObservable != null);
             Contract.Ensures(this.setOrExceptionObservable != null);
             Contract.Ensures(this.changeOrExceptionObservable != null);
-            Contract.Ensures(this.valueOrExceptionSubjectSubscription != null);
 
-            this.setOrExceptionObservable = setOrExceptionObservable;
-            this.valueOrExceptionSubject = new BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>(initialValue);
-            this.valueSubject = new BehaviorSubject<T>(initialValue.IsFirst ? initialValue.First : default(T));
-            this.exceptionSubject = new BehaviorSubject<Exception>(initialValue.IsSecond ? initialValue.Second : null);
-            this.valueOrExceptionSubjectSubscription = this.setOrExceptionObservable.Subscribe(
-                v =>
-                {
-                    this.valueOrExceptionSubject.OnNext(v);
-                    v.Switch(this.valueSubject.OnNext, this.exceptionSubject.OnNext);
-                });
+            this.valueOrExceptionSubject = new BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>(DiscriminatedUnion.First<object, T, Exception>(default(T)));
+            this.valueSubject = new BehaviorSubject<T>(default(T));
+            this.exceptionSubject = new BehaviorSubject<Exception>(null);
+            this.isCalculatingSubject = new BehaviorSubject<bool>(false);
 
-            if (this.valueOrExceptionSubjectSubscription == null)
+            this.subscriptionsDisposable.Add(this.valueOrExceptionSubject.Subscribe(v => v.Switch(this.valueSubject.OnNext, this.exceptionSubject.OnNext)));
+
+            this.subscriptionsDisposable.Add(registerCalculation(this.valueOrExceptionSubject, this.isCalculatingSubject));
+
+            this.setOrExceptionObservable = this.valueOrExceptionSubject.AsObservable();
+
+            if (this.setOrExceptionObservable == null)
             {
-                throw new InvalidOperationException("Result of Subscribe cannot be null.");
+                throw new InvalidOperationException("Result of AsObservable cannot be null.");
             }
 
-            this.allNotificationsObservable = this.setOrExceptionObservable.TakeFirst();
-            this.changeObservable = this.allNotificationsObservable.DistinctUntilChanged();
+            this.setObservable = this.setOrExceptionObservable.TakeFirst();
+
+            if (this.setObservable == null)
+            {
+                throw new InvalidOperationException("Result of TakeFirst cannot be null.");
+            }
+
+            this.changeObservable = this.setObservable.DistinctUntilChanged();
 
             if (this.changeObservable == null)
             {
@@ -134,7 +137,7 @@
         {
             get
             {
-                return this.allNotificationsObservable;
+                return this.setObservable;
             }
         }
 
@@ -181,6 +184,8 @@
         {
             get
             {
+                Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
+
                 if (this.valueOrExceptionSubject.Value == null)
                 {
                     throw new InvalidOperationException("Latest value or exception discriminated union cannot be null.");
@@ -221,21 +226,25 @@
         public void Dispose()
         {
             this.valueOrExceptionSubject.Dispose();
-            this.valueOrExceptionSubjectSubscription.Dispose();
+            this.isCalculatingSubject.Dispose();
+            this.valueSubject.Dispose();
+            this.exceptionSubject.Dispose();
+            this.subscriptionsDisposable.Dispose();
         }
 
         [ContractInvariantMethod]
         private void CodeContractsInvariants()
         {
             Contract.Invariant(this.valueOrExceptionSubject != null);
+            Contract.Invariant(this.isCalculatingSubject != null);
             Contract.Invariant(this.valueSubject != null);
             Contract.Invariant(this.exceptionSubject != null);
-            Contract.Invariant(this.allNotificationsObservable != null);
+            Contract.Invariant(this.setObservable != null);
             Contract.Invariant(this.changeObservable != null);
             Contract.Invariant(this.exceptionObservable != null);
             Contract.Invariant(this.setOrExceptionObservable != null);
             Contract.Invariant(this.changeOrExceptionObservable != null);
-            Contract.Invariant(this.valueOrExceptionSubjectSubscription != null);
+            Contract.Invariant(this.subscriptionsDisposable != null);
         }
     }
 }
