@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright 2014 MorseCode Software
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Observable
+namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
     using System.Diagnostics.Contracts;
@@ -90,10 +90,7 @@ namespace MorseCode.RxMvvm.Observable
             return this.observable.Subscribe(observer);
         }
 
-        /// <summary>
-        /// The dispose.
-        /// </summary>
-        public void Dispose()
+        void IDisposable.Dispose()
         {
         }
 

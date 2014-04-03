@@ -1,4 +1,4 @@
-﻿namespace MorseCode.RxMvvm.Observable
+namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
     using System.Diagnostics.Contracts;
@@ -220,10 +220,7 @@
             return this.valueOrExceptionSubject.Value.Switch(v => v, e => { throw e; });
         }
 
-        /// <summary>
-        /// Disposes of the object.
-        /// </summary>
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             this.valueOrExceptionSubject.Dispose();
             this.isCalculatingSubject.Dispose();

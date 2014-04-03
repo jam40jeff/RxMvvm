@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright 2014 MorseCode Software
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,19 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Observable
+namespace MorseCode.RxMvvm.Observable.Property
 {
     /// <summary>
-    /// Interface representing a read-write property.
+    /// Interface representing a writable property.
     /// </summary>
     /// <typeparam name="T">
     /// The type of the property.
     /// </typeparam>
-    public interface IObservableProperty<T> : IReadableObservableProperty<T>, IWritableObservableProperty<T>
+    public interface IWritableObservableProperty<in T>
     {
         /// <summary>
-        /// Gets or sets the value.
+        /// Sets the latest value.
         /// </summary>
-        new T Value { get; set; }
+        T Value { set; }
     }
 }

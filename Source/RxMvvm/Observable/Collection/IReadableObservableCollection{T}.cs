@@ -12,31 +12,18 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Observable
+namespace MorseCode.RxMvvm.Observable.Collection
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
-    /// Interface representing a readable property.
+    /// An interface representing an observable collection which may be read from.
     /// </summary>
     /// <typeparam name="T">
-    /// The type of the property.
+    /// The type of the objects in the collection.
     /// </typeparam>
-    public interface IReadableObservableProperty<out T> : IObservable<T>, IDisposable
+    public interface IReadableObservableCollection<out T> : IReadOnlyList<T>, IObservable<IObservableCollectionChanged<T>>, IDisposable
     {
-        /// <summary>
-        /// Gets an observable which notifies when a value change occurs.
-        /// </summary>
-        IObservable<T> OnChanged { get; }
-
-        /// <summary>
-        /// Gets an observable which notifies when a value set occurs.
-        /// </summary>
-        IObservable<T> OnSet { get; }
-
-        /// <summary>
-        /// Gets the latest value.
-        /// </summary>
-        T Value { get; }
     }
 }
