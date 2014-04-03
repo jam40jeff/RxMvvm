@@ -95,6 +95,7 @@
     <Compile Include="Collection\IWritableObservableCollection{T}.cs" />
     <Compile Include="Collection\ObservableCollectionChanged.cs" />
     <Compile Include="Collection\ObservableCollectionChanged{T}.cs" />
+    <Compile Include="Collection\ObservableCollectionFactory.cs" />
     <Compile Include="Collection\ObservableCollection{T}.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Property\AsyncCalculationHelper.cs" />

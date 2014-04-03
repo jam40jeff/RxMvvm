@@ -41,6 +41,20 @@ namespace MorseCode.RxMvvm.Observable.Collection
             this.collectionChanged = new Subject<IObservableCollectionChanged<T>>();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ObservableCollection{T}"/> class with an initial list of items.
+        /// </summary>
+        /// <param name="list">
+        /// The initial list of items.
+        /// </param>
+        public ObservableCollection(IList<T> list)
+            : base(list)
+        {
+            Contract.Ensures(this.collectionChanged != null);
+
+            this.collectionChanged = new Subject<IObservableCollectionChanged<T>>();
+        }
+
         IDisposable IObservable<IObservableCollectionChanged<T>>.Subscribe(
             IObserver<IObservableCollectionChanged<T>> observer)
         {
