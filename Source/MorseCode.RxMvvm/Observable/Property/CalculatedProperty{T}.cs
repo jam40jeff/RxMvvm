@@ -69,21 +69,21 @@ namespace MorseCode.RxMvvm.Observable.Property
 
             if (this.setOrExceptionObservable == null)
             {
-                throw new InvalidOperationException("Result of AsObservable cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o2 => o2.AsObservable()).Name + " cannot be null.");
             }
 
             this.setObservable = this.setOrExceptionObservable.TakeFirst();
 
             if (this.setObservable == null)
             {
-                throw new InvalidOperationException("Result of TakeFirst cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o2 => o2.TakeFirst()).Name + " cannot be null.");
             }
 
             this.changeObservable = this.setObservable.DistinctUntilChanged();
 
             if (this.changeObservable == null)
             {
-                throw new InvalidOperationException("Result of DistinctUntilChanged cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o2 => o2.DistinctUntilChanged()).Name + " cannot be null.");
             }
 
             this.exceptionObservable = this.setOrExceptionObservable.TakeSecond();
@@ -93,7 +93,7 @@ namespace MorseCode.RxMvvm.Observable.Property
 
             if (this.changeOrExceptionObservable == null)
             {
-                throw new InvalidOperationException("Result of Merge cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o2 => o2.Merge(null)).Name + " cannot be null.");
             }
         }
 

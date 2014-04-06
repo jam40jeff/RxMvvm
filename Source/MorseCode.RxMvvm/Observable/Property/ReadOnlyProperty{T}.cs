@@ -19,6 +19,8 @@ namespace MorseCode.RxMvvm.Observable.Property
     using System.Reactive.Disposables;
     using System.Reactive.Linq;
 
+    using MorseCode.RxMvvm.Common;
+
     internal class ReadOnlyProperty<T> : IReadableObservableProperty<T>
     {
         private readonly Lazy<T> value;
@@ -40,15 +42,15 @@ namespace MorseCode.RxMvvm.Observable.Property
             this.value = value;
             this.observable = Observable.Create<T>(
                 o =>
-                    {
-                        o.OnNext(value.Value);
-                        o.OnCompleted();
-                        return Disposable.Empty;
-                    });
+                {
+                    o.OnNext(value.Value);
+                    o.OnCompleted();
+                    return Disposable.Empty;
+                });
 
             if (this.observable == null)
             {
-                throw new InvalidOperationException("Result of Observable.Create cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection.GetInScopeMethodInfo(() => Observable.Create<object>(o => (Action)null)).Name + " cannot be null.");
             }
         }
 

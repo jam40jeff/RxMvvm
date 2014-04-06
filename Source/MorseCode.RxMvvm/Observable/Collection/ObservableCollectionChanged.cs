@@ -18,6 +18,8 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System.Collections.Generic;
     using System.Linq;
 
+    using MorseCode.RxMvvm.Common;
+
     /// <summary>
     /// Contains extension methods for interface <see cref="IObservableCollectionChanged{T}"/>.
     /// </summary>
@@ -40,17 +42,24 @@ namespace MorseCode.RxMvvm.Observable.Collection
         {
             Tuple<IEnumerable<T>, IEnumerable<T>> items =
                 o.Aggregate(
-                    Tuple.Create(Enumerable.Empty<T>(), Enumerable.Empty<T>()),
+                    Tuple.Create(Enumerable.Empty<T>(), Enumerable.Empty<T>()), 
                     (t, i) => Tuple.Create(t.Item1.Concat(i.OldItems), t.Item2.Concat(i.NewItems)));
 
             if (items == null)
             {
-                throw new InvalidOperationException("Result of Aggregate cannot be null.");
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<IEnumerable<IObservableCollectionChanged<T>>>.GetMethodInfo(
+                        o2 => o2.Aggregate(null)).Name + " cannot be null.");
             }
 
             if (items.Item1 == null || items.Item2 == null)
             {
-                throw new InvalidOperationException("Aggregate should have produced a Tuple with two non-null items.");
+                throw new InvalidOperationException(
+                    "The "
+                    + StaticReflection<IEnumerable<IObservableCollectionChanged<T>>>.GetMethodInfo(
+                        o2 => o2.Aggregate(null)).Name + " method should have produced a "
+                    + typeof(Tuple<IEnumerable<T>, IEnumerable<T>>).Name + " with two non-null items.");
             }
 
             return new ObservableCollectionChanged<T>(items.Item1.ToList(), items.Item2.ToList());
