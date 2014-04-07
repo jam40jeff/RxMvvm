@@ -21,9 +21,9 @@ namespace MorseCode.RxMvvm.Observable
     using MorseCode.RxMvvm.Common;
 
     /// <summary>
-    /// A static class providing factory methods for creating chained observables.  Chained observables automatically re-subscribe the rest of the chain when any of the intermediate property values change.
+    /// A static class providing extension methods for creating chained observables.  Chained observables automatically re-subscribe the rest of the chain when any of the intermediate property values change.
     /// </summary>
-    public static class ChainedObservableFactory
+    public static class ChainedObservable
     {
         /// <summary>
         /// Begins a chained observable.
@@ -37,7 +37,7 @@ namespace MorseCode.RxMvvm.Observable
         /// <returns>
         /// A <see cref="ChainedObservableHelper{T}"/> for building the chained observable.
         /// </returns>
-        public static ChainedObservableHelper<T> Begin<T>(IObservable<T> observable)
+        public static ChainedObservableHelper<T> BeginChain<T>(this IObservable<T> observable)
         {
             Contract.Requires(observable != null);
             Contract.Ensures(Contract.Result<ChainedObservableHelper<T>>() != null);

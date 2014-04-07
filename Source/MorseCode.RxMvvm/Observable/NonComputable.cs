@@ -39,11 +39,5 @@ namespace MorseCode.RxMvvm.Observable
                 return ValueField;
             }
         }
-
-        [ContractInvariantMethod]
-        private void CodeContractsInvariants()
-        {
-            Contract.Invariant(ValueField != null);
-        }
     }
 }
