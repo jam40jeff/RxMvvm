@@ -14,6 +14,7 @@
 
 namespace MorseCode.RxMvvm.Observable.Collection
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -33,5 +34,16 @@ namespace MorseCode.RxMvvm.Observable.Collection
         /// Gets the new items which were added to the collection.
         /// </summary>
         IReadOnlyList<T> NewItems { get; }
+
+        /// <summary>
+        /// Executes the specified processing actions for both the old items and the new items.
+        /// </summary>
+        /// <param name="processOldItems">
+        /// The processing action for the old items.
+        /// </param>
+        /// <param name="processNewItems">
+        /// The processing action for the new items.
+        /// </param>
+        void Process(Action<IReadOnlyList<T>> processOldItems, Action<IReadOnlyList<T>> processNewItems);
     }
 }

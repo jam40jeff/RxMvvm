@@ -14,6 +14,7 @@
 
 namespace MorseCode.RxMvvm.Observable.Collection
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
 
@@ -65,6 +66,24 @@ namespace MorseCode.RxMvvm.Observable.Collection
 
                 return this.newItems;
             }
+        }
+
+        /// <summary>
+        /// Executes the specified processing actions for both the old items and the new items.
+        /// </summary>
+        /// <param name="processOldItems">
+        /// The processing action for the old items.
+        /// </param>
+        /// <param name="processNewItems">
+        /// The processing action for the new items.
+        /// </param>
+        public void Process(Action<IReadOnlyList<T>> processOldItems, Action<IReadOnlyList<T>> processNewItems)
+        {
+            Contract.Requires(processOldItems != null);
+            Contract.Requires(processNewItems != null);
+
+            processOldItems(this.OldItems);
+            processNewItems(this.NewItems);
         }
 
         [ContractInvariantMethod]
