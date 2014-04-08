@@ -16,6 +16,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
     /// <summary>
     /// An interface representing an observable collection which may be read from.
@@ -23,7 +24,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
     /// <typeparam name="T">
     /// The type of the objects in the collection.
     /// </typeparam>
-    public interface IReadableObservableCollection<out T> : IReadOnlyList<T>, IObservable<IObservableCollectionChanged<T>>, IDisposable
+    public interface IReadableObservableCollection<out T> : IReadOnlyList<T>, IObservable<IObservableCollectionChanged<T>>, INotifyPropertyChanged, IDisposable
     {
     }
 }

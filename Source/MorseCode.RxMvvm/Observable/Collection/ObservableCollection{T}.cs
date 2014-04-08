@@ -17,43 +17,44 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Reactive.Subjects;
 
-    /// <summary>
-    /// An observable collection which may be read from and written to.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The type of the objects in the collection.
-    /// </typeparam>
     internal class ObservableCollection<T> : Collection<T>, IObservableCollection<T>
     {
         private readonly Subject<IObservableCollectionChanged<T>> collectionChanged;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ObservableCollection{T}"/> class.
-        /// </summary>
-        public ObservableCollection()
+        internal ObservableCollection()
         {
             Contract.Ensures(this.collectionChanged != null);
 
             this.collectionChanged = new Subject<IObservableCollectionChanged<T>>();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ObservableCollection{T}"/> class with an initial list of items.
-        /// </summary>
-        /// <param name="list">
-        /// The initial list of items.
-        /// </param>
-        public ObservableCollection(IList<T> list)
+        internal ObservableCollection(IList<T> list)
             : base(list)
         {
             Contract.Ensures(this.collectionChanged != null);
 
             this.collectionChanged = new Subject<IObservableCollectionChanged<T>>();
         }
+
+        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        {
+            add
+            {
+                this.PropertyChanged += value;
+            }
+
+            remove
+            {
+                this.PropertyChanged -= value;
+            }
+        }
+
+        private event PropertyChangedEventHandler PropertyChanged;
 
         IDisposable IObservable<IObservableCollectionChanged<T>>.Subscribe(
             IObserver<IObservableCollectionChanged<T>> observer)
@@ -76,6 +77,8 @@ namespace MorseCode.RxMvvm.Observable.Collection
             base.ClearItems();
 
             this.collectionChanged.OnNext(new ObservableCollectionChanged<T>(oldItems, null));
+            this.OnCountChanged();
+            this.OnItemsChanged();
         }
 
         /// <summary>
@@ -95,6 +98,8 @@ namespace MorseCode.RxMvvm.Observable.Collection
             base.InsertItem(index, item);
 
             this.collectionChanged.OnNext(new ObservableCollectionChanged<T>(null, new[] { item }));
+            this.OnCountChanged();
+            this.OnItemsChanged();
         }
 
         /// <summary>
@@ -116,6 +121,8 @@ namespace MorseCode.RxMvvm.Observable.Collection
             if (canRemove)
             {
                 this.collectionChanged.OnNext(new ObservableCollectionChanged<T>(oldItems, null));
+                this.OnCountChanged();
+                this.OnItemsChanged();
             }
         }
 
@@ -141,7 +148,42 @@ namespace MorseCode.RxMvvm.Observable.Collection
             if (canSet)
             {
                 this.collectionChanged.OnNext(new ObservableCollectionChanged<T>(oldItems, new[] { item }));
+                this.OnItemsChanged();
             }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="PropertyChanged"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// The event arguments.
+        /// </param>
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            PropertyChangedEventHandler handler = this.PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="PropertyChanged"/> event for the <see cref="IReadOnlyCollection{T}.Count"/> property.
+        /// </summary>
+        protected virtual void OnCountChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+        }
+
+        // The property syntax in the see tag is correct.
+#pragma warning disable 1584,1711,1572,1581,1580
+        /// <summary>
+        /// Raises the <see cref="PropertyChanged"/> event for the <see cref="P:IReadOnlyList{T}.Item(Int32)"/> property.
+        /// </summary>
+#pragma warning restore 1584,1711,1572,1581,1580
+        protected virtual void OnItemsChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
         }
 
         [ContractInvariantMethod]
