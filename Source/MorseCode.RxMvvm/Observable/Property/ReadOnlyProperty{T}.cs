@@ -16,48 +16,37 @@ namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.Reactive.Disposables;
     using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common;
 
-    internal class ReadOnlyProperty<T> : IReadableObservableProperty<T>
+    internal class ReadOnlyProperty<T> : ReadableObservablePropertyBase<T>
     {
         private readonly Lazy<T> value;
 
         private readonly IObservable<T> observable;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReadOnlyProperty{T}"/> class.
-        /// </summary>
-        /// <param name="value">
-        /// The value.
-        /// </param>
-        public ReadOnlyProperty(Lazy<T> value)
+        internal ReadOnlyProperty(Lazy<T> value)
         {
             Contract.Requires(value != null);
             Contract.Ensures(this.value != null);
             Contract.Ensures(this.observable != null);
 
             this.value = value;
-            this.observable = Observable.Create<T>(
-                o =>
-                {
-                    o.OnNext(value.Value);
-                    o.OnCompleted();
-                    return Disposable.Empty;
-                });
+            this.observable = Observable.Return(value.Value);
 
             if (this.observable == null)
             {
-                throw new InvalidOperationException("Result of " + StaticReflection.GetInScopeMethodInfo(() => Observable.Create<object>(o => (Action)null)).Name + " cannot be null.");
+                throw new InvalidOperationException(
+                    "Result of " + StaticReflection.GetInScopeMethodInfo(() => Observable.Return<object>(null)).Name
+                    + " cannot be null.");
             }
         }
 
         /// <summary>
-        /// Gets the on changed.
+        /// Gets the on changed observable.
         /// </summary>
-        public IObservable<T> OnChanged
+        protected override IObservable<T> OnChanged
         {
             get
             {
@@ -66,9 +55,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         }
 
         /// <summary>
-        /// Gets the on set.
+        /// Gets the on set observable.
         /// </summary>
-        public IObservable<T> OnSet
+        protected override IObservable<T> OnSet
         {
             get
             {
@@ -77,23 +66,14 @@ namespace MorseCode.RxMvvm.Observable.Property
         }
 
         /// <summary>
-        /// Gets the value.
+        /// Gets the value of the property.
         /// </summary>
-        public T Value
+        /// <returns>
+        /// The value of the property.
+        /// </returns>
+        protected override T GetValue()
         {
-            get
-            {
-                return this.value.Value;
-            }
-        }
-
-        IDisposable IObservable<T>.Subscribe(IObserver<T> observer)
-        {
-            return this.observable.Subscribe(observer);
-        }
-
-        void IDisposable.Dispose()
-        {
+            return this.value.Value;
         }
 
         [ContractInvariantMethod]

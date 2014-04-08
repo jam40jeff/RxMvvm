@@ -24,16 +24,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
 
         private readonly IReadOnlyList<T> newItems;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ObservableCollectionChanged{T}"/> class.
-        /// </summary>
-        /// <param name="oldItems">
-        /// The old items which were removed from the collection.
-        /// </param>
-        /// <param name="newItems">
-        /// The new items which were added to the collection.
-        /// </param>
-        public ObservableCollectionChanged(IReadOnlyList<T> oldItems, IReadOnlyList<T> newItems)
+        internal ObservableCollectionChanged(IReadOnlyList<T> oldItems, IReadOnlyList<T> newItems)
         {
             Contract.Ensures(this.oldItems != null);
             Contract.Ensures(this.newItems != null);
@@ -42,10 +33,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
             this.newItems = newItems ?? new T[0];
         }
 
-        /// <summary>
-        /// Gets the old items which were removed from the collection.
-        /// </summary>
-        public IReadOnlyList<T> OldItems
+        IReadOnlyList<T> IObservableCollectionChanged<T>.OldItems
         {
             get
             {
@@ -55,10 +43,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
             }
         }
 
-        /// <summary>
-        /// Gets the new items which were added to the collection.
-        /// </summary>
-        public IReadOnlyList<T> NewItems
+        IReadOnlyList<T> IObservableCollectionChanged<T>.NewItems
         {
             get
             {
@@ -68,22 +53,10 @@ namespace MorseCode.RxMvvm.Observable.Collection
             }
         }
 
-        /// <summary>
-        /// Executes the specified processing actions for both the old items and the new items.
-        /// </summary>
-        /// <param name="processOldItems">
-        /// The processing action for the old items.
-        /// </param>
-        /// <param name="processNewItems">
-        /// The processing action for the new items.
-        /// </param>
-        public void Process(Action<IReadOnlyList<T>> processOldItems, Action<IReadOnlyList<T>> processNewItems)
+        void IObservableCollectionChanged<T>.Process(Action<IReadOnlyList<T>> processOldItems, Action<IReadOnlyList<T>> processNewItems)
         {
-            Contract.Requires(processOldItems != null);
-            Contract.Requires(processNewItems != null);
-
-            processOldItems(this.OldItems);
-            processNewItems(this.NewItems);
+            processOldItems(this.oldItems);
+            processNewItems(this.newItems);
         }
 
         [ContractInvariantMethod]

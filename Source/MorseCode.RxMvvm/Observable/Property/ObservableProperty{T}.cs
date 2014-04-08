@@ -21,7 +21,7 @@ namespace MorseCode.RxMvvm.Observable.Property
 
     using MorseCode.RxMvvm.Common;
 
-    internal class ObservableProperty<T> : IObservableProperty<T>
+    internal class ObservableProperty<T> : ReadableObservablePropertyBase<T>, IObservableProperty<T>
     {
         private readonly BehaviorSubject<T> behaviorSubject;
 
@@ -29,17 +29,14 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         private readonly IObservable<T> changeObservable;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ObservableProperty{T}"/> class.
-        /// </summary>
-        /// <param name="initialValue">
-        /// The initial value.
-        /// </param>
-        public ObservableProperty(T initialValue)
+        private readonly IDisposable changeSubscription;
+
+        internal ObservableProperty(T initialValue)
         {
             Contract.Ensures(this.behaviorSubject != null);
-            Contract.Ensures(this.changeObservable != null);
             Contract.Ensures(this.allNotificationsObservable != null);
+            Contract.Ensures(this.changeObservable != null);
+            Contract.Ensures(this.changeSubscription != null);
 
             this.behaviorSubject = new BehaviorSubject<T>(initialValue);
 
@@ -54,14 +51,44 @@ namespace MorseCode.RxMvvm.Observable.Property
             if (this.allNotificationsObservable == null)
             {
                 throw new InvalidOperationException(
-                    StaticReflection.GetInScopeMemberInfo(() => this.allNotificationsObservable).Name + " may not be null.");
+                    StaticReflection.GetInScopeMemberInfo(() => this.allNotificationsObservable).Name
+                    + " may not be null.");
+            }
+
+            // TODO: does this subscription need to happen on the UI thread?
+            this.changeSubscription = this.changeObservable.Skip(1).Subscribe(v => this.OnValueChanged());
+
+            if (this.changeSubscription == null)
+            {
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.Subscribe()).Name + " cannot be null.");
+            }
+        }
+
+        T IWritableObservableProperty<T>.Value
+        {
+            set
+            {
+                this.SetValue(value);
+            }
+        }
+
+        T IObservableProperty<T>.Value
+        {
+            get
+            {
+                return this.GetValue();
+            }
+
+            set
+            {
+                this.SetValue(value);
             }
         }
 
         /// <summary>
-        /// Gets the on changed.
+        /// Gets the on changed observable.
         /// </summary>
-        public IObservable<T> OnChanged
+        protected override IObservable<T> OnChanged
         {
             get
             {
@@ -70,9 +97,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         }
 
         /// <summary>
-        /// Gets the on set.
+        /// Gets the on set observable.
         /// </summary>
-        public IObservable<T> OnSet
+        protected override IObservable<T> OnSet
         {
             get
             {
@@ -81,37 +108,45 @@ namespace MorseCode.RxMvvm.Observable.Property
         }
 
         /// <summary>
-        /// Gets or sets the value.
+        /// Disposes of the property.
         /// </summary>
-        public T Value
+        protected override void Dispose()
         {
-            get
-            {
-                return this.behaviorSubject.Value;
-            }
+            base.Dispose();
 
-            set
-            {
-                this.behaviorSubject.OnNext(value);
-            }
-        }
-
-        IDisposable IObservable<T>.Subscribe(IObserver<T> observer)
-        {
-            return this.changeObservable.Subscribe(observer);
-        }
-
-        void IDisposable.Dispose()
-        {
             this.behaviorSubject.Dispose();
+            this.changeSubscription.Dispose();
+        }
+
+        /// <summary>
+        /// Gets the value of the property.
+        /// </summary>
+        /// <returns>
+        /// The value of the property.
+        /// </returns>
+        protected override T GetValue()
+        {
+            return this.behaviorSubject.Value;
+        }
+
+        /// <summary>
+        /// Sets the value of the property.
+        /// </summary>
+        /// <param name="value">
+        /// The value to set the property to.
+        /// </param>
+        protected virtual void SetValue(T value)
+        {
+            this.behaviorSubject.OnNext(value);
         }
 
         [ContractInvariantMethod]
         private void CodeContractsInvariants()
         {
             Contract.Invariant(this.behaviorSubject != null);
-            Contract.Invariant(this.changeObservable != null);
             Contract.Invariant(this.allNotificationsObservable != null);
+            Contract.Invariant(this.changeObservable != null);
+            Contract.Invariant(this.changeSubscription != null);
         }
     }
 }

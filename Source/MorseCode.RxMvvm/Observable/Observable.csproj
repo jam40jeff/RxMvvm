@@ -107,8 +107,10 @@
     <Compile Include="Property\IObservableProperty{T}.cs" />
     <Compile Include="Property\IReadableObservableProperty{T}.cs" />
     <Compile Include="Property\IWritableObservableProperty{T}.cs" />
+    <Compile Include="Property\ReadableObservablePropertyBase{T}.cs" />
     <Compile Include="Property\ObservablePropertyFactory.cs" />
     <Compile Include="Property\ObservableProperty{T}.cs" />
+    <Compile Include="Property\ReadableObservablePropertyUtility.cs" />
     <Compile Include="Property\ReadOnlyProperty{T}.cs" />
   </ItemGroup>
   <ItemGroup>

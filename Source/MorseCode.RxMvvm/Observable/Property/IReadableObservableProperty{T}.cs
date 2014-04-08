@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
+    using System.ComponentModel;
 
     /// <summary>
     /// Interface representing a readable property.
@@ -22,7 +23,7 @@ namespace MorseCode.RxMvvm.Observable.Property
     /// <typeparam name="T">
     /// The type of the property.
     /// </typeparam>
-    public interface IReadableObservableProperty<out T> : IObservable<T>, IDisposable
+    public interface IReadableObservableProperty<out T> : IObservable<T>, INotifyPropertyChanged, IDisposable
     {
         /// <summary>
         /// Gets an observable which notifies when a value change occurs.

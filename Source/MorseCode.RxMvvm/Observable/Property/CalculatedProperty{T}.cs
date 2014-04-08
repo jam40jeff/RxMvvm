@@ -9,13 +9,7 @@ namespace MorseCode.RxMvvm.Observable.Property
     using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Reactive;
 
-    /// <summary>
-    /// Class representing a property that is automatically calculated when its dependencies change.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The type of the property.
-    /// </typeparam>
-    public class CalculatedProperty<T> : ICalculatedProperty<T>
+    internal class CalculatedProperty<T> : ReadableObservablePropertyBase<IDiscriminatedUnion<object, T, Exception>>, ICalculatedProperty<T>
     {
         private readonly BehaviorSubject<IDiscriminatedUnion<object, T, Exception>> valueOrExceptionSubject;
 
@@ -37,13 +31,7 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         private readonly CompositeDisposable subscriptionsDisposable = new CompositeDisposable();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CalculatedProperty{T}"/> class. 
-        /// </summary>
-        /// <param name="registerCalculation">
-        /// Registers the calculation.
-        /// </param>
-        public CalculatedProperty(Func<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>, BehaviorSubject<bool>, IDisposable> registerCalculation)
+        internal CalculatedProperty(Func<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>, BehaviorSubject<bool>, IDisposable> registerCalculation)
         {
             Contract.Requires<ArgumentNullException>(registerCalculation != null, "registerCalculation");
             Contract.Ensures(this.valueOrExceptionSubject != null);
@@ -69,21 +57,21 @@ namespace MorseCode.RxMvvm.Observable.Property
 
             if (this.setOrExceptionObservable == null)
             {
-                throw new InvalidOperationException("Result of " + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o2 => o2.AsObservable()).Name + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o => o.AsObservable()).Name + " cannot be null.");
             }
 
             this.setObservable = this.setOrExceptionObservable.TakeFirst();
 
             if (this.setObservable == null)
             {
-                throw new InvalidOperationException("Result of " + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o2 => o2.TakeFirst()).Name + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o => o.TakeFirst()).Name + " cannot be null.");
             }
 
             this.changeObservable = this.setObservable.DistinctUntilChanged();
 
             if (this.changeObservable == null)
             {
-                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o2 => o2.DistinctUntilChanged()).Name + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name + " cannot be null.");
             }
 
             this.exceptionObservable = this.setOrExceptionObservable.TakeSecond();
@@ -93,36 +81,14 @@ namespace MorseCode.RxMvvm.Observable.Property
 
             if (this.changeOrExceptionObservable == null)
             {
-                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o2 => o2.Merge(null)).Name + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o => o.Merge(null)).Name + " cannot be null.");
             }
+
+            // TODO: does this subscription need to happen on the UI thread?
+            this.subscriptionsDisposable.Add(this.changeObservable.Skip(1).Subscribe(v => this.OnValueChanged()));
         }
 
-        /// <summary>
-        /// Gets an observable which notifies when a value change occurs.
-        /// </summary>
-        public IObservable<IDiscriminatedUnion<object, T, Exception>> OnChanged
-        {
-            get
-            {
-                return this.changeOrExceptionObservable;
-            }
-        }
-
-        /// <summary>
-        /// Gets an observable which notifies when a value set occurs.
-        /// </summary>
-        public IObservable<IDiscriminatedUnion<object, T, Exception>> OnSet
-        {
-            get
-            {
-                return this.setOrExceptionObservable;
-            }
-        }
-
-        /// <summary>
-        /// Gets an observable which notifies when a successful calculation results in a value change.
-        /// </summary>
-        public IObservable<T> OnSuccessfulValueChanged
+        IObservable<T> ICalculatedProperty<T>.OnSuccessfulValueChanged
         {
             get
             {
@@ -130,10 +96,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        /// <summary>
-        /// Gets the on successful value changed.
-        /// </summary>
-        public IObservable<T> OnSuccessfulValueSet
+        IObservable<T> ICalculatedProperty<T>.OnSuccessfulValueSet
         {
             get
             {
@@ -141,10 +104,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        /// <summary>
-        /// Gets an observable which notifies when a calculation error occurs.
-        /// </summary>
-        public IObservable<Exception> OnCalculationException
+        IObservable<Exception> ICalculatedProperty<T>.OnCalculationException
         {
             get
             {
@@ -152,10 +112,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        /// <summary>
-        /// Gets the latest value from a successful calculation.
-        /// </summary>
-        public T LatestSuccessfulValue
+        T ICalculatedProperty<T>.LatestSuccessfulValue
         {
             get
             {
@@ -163,10 +120,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        /// <summary>
-        /// Gets the latest calculation exception.
-        /// </summary>
-        public Exception LatestCalculationException
+        Exception ICalculatedProperty<T>.LatestCalculationException
         {
             get
             {
@@ -175,42 +129,28 @@ namespace MorseCode.RxMvvm.Observable.Property
         }
 
         /// <summary>
-        /// Gets the latest successful value or throws an exception if the latest calculation resulted in an error.
+        /// Gets the on changed observable.
         /// </summary>
-        /// <returns>
-        /// The latest successful value.
-        /// </returns>
-        public IDiscriminatedUnion<object, T, Exception> Value
+        protected override IObservable<IDiscriminatedUnion<object, T, Exception>> OnChanged
         {
             get
             {
-                Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
-                if (this.valueOrExceptionSubject.Value == null)
-                {
-                    throw new InvalidOperationException("Latest value or exception discriminated union cannot be null.");
-                }
-
-                return this.valueOrExceptionSubject.Value;
+                return this.changeOrExceptionObservable;
             }
         }
 
-        IDisposable IObservable<IDiscriminatedUnion<object, T, Exception>>.Subscribe(
-            IObserver<IDiscriminatedUnion<object, T, Exception>> observer)
+        /// <summary>
+        /// Gets the on set observable.
+        /// </summary>
+        protected override IObservable<IDiscriminatedUnion<object, T, Exception>> OnSet
         {
-            return this.changeOrExceptionObservable.Subscribe(observer);
+            get
+            {
+                return this.setOrExceptionObservable;
+            }
         }
 
-        /// <summary>
-        /// The get value or throw exception.
-        /// </summary>
-        /// <returns>
-        /// The latest successful value.
-        /// </returns>
-        /// <exception cref="Exception">
-        /// The latest calculation exception.
-        /// </exception>
-        public T GetSuccessfulValueOrThrowException()
+        T ICalculatedProperty<T>.GetSuccessfulValueOrThrowException()
         {
             if (this.valueOrExceptionSubject.Value == null)
             {
@@ -220,13 +160,36 @@ namespace MorseCode.RxMvvm.Observable.Property
             return this.valueOrExceptionSubject.Value.Switch(v => v, e => { throw e; });
         }
 
-        void IDisposable.Dispose()
+        /// <summary>
+        /// Disposes of the property.
+        /// </summary>
+        protected override void Dispose()
         {
+            base.Dispose();
+
             this.valueOrExceptionSubject.Dispose();
             this.isCalculatingSubject.Dispose();
             this.valueSubject.Dispose();
             this.exceptionSubject.Dispose();
             this.subscriptionsDisposable.Dispose();
+        }
+
+        /// <summary>
+        /// Gets the value of the property.
+        /// </summary>
+        /// <returns>
+        /// The value of the property.
+        /// </returns>
+        protected override IDiscriminatedUnion<object, T, Exception> GetValue()
+        {
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
+
+            if (this.valueOrExceptionSubject.Value == null)
+            {
+                throw new InvalidOperationException("Latest value or exception discriminated union cannot be null.");
+            }
+
+            return this.valueOrExceptionSubject.Value;
         }
 
         [ContractInvariantMethod]
