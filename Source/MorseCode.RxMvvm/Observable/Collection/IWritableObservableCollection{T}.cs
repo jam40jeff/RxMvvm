@@ -14,12 +14,15 @@
 
 namespace MorseCode.RxMvvm.Observable.Collection
 {
+    using System.Diagnostics.Contracts;
+
     /// <summary>
     /// An interface representing an observable collection which may be read from.
     /// </summary>
     /// <typeparam name="T">
     /// The type of the objects in the collection.
     /// </typeparam>
+    [ContractClass(typeof(WritableObservableCollectionContract<>))]
     public interface IWritableObservableCollection<in T>
     {
         /// <summary>

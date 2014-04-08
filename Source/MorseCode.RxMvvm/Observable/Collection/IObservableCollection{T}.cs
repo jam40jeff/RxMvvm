@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Observable.Collection
 {
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
 
     /// <summary>
     /// An interface representing an observable collection which may be read from and written to.
@@ -22,6 +23,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
     /// <typeparam name="T">
     /// The type of the objects in the collection.
     /// </typeparam>
+    [ContractClass(typeof(ObservableCollectionContract<>))]
     public interface IObservableCollection<T> : IReadableObservableCollection<T>, 
                                                 IWritableObservableCollection<T>, 
                                                 IList<T>

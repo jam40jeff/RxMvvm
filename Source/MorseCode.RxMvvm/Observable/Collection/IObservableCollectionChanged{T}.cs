@@ -16,6 +16,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
 
     /// <summary>
     /// An interface containing the items changed in an observable collection.
@@ -23,6 +24,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
     /// <typeparam name="T">
     /// The type of the objects in the collection.
     /// </typeparam>
+    [ContractClass(typeof(ObservableCollectionChangedContract<>))]
     public interface IObservableCollectionChanged<out T>
     {
         /// <summary>
