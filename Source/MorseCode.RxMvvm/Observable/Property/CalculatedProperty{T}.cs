@@ -1,6 +1,7 @@
 namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
+    using System.ComponentModel;
     using System.Diagnostics.Contracts;
     using System.Reactive.Disposables;
     using System.Reactive.Linq;
@@ -85,7 +86,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
 
             // TODO: does this subscription need to happen on the UI thread?
-            this.subscriptionsDisposable.Add(this.changeObservable.Skip(1).Subscribe(v => this.OnValueChanged()));
+            this.subscriptionsDisposable.Add(this.valueOrExceptionSubject.Skip(1).Subscribe(v => this.OnValueChanged()));
+            this.subscriptionsDisposable.Add(this.changeObservable.Skip(1).Subscribe(v => this.OnLatestSuccessfulValueChanged()));
+            this.subscriptionsDisposable.Add(this.exceptionObservable.Skip(1).Subscribe(v => this.OnLatestCalculationExceptionChanged()));
         }
 
         IObservable<T> ICalculatedProperty<T>.OnSuccessfulValueChanged
@@ -190,6 +193,22 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
 
             return this.valueOrExceptionSubject.Value;
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.LatestSuccessfulValue"/> property.
+        /// </summary>
+        protected virtual void OnLatestSuccessfulValueChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.LatestSuccessfulValuePropertyName));
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.LatestCalculationException"/> property.
+        /// </summary>
+        protected virtual void OnLatestCalculationExceptionChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.LatestCalculationExceptionPropertyName));
         }
 
         [ContractInvariantMethod]

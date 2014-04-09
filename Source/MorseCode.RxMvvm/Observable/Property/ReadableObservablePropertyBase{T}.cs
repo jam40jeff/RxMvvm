@@ -79,7 +79,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         }
 
         /// <summary>
-        /// Raises the <see cref="PropertyChanged"/> event.
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
         /// </summary>
         /// <param name="e">
         /// The event arguments.
@@ -94,7 +94,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         }
 
         /// <summary>
-        /// Raises the <see cref="PropertyChanged"/> event for the <see cref="IReadableObservableProperty{T}.Value"/> property.
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="IReadableObservableProperty{T}.Value"/> property.
         /// </summary>
         protected virtual void OnValueChanged()
         {

@@ -40,7 +40,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// <returns>
         /// The read-only property as <see cref="IReadableObservableProperty{T}"/>.
         /// </returns>
-        public static IReadableObservableProperty<T> CreateReadOnlyProperty<T>(T value)
+        public static IReadOnlyProperty<T> CreateReadOnlyProperty<T>(T value)
         {
             Contract.Ensures(Contract.Result<IReadableObservableProperty<T>>() != null);
 
@@ -59,7 +59,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// <returns>
         /// The read-only property as <see cref="IReadableObservableProperty{T}"/>.
         /// </returns>
-        public static IReadableObservableProperty<T> CreateReadOnlyProperty<T>(Lazy<T> value)
+        public static IReadOnlyProperty<T> CreateReadOnlyProperty<T>(Lazy<T> value)
         {
             Contract.Requires(value != null);
             Contract.Ensures(Contract.Result<IReadableObservableProperty<T>>() != null);

@@ -153,7 +153,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
         }
 
         /// <summary>
-        /// Raises the <see cref="PropertyChanged"/> event.
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
         /// </summary>
         /// <param name="e">
         /// The event arguments.
@@ -168,7 +168,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
         }
 
         /// <summary>
-        /// Raises the <see cref="PropertyChanged"/> event for the <see cref="IReadOnlyCollection{T}.Count"/> property.
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="IReadOnlyCollection{T}.Count"/> property.
         /// </summary>
         protected virtual void OnCountChanged()
         {
@@ -178,7 +178,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
         // The property syntax in the see tag is correct.
 #pragma warning disable 1584,1711,1572,1581,1580
         /// <summary>
-        /// Raises the <see cref="PropertyChanged"/> event for the <see cref="P:IReadOnlyList{T}.Item(Int32)"/> property.
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="P:IReadOnlyList{T}.Item(Int32)"/> property.
         /// </summary>
 #pragma warning restore 1584,1711,1572,1581,1580
         protected virtual void OnItemsChanged()

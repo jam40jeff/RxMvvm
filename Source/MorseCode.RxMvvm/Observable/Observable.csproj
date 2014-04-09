@@ -106,8 +106,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Property\AsyncCalculationHelper.cs" />
     <Compile Include="Property\CalculatedPropertyContract{T}.cs" />
+    <Compile Include="Property\CalculatedPropertyUtility.cs" />
     <Compile Include="Property\CalculatedProperty{T}.cs" />
     <Compile Include="ChainedObservable.cs" />
+    <Compile Include="Property\ReadOnlyPropertyContract{T}.cs" />
+    <Compile Include="Property\IReadOnlyProperty.cs" />
     <Compile Include="Property\WritableObservablePropertyContract{T}.cs" />
     <Compile Include="Property\ReadableObservablePropertyContract{T}.cs" />
     <Compile Include="Property\ICalculatedProperty{T}.cs" />

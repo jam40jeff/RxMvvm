@@ -20,7 +20,7 @@ namespace MorseCode.RxMvvm.Observable.Property
 
     using MorseCode.RxMvvm.Common;
 
-    internal class ReadOnlyProperty<T> : ReadableObservablePropertyBase<T>
+    internal class ReadOnlyProperty<T> : ReadableObservablePropertyBase<T>, IReadOnlyProperty<T>
     {
         private readonly Lazy<T> value;
 
