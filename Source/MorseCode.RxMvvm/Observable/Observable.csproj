@@ -90,23 +90,31 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collection\CollectionObservable.cs" />
+    <Compile Include="Collection\WritableObservableCollectionContract{T}.cs" />
+    <Compile Include="Collection\ReadableObservableCollectionContract{T}.cs" />
     <Compile Include="Collection\IObservableCollectionChanged{T}.cs" />
     <Compile Include="Collection\IObservableCollection{T}.cs" />
     <Compile Include="Collection\IReadableObservableCollection{T}.cs" />
     <Compile Include="Collection\IWritableObservableCollection{T}.cs" />
     <Compile Include="Collection\ObservableCollectionChanged.cs" />
+    <Compile Include="Collection\ObservableCollectionChangedContract{T}.cs" />
     <Compile Include="Collection\ObservableCollectionChanged{T}.cs" />
+    <Compile Include="Collection\ObservableCollectionContract{T}.cs" />
     <Compile Include="Collection\ObservableCollectionFactory.cs" />
     <Compile Include="Collection\ObservableCollection{T}.cs" />
     <Compile Include="NonComputable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Property\AsyncCalculationHelper.cs" />
+    <Compile Include="Property\CalculatedPropertyContract{T}.cs" />
     <Compile Include="Property\CalculatedProperty{T}.cs" />
     <Compile Include="ChainedObservable.cs" />
+    <Compile Include="Property\WritableObservablePropertyContract{T}.cs" />
+    <Compile Include="Property\ReadableObservablePropertyContract{T}.cs" />
     <Compile Include="Property\ICalculatedProperty{T}.cs" />
     <Compile Include="Property\IObservableProperty{T}.cs" />
     <Compile Include="Property\IReadableObservableProperty{T}.cs" />
     <Compile Include="Property\IWritableObservableProperty{T}.cs" />
+    <Compile Include="Property\ObservablePropertyContract{T}.cs" />
     <Compile Include="Property\ReadableObservablePropertyBase{T}.cs" />
     <Compile Include="Property\ObservablePropertyFactory.cs" />
     <Compile Include="Property\ObservableProperty{T}.cs" />

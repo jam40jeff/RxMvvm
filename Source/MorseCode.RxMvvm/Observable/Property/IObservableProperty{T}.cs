@@ -14,12 +14,15 @@
 
 namespace MorseCode.RxMvvm.Observable.Property
 {
+    using System.Diagnostics.Contracts;
+
     /// <summary>
     /// Interface representing a read-write property.
     /// </summary>
     /// <typeparam name="T">
     /// The type of the property.
     /// </typeparam>
+    [ContractClass(typeof(ObservablePropertyContract<>))]
     public interface IObservableProperty<T> : IReadableObservableProperty<T>, IWritableObservableProperty<T>
     {
         /// <summary>

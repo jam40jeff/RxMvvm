@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
+    using System.Diagnostics.Contracts;
 
     using MorseCode.RxMvvm.Common;
 
@@ -24,6 +25,7 @@ namespace MorseCode.RxMvvm.Observable.Property
     /// <typeparam name="T">
     /// The type of the property.
     /// </typeparam>
+    [ContractClass(typeof(CalculatedPropertyContract<>))]
     public interface ICalculatedProperty<out T> : IReadableObservableProperty<IDiscriminatedUnion<object, T, Exception>>
     {
         /// <summary>

@@ -17,18 +17,18 @@ namespace MorseCode.RxMvvm.Observable.Property
     using System;
     using System.Diagnostics.Contracts;
 
-    /// <summary>
-    /// Interface representing a writable property.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The type of the property.
-    /// </typeparam>
-    [ContractClass(typeof(WritableObservablePropertyContract<>))]
-    public interface IWritableObservableProperty<in T> : IDisposable
+    [ContractClassFor(typeof(IWritableObservableProperty<>))]
+    internal abstract class WritableObservablePropertyContract<T> : IWritableObservableProperty<T>
     {
-        /// <summary>
-        /// Sets the latest value.
-        /// </summary>
-        T Value { set; }
+        T IWritableObservableProperty<T>.Value
+        {
+            set
+            {
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+        }
     }
 }

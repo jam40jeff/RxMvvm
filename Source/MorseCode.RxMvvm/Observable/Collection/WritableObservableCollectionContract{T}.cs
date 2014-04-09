@@ -17,7 +17,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System.Diagnostics.Contracts;
 
     [ContractClassFor(typeof(IWritableObservableCollection<>))]
-    internal class WritableObservableCollectionContract<T> : IWritableObservableCollection<T>
+    internal abstract class WritableObservableCollectionContract<T> : IWritableObservableCollection<T>
     {
         T IWritableObservableCollection<T>.this[int index]
         {

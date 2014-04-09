@@ -21,7 +21,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System.Diagnostics.Contracts;
 
     [ContractClassFor(typeof(IObservableCollection<>))]
-    internal class ObservableCollectionContract<T> : IObservableCollection<T>
+    internal abstract class ObservableCollectionContract<T> : IObservableCollection<T>
     {
         event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
         {
@@ -229,9 +229,10 @@ namespace MorseCode.RxMvvm.Observable.Collection
         IDisposable IObservable<IObservableCollectionChanged<T>>.Subscribe(
             IObserver<IObservableCollectionChanged<T>> observer)
         {
-// ReSharper disable AssignNullToNotNullAttribute
+            // ReSharper disable AssignNullToNotNullAttribute
             return null;
-// ReSharper restore AssignNullToNotNullAttribute
+
+            // ReSharper restore AssignNullToNotNullAttribute
         }
 
         void IDisposable.Dispose()

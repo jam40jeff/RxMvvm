@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright 2014 MorseCode Software
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,14 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Observable.Collection
+namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics.Contracts;
 
-    [ContractClassFor(typeof(IReadableObservableCollection<>))]
-    internal abstract class ReadableObservableCollectionContract<T> : IReadableObservableCollection<T>
+    [ContractClassFor(typeof(IReadableObservableProperty<>))]
+    internal abstract class ReadableObservablePropertyContract<T> : IReadableObservableProperty<T>
     {
         event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
         {
@@ -34,15 +32,27 @@ namespace MorseCode.RxMvvm.Observable.Collection
             }
         }
 
-        int IReadOnlyCollection<T>.Count
+        IObservable<T> IReadableObservableProperty<T>.OnChanged
         {
             get
             {
-                return 0;
+                Contract.Ensures(Contract.Result<IObservable<T>>() != null);
+
+                return null;
             }
         }
 
-        T IReadOnlyList<T>.this[int index]
+        IObservable<T> IReadableObservableProperty<T>.OnSet
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<IObservable<T>>() != null);
+
+                return null;
+            }
+        }
+
+        T IReadableObservableProperty<T>.Value
         {
             get
             {
@@ -50,24 +60,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
             }
         }
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            // ReSharper disable AssignNullToNotNullAttribute
-            return null;
-
-            // ReSharper restore AssignNullToNotNullAttribute
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            // ReSharper disable AssignNullToNotNullAttribute
-            return null;
-
-            // ReSharper restore AssignNullToNotNullAttribute
-        }
-
-        IDisposable IObservable<IObservableCollectionChanged<T>>.Subscribe(
-            IObserver<IObservableCollectionChanged<T>> observer)
+        IDisposable IObservable<T>.Subscribe(IObserver<T> observer)
         {
             // ReSharper disable AssignNullToNotNullAttribute
             return null;

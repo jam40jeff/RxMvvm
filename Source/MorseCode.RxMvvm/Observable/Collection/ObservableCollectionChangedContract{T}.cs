@@ -5,7 +5,7 @@
     using System.Diagnostics.Contracts;
 
     [ContractClassFor(typeof(IObservableCollectionChanged<>))]
-    internal class ObservableCollectionChangedContract<T> : IObservableCollectionChanged<T>
+    internal abstract class ObservableCollectionChangedContract<T> : IObservableCollectionChanged<T>
     {
         IReadOnlyList<T> IObservableCollectionChanged<T>.OldItems
         {
