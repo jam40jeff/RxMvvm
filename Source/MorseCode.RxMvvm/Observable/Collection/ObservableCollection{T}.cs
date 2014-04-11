@@ -17,7 +17,6 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.ComponentModel;
     using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Reactive.Subjects;
@@ -41,21 +40,6 @@ namespace MorseCode.RxMvvm.Observable.Collection
 
             this.collectionChanged = new Subject<IObservableCollectionChanged<T>>();
         }
-
-        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
-        {
-            add
-            {
-                this.PropertyChanged += value;
-            }
-
-            remove
-            {
-                this.PropertyChanged -= value;
-            }
-        }
-
-        private event PropertyChangedEventHandler PropertyChanged;
 
         int IObservableCollection<T>.IndexOf(T item)
         {
@@ -93,8 +77,6 @@ namespace MorseCode.RxMvvm.Observable.Collection
             base.ClearItems();
 
             this.collectionChanged.OnNext(new ObservableCollectionChanged<T>(oldItems, null));
-            this.OnCountChanged();
-            this.OnItemsChanged();
         }
 
         /// <summary>
@@ -114,8 +96,6 @@ namespace MorseCode.RxMvvm.Observable.Collection
             base.InsertItem(index, item);
 
             this.collectionChanged.OnNext(new ObservableCollectionChanged<T>(null, new[] { item }));
-            this.OnCountChanged();
-            this.OnItemsChanged();
         }
 
         /// <summary>
@@ -137,8 +117,6 @@ namespace MorseCode.RxMvvm.Observable.Collection
             if (canRemove)
             {
                 this.collectionChanged.OnNext(new ObservableCollectionChanged<T>(oldItems, null));
-                this.OnCountChanged();
-                this.OnItemsChanged();
             }
         }
 
@@ -164,42 +142,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
             if (canSet)
             {
                 this.collectionChanged.OnNext(new ObservableCollectionChanged<T>(oldItems, new[] { item }));
-                this.OnItemsChanged();
             }
-        }
-
-        /// <summary>
-        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
-        /// </summary>
-        /// <param name="e">
-        /// The event arguments.
-        /// </param>
-        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
-        {
-            PropertyChangedEventHandler handler = this.PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        /// <summary>
-        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="IReadOnlyCollection{T}.Count"/> property.
-        /// </summary>
-        protected virtual void OnCountChanged()
-        {
-            this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-        }
-
-        // The property syntax in the see tag is correct.
-#pragma warning disable 1584,1711,1572,1581,1580
-        /// <summary>
-        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="P:IReadOnlyList{T}.Item(Int32)"/> property.
-        /// </summary>
-#pragma warning restore 1584,1711,1572,1581,1580
-        protected virtual void OnItemsChanged()
-        {
-            this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
         }
 
         [ContractInvariantMethod]

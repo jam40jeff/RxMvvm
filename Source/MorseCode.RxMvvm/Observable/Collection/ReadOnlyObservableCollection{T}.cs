@@ -17,7 +17,6 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.ComponentModel;
     using System.Diagnostics.Contracts;
     using System.Reactive.Linq;
 
@@ -41,17 +40,6 @@ namespace MorseCode.RxMvvm.Observable.Collection
                     "Result of " + typeof(Observable).Name + "."
                     + StaticReflection.GetInScopeMethodInfo(() => Observable.Never<IObservableCollectionChanged<T>>())
                                       .Name + " cannot be null.");
-            }
-        }
-
-        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
-        {
-            add
-            {
-            }
-
-            remove
-            {
             }
         }
 

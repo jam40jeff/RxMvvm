@@ -24,8 +24,8 @@ namespace MorseCode.RxMvvm.Observable.Collection.NotifyCollectionChanged
     /// The type of the items in the collection.
     /// </typeparam>
     public interface IReadableNotifyCollectionChangedCollection<out T> : IReadableObservableCollection<T>, 
-                                                                     INotifyCollectionChanged, 
-                                                                     INotifyPropertyChanged
+                                                                         INotifyCollectionChanged, 
+                                                                         INotifyPropertyChanged
     {
     }
 }

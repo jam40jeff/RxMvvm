@@ -34,7 +34,9 @@ namespace MorseCode.RxMvvm.Observable.Tests
 
     using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Observable.Collection;
+    using MorseCode.RxMvvm.Observable.Collection.NotifyCollectionChanged;
     using MorseCode.RxMvvm.Observable.Property;
+    using MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged;
 
     [TestClass]
     //[Ignore]
@@ -1211,7 +1213,10 @@ namespace MorseCode.RxMvvm.Observable.Tests
         public void NotifyPropertyChangedForProperties()
         {
             Employee employee = new Employee();
-            employee.FullName.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed.");
+            IReadableNotifyPropertyChangedProperty<IDiscriminatedUnion<object, string, Exception>> fullNameProperty =
+                NotifyPropertyChangedPropertyFactory.CreateReadOnlyNotifyCollectionChangedCollection(
+                    employee.FullName, Scheduler.Immediate);
+            fullNameProperty.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed.");
             employee.FirstName.Value = "John";
             employee.LastName.Value = "Smith";
             employee.LastName.Value = "Smith";
@@ -1225,8 +1230,12 @@ namespace MorseCode.RxMvvm.Observable.Tests
             Employee employee2 = new Employee();
             Employee employee3 = new Employee();
             Employee employee4 = new Employee();
-            IObservableCollection<Employee> employees = ObservableCollectionFactory.CreateObservableCollection(new List<Employee> { employee1, employee2 });
-            employees.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed.");
+            IObservableCollection<Employee> employees =
+                ObservableCollectionFactory.CreateObservableCollection(new List<Employee> { employee1, employee2 });
+            IReadableNotifyCollectionChangedCollection<Employee> employeesCollection =
+                NotifyCollectionChangedCollectionFactory.CreateReadOnlyNotifyCollectionChangedCollection(
+                    employees, Scheduler.Immediate);
+            employeesCollection.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed.");
             employees.Add(employee3);
             employees[1] = employee4;
             employees.Remove(employee1);

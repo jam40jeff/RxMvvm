@@ -23,17 +23,6 @@ namespace MorseCode.RxMvvm.Observable.Collection
     [ContractClassFor(typeof(IReadableObservableCollection<>))]
     internal abstract class ReadableObservableCollectionContract<T> : IReadableObservableCollection<T>
     {
-        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
-        {
-            add
-            {
-            }
-
-            remove
-            {
-            }
-        }
-
         int IReadOnlyCollection<T>.Count
         {
             get
