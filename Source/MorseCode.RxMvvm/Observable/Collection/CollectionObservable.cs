@@ -42,8 +42,8 @@ namespace MorseCode.RxMvvm.Observable.Collection
         public static IDisposable SubscribeItems<T>(
             this IReadableObservableCollection<T> observableCollection, Func<T, IDisposable> subscribe)
         {
-            Contract.Requires(observableCollection != null);
-            Contract.Requires(subscribe != null);
+            Contract.Requires<ArgumentNullException>(observableCollection != null, "observableCollection");
+            Contract.Requires<ArgumentNullException>(subscribe != null, "subscribe");
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
             CompositeDisposable disposable = new CompositeDisposable();

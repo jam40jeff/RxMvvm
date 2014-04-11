@@ -61,7 +61,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         public static IReadOnlyProperty<T> CreateReadOnlyProperty<T>(Lazy<T> value)
         {
-            Contract.Requires(value != null);
+            Contract.Requires<ArgumentNullException>(value != null, "value");
             Contract.Ensures(Contract.Result<IReadableObservableProperty<T>>() != null);
 
             return new ReadOnlyProperty<T>(value);

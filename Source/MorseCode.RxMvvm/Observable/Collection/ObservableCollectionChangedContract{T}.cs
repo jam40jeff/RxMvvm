@@ -29,8 +29,8 @@
 
         void IObservableCollectionChanged<T>.Process(Action<IReadOnlyList<T>> processOldItems, Action<IReadOnlyList<T>> processNewItems)
         {
-            Contract.Requires(processOldItems != null);
-            Contract.Requires(processNewItems != null);
+            Contract.Requires<ArgumentNullException>(processOldItems != null, "processOldItems");
+            Contract.Requires<ArgumentNullException>(processNewItems != null, "processNewItems");
         }
     }
 }

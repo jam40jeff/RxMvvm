@@ -149,6 +149,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
 
         void IObservableCollection<T>.Clear()
         {
+            Contract.Ensures(((IObservableCollection<T>)this).Count == 0);
         }
 
         bool IObservableCollection<T>.Contains(T item)
@@ -167,6 +168,8 @@ namespace MorseCode.RxMvvm.Observable.Collection
 
         int IObservableCollection<T>.IndexOf(T item)
         {
+            Contract.Ensures(Contract.Result<int>() >= -1);
+            Contract.Ensures(Contract.Result<int>() < ((IObservableCollection<T>)this).Count);
             return 0;
         }
 

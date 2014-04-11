@@ -39,11 +39,11 @@ namespace MorseCode.RxMvvm.Observable
         /// </returns>
         public static ChainedObservableHelper<T> BeginChain<T>(this IObservable<T> observable)
         {
-            Contract.Requires(observable != null);
+            Contract.Requires<ArgumentNullException>(observable != null, "observable");
             Contract.Ensures(Contract.Result<ChainedObservableHelper<T>>() != null);
 
             return new ChainedObservableHelper<T>(
-                skipFirst => skipFirst ? observable.Skip(1) : observable, 
+                skipFirst => skipFirst ? observable.Skip(1) : observable,
                 skipFirst =>
                 skipFirst
                     ? observable.Select(DiscriminatedUnion.First<object, T, NonComputable>).Skip(1)
@@ -63,11 +63,11 @@ namespace MorseCode.RxMvvm.Observable
             private readonly Func<bool, IObservable<IDiscriminatedUnion<object, T, NonComputable>>> setupPreviousNonComputableObservable;
 
             internal ChainedObservableHelper(
-                Func<bool, IObservable<T>> setupPreviousObservable, 
+                Func<bool, IObservable<T>> setupPreviousObservable,
                 Func<bool, IObservable<IDiscriminatedUnion<object, T, NonComputable>>> setupPreviousNonComputableObservable)
             {
-                Contract.Requires(setupPreviousObservable != null);
-                Contract.Requires(setupPreviousNonComputableObservable != null);
+                Contract.Requires<ArgumentNullException>(setupPreviousObservable != null, "setupPreviousObservable");
+                Contract.Requires<ArgumentNullException>(setupPreviousNonComputableObservable != null, "setupPreviousNonComputableObservable");
 
                 this.setupPreviousObservable = setupPreviousObservable;
                 this.setupPreviousNonComputableObservable = setupPreviousNonComputableObservable;
@@ -88,110 +88,110 @@ namespace MorseCode.RxMvvm.Observable
             /// </returns>
             public ChainedObservableHelper<TNew> Add<TNew>(Func<T, IObservable<TNew>> getObservable)
             {
-                Contract.Requires(getObservable != null);
+                Contract.Requires<ArgumentNullException>(getObservable != null, "getObservable");
                 Contract.Ensures(Contract.Result<ChainedObservableHelper<TNew>>() != null);
 
                 return new ChainedObservableHelper<TNew>(
                     skipFirst =>
+                    {
+                        Func<IDiscriminatedUnion<object, T, NonComputable>, IObservable<TNew>> innerObservable;
+                        if (skipFirst)
                         {
-                            Func<IDiscriminatedUnion<object, T, NonComputable>, IObservable<TNew>> innerObservable;
-                            if (skipFirst)
-                            {
-                                innerObservable =
-                                    o =>
-                                    o.Switch(
-                                        v =>
-                                        ReferenceEquals(v, null) ? Observable.Return(default(TNew)) : getObservable(v), 
-                                        v => Observable.Return(default(TNew))).Skip(1);
-                            }
-                            else
-                            {
-                                innerObservable =
-                                    o =>
-                                    o.Switch(
-                                        v =>
-                                        ReferenceEquals(v, null) ? Observable.Return(default(TNew)) : getObservable(v), 
-                                        v => Observable.Return(default(TNew)));
-                            }
+                            innerObservable =
+                                o =>
+                                o.Switch(
+                                    v =>
+                                    ReferenceEquals(v, null) ? Observable.Return(default(TNew)) : getObservable(v),
+                                    v => Observable.Return(default(TNew))).Skip(1);
+                        }
+                        else
+                        {
+                            innerObservable =
+                                o =>
+                                o.Switch(
+                                    v =>
+                                    ReferenceEquals(v, null) ? Observable.Return(default(TNew)) : getObservable(v),
+                                    v => Observable.Return(default(TNew)));
+                        }
 
-                            return this.setupPreviousNonComputableObservable(false).Select(
-                                v =>
-                                    {
-                                        IObservable<TNew> o = innerObservable(v);
-                                        if (o == null)
-                                        {
-                                            throw new ArgumentException(
-                                                "The function specified for parameter "
-                                                + StaticReflection.GetInScopeMemberInfo(() => getObservable).Name
-                                                + " cannot return null.");
-                                        }
+                        return this.setupPreviousNonComputableObservable(false).Select(
+                            v =>
+                            {
+                                IObservable<TNew> o = innerObservable(v);
+                                if (o == null)
+                                {
+                                    throw new ArgumentException(
+                                        "The function specified for parameter "
+                                        + StaticReflection.GetInScopeMemberInfo(() => getObservable).Name
+                                        + " cannot return null.");
+                                }
 
-                                        return o;
-                                    }).Switch();
-                        }, 
+                                return o;
+                            }).Switch();
+                    },
                     skipFirst =>
+                    {
+                        Func<IDiscriminatedUnion<object, T, NonComputable>, IObservable<IDiscriminatedUnion<object, TNew, NonComputable>>> innerObservable;
+                        if (skipFirst)
                         {
-                            Func<IDiscriminatedUnion<object, T, NonComputable>, IObservable<IDiscriminatedUnion<object, TNew, NonComputable>>> innerObservable;
-                            if (skipFirst)
-                            {
-                                innerObservable = o => o.Switch(
-                                    v =>
-                                        {
-                                            if (ReferenceEquals(v, null))
-                                            {
-                                                return
-                                                    Observable.Return(
-                                                        DiscriminatedUnion.Second<object, TNew, NonComputable>(
-                                                            NonComputable.Value));
-                                            }
+                            innerObservable = o => o.Switch(
+                                v =>
+                                {
+                                    if (ReferenceEquals(v, null))
+                                    {
+                                        return
+                                            Observable.Return(
+                                                DiscriminatedUnion.Second<object, TNew, NonComputable>(
+                                                    NonComputable.Value));
+                                    }
 
-                                            IObservable<TNew> o2 = getObservable(v);
-                                            if (o2 == null)
-                                            {
-                                                throw new ArgumentException(
-                                                    "The function specified for parameter "
-                                                    + StaticReflection.GetInScopeMemberInfo(() => getObservable).Name
-                                                    + " cannot return null.");
-                                            }
+                                    IObservable<TNew> o2 = getObservable(v);
+                                    if (o2 == null)
+                                    {
+                                        throw new ArgumentException(
+                                            "The function specified for parameter "
+                                            + StaticReflection.GetInScopeMemberInfo(() => getObservable).Name
+                                            + " cannot return null.");
+                                    }
 
-                                            return o2.Select(DiscriminatedUnion.First<object, TNew, NonComputable>);
-                                        }, 
-                                    v =>
-                                    Observable.Return(
-                                        DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value)))
-                                                        .Skip(1);
-                            }
-                            else
-                            {
-                                innerObservable = o => o.Switch(
-                                    v =>
-                                        {
-                                            if (ReferenceEquals(v, null))
-                                            {
-                                                return
-                                                    Observable.Return(
-                                                        DiscriminatedUnion.Second<object, TNew, NonComputable>(
-                                                            NonComputable.Value));
-                                            }
+                                    return o2.Select(DiscriminatedUnion.First<object, TNew, NonComputable>);
+                                },
+                                v =>
+                                Observable.Return(
+                                    DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value)))
+                                                    .Skip(1);
+                        }
+                        else
+                        {
+                            innerObservable = o => o.Switch(
+                                v =>
+                                {
+                                    if (ReferenceEquals(v, null))
+                                    {
+                                        return
+                                            Observable.Return(
+                                                DiscriminatedUnion.Second<object, TNew, NonComputable>(
+                                                    NonComputable.Value));
+                                    }
 
-                                            IObservable<TNew> o2 = getObservable(v);
-                                            if (o2 == null)
-                                            {
-                                                throw new ArgumentException(
-                                                    "The function specified for parameter "
-                                                    + StaticReflection.GetInScopeMemberInfo(() => getObservable).Name
-                                                    + " cannot return null.");
-                                            }
+                                    IObservable<TNew> o2 = getObservable(v);
+                                    if (o2 == null)
+                                    {
+                                        throw new ArgumentException(
+                                            "The function specified for parameter "
+                                            + StaticReflection.GetInScopeMemberInfo(() => getObservable).Name
+                                            + " cannot return null.");
+                                    }
 
-                                            return o2.Select(DiscriminatedUnion.First<object, TNew, NonComputable>);
-                                        }, 
-                                    v =>
-                                    Observable.Return(
-                                        DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value)));
-                            }
+                                    return o2.Select(DiscriminatedUnion.First<object, TNew, NonComputable>);
+                                },
+                                v =>
+                                Observable.Return(
+                                    DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value)));
+                        }
 
-                            return this.setupPreviousNonComputableObservable(false).Select(innerObservable).Switch();
-                        });
+                        return this.setupPreviousNonComputableObservable(false).Select(innerObservable).Switch();
+                    });
             }
 
             /// <summary>

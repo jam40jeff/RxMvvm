@@ -29,14 +29,11 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         private readonly IObservable<T> changeObservable;
 
-        private readonly IDisposable changeSubscription;
-
         internal ObservableProperty(T initialValue)
         {
             Contract.Ensures(this.behaviorSubject != null);
             Contract.Ensures(this.allNotificationsObservable != null);
             Contract.Ensures(this.changeObservable != null);
-            Contract.Ensures(this.changeSubscription != null);
 
             this.behaviorSubject = new BehaviorSubject<T>(initialValue);
 
@@ -53,14 +50,6 @@ namespace MorseCode.RxMvvm.Observable.Property
                 throw new InvalidOperationException(
                     StaticReflection.GetInScopeMemberInfo(() => this.allNotificationsObservable).Name
                     + " may not be null.");
-            }
-
-            // TODO: does this subscription need to happen on the UI thread?
-            this.changeSubscription = this.changeObservable.Skip(1).Subscribe(v => this.OnValueChanged());
-
-            if (this.changeSubscription == null)
-            {
-                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.Subscribe()).Name + " cannot be null.");
             }
         }
 
@@ -115,7 +104,6 @@ namespace MorseCode.RxMvvm.Observable.Property
             base.Dispose();
 
             this.behaviorSubject.Dispose();
-            this.changeSubscription.Dispose();
         }
 
         /// <summary>
@@ -146,7 +134,6 @@ namespace MorseCode.RxMvvm.Observable.Property
             Contract.Invariant(this.behaviorSubject != null);
             Contract.Invariant(this.allNotificationsObservable != null);
             Contract.Invariant(this.changeObservable != null);
-            Contract.Invariant(this.changeSubscription != null);
         }
     }
 }

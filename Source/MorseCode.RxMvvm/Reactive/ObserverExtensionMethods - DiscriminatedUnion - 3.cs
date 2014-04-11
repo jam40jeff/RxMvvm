@@ -52,7 +52,7 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(observer != null);
+            Contract.Requires<ArgumentNullException>(observer != null, "observer");
 
             observer.OnNext(DiscriminatedUnion.First<TCommon, T1, T2, T3>(first));
         }
@@ -85,7 +85,7 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(observer != null);
+            Contract.Requires<ArgumentNullException>(observer != null, "observer");
 
             observer.OnNext(DiscriminatedUnion.Second<TCommon, T1, T2, T3>(second));
         }
@@ -118,7 +118,7 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(observer != null);
+            Contract.Requires<ArgumentNullException>(observer != null, "observer");
 
             observer.OnNext(DiscriminatedUnion.Third<TCommon, T1, T2, T3>(third));
         }

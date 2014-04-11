@@ -28,7 +28,7 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         internal ReadOnlyProperty(Lazy<T> value)
         {
-            Contract.Requires(value != null);
+            Contract.Requires<ArgumentNullException>(value != null, "value");
             Contract.Ensures(this.value != null);
             Contract.Ensures(this.observable != null);
 

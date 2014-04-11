@@ -53,7 +53,7 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
             Contract.Ensures(Contract.Result<IObservable<T1>>() != null);
 
             return Observable.Create<T1>(
@@ -94,7 +94,7 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
             Contract.Ensures(Contract.Result<IObservable<T2>>() != null);
 
             return Observable.Create<T2>(
@@ -135,7 +135,7 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
             Contract.Ensures(Contract.Result<IObservable<T3>>() != null);
 
             return Observable.Create<T3>(

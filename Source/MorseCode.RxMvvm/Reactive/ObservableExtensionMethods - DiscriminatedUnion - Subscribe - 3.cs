@@ -64,10 +64,10 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
-            Contract.Requires(onNextFirst != null);
-            Contract.Requires(onNextSecond != null);
-            Contract.Requires(onNextThird != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
+            Contract.Requires<ArgumentNullException>(onNextFirst != null, "onNextFirst");
+            Contract.Requires<ArgumentNullException>(onNextSecond != null, "onNextSecond");
+            Contract.Requires<ArgumentNullException>(onNextThird != null, "onNextThird");
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
             return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2, T3>(onNextFirst, onNextSecond, onNextThird));
@@ -117,11 +117,11 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
-            Contract.Requires(onNextFirst != null);
-            Contract.Requires(onNextSecond != null);
-            Contract.Requires(onNextThird != null);
-            Contract.Requires(onError != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
+            Contract.Requires<ArgumentNullException>(onNextFirst != null, "onNextFirst");
+            Contract.Requires<ArgumentNullException>(onNextSecond != null, "onNextSecond");
+            Contract.Requires<ArgumentNullException>(onNextThird != null, "onNextThird");
+            Contract.Requires<ArgumentNullException>(onError != null, "onError");
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
             return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2, T3>(onNextFirst, onNextSecond, onNextThird, onError));
@@ -171,11 +171,11 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
-            Contract.Requires(onNextFirst != null);
-            Contract.Requires(onNextSecond != null);
-            Contract.Requires(onNextThird != null);
-            Contract.Requires(onCompleted != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
+            Contract.Requires<ArgumentNullException>(onNextFirst != null, "onNextFirst");
+            Contract.Requires<ArgumentNullException>(onNextSecond != null, "onNextSecond");
+            Contract.Requires<ArgumentNullException>(onNextThird != null, "onNextThird");
+            Contract.Requires<ArgumentNullException>(onCompleted != null, "onCompleted");
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
             return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2, T3>(onNextFirst, onNextSecond, onNextThird, onCompleted));
@@ -229,12 +229,12 @@ namespace MorseCode.RxMvvm.Reactive
             where T3 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
-            Contract.Requires(onNextFirst != null);
-            Contract.Requires(onNextSecond != null);
-            Contract.Requires(onNextThird != null);
-            Contract.Requires(onError != null);
-            Contract.Requires(onCompleted != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
+            Contract.Requires<ArgumentNullException>(onNextFirst != null, "onNextFirst");
+            Contract.Requires<ArgumentNullException>(onNextSecond != null, "onNextSecond");
+            Contract.Requires<ArgumentNullException>(onNextThird != null, "onNextThird");
+            Contract.Requires<ArgumentNullException>(onError != null, "onError");
+            Contract.Requires<ArgumentNullException>(onCompleted != null, "onCompleted");
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
             return

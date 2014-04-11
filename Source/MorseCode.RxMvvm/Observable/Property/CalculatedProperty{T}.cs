@@ -1,7 +1,20 @@
+#region License
+
+// Copyright 2014 MorseCode Software
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//     http://www.apache.org/licenses/LICENSE-2.0
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#endregion
+
 namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
-    using System.ComponentModel;
     using System.Diagnostics.Contracts;
     using System.Reactive.Disposables;
     using System.Reactive.Linq;
@@ -10,7 +23,8 @@ namespace MorseCode.RxMvvm.Observable.Property
     using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Reactive;
 
-    internal class CalculatedProperty<T> : ReadableObservablePropertyBase<IDiscriminatedUnion<object, T, Exception>>, ICalculatedProperty<T>
+    internal class CalculatedProperty<T> : ReadableObservablePropertyBase<IDiscriminatedUnion<object, T, Exception>>, 
+                                           ICalculatedProperty<T>
     {
         private readonly BehaviorSubject<IDiscriminatedUnion<object, T, Exception>> valueOrExceptionSubject;
 
@@ -32,7 +46,8 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         private readonly CompositeDisposable subscriptionsDisposable = new CompositeDisposable();
 
-        internal CalculatedProperty(Func<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>, BehaviorSubject<bool>, IDisposable> registerCalculation)
+        internal CalculatedProperty(
+            Func<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>, BehaviorSubject<bool>, IDisposable> registerCalculation)
         {
             Contract.Requires<ArgumentNullException>(registerCalculation != null, "registerCalculation");
             Contract.Ensures(this.valueOrExceptionSubject != null);
@@ -45,34 +60,47 @@ namespace MorseCode.RxMvvm.Observable.Property
             Contract.Ensures(this.setOrExceptionObservable != null);
             Contract.Ensures(this.changeOrExceptionObservable != null);
 
-            this.valueOrExceptionSubject = new BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>(DiscriminatedUnion.First<object, T, Exception>(default(T)));
+            this.valueOrExceptionSubject =
+                new BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>(
+                    DiscriminatedUnion.First<object, T, Exception>(default(T)));
             this.valueSubject = new BehaviorSubject<T>(default(T));
             this.exceptionSubject = new BehaviorSubject<Exception>(null);
             this.isCalculatingSubject = new BehaviorSubject<bool>(false);
 
-            this.subscriptionsDisposable.Add(this.valueOrExceptionSubject.Subscribe(v => v.Switch(this.valueSubject.OnNext, this.exceptionSubject.OnNext)));
+            this.subscriptionsDisposable.Add(
+                this.valueOrExceptionSubject.Subscribe(
+                    v => v.Switch(this.valueSubject.OnNext, this.exceptionSubject.OnNext)));
 
-            this.subscriptionsDisposable.Add(registerCalculation(this.valueOrExceptionSubject, this.isCalculatingSubject));
+            this.subscriptionsDisposable.Add(
+                registerCalculation(this.valueOrExceptionSubject, this.isCalculatingSubject));
 
             this.setOrExceptionObservable = this.valueOrExceptionSubject.AsObservable();
 
             if (this.setOrExceptionObservable == null)
             {
-                throw new InvalidOperationException("Result of " + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o => o.AsObservable()).Name + " cannot be null.");
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(
+                        o => o.AsObservable()).Name + " cannot be null.");
             }
 
             this.setObservable = this.setOrExceptionObservable.TakeFirst();
 
             if (this.setObservable == null)
             {
-                throw new InvalidOperationException("Result of " + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o => o.TakeFirst()).Name + " cannot be null.");
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(
+                        o => o.TakeFirst()).Name + " cannot be null.");
             }
 
             this.changeObservable = this.setObservable.DistinctUntilChanged();
 
             if (this.changeObservable == null)
             {
-                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name + " cannot be null.");
+                throw new InvalidOperationException(
+                    "Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name
+                    + " cannot be null.");
             }
 
             this.exceptionObservable = this.setOrExceptionObservable.TakeSecond();
@@ -82,13 +110,11 @@ namespace MorseCode.RxMvvm.Observable.Property
 
             if (this.changeOrExceptionObservable == null)
             {
-                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o => o.Merge(null)).Name + " cannot be null.");
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<IObservable<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(
+                        o => o.Merge(null)).Name + " cannot be null.");
             }
-
-            // TODO: does this subscription need to happen on the UI thread?
-            this.subscriptionsDisposable.Add(this.valueOrExceptionSubject.Skip(1).Subscribe(v => this.OnValueChanged()));
-            this.subscriptionsDisposable.Add(this.changeObservable.Skip(1).Subscribe(v => this.OnLatestSuccessfulValueChanged()));
-            this.subscriptionsDisposable.Add(this.exceptionObservable.Skip(1).Subscribe(v => this.OnLatestCalculationExceptionChanged()));
         }
 
         IObservable<T> ICalculatedProperty<T>.OnSuccessfulValueChanged
@@ -193,22 +219,6 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
 
             return this.valueOrExceptionSubject.Value;
-        }
-
-        /// <summary>
-        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.LatestSuccessfulValue"/> property.
-        /// </summary>
-        protected virtual void OnLatestSuccessfulValueChanged()
-        {
-            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.LatestSuccessfulValuePropertyName));
-        }
-
-        /// <summary>
-        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.LatestCalculationException"/> property.
-        /// </summary>
-        protected virtual void OnLatestCalculationExceptionChanged()
-        {
-            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.LatestCalculationExceptionPropertyName));
         }
 
         [ContractInvariantMethod]

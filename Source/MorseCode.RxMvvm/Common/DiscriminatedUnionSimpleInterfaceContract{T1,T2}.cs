@@ -83,8 +83,8 @@ namespace MorseCode.RxMvvm.Common
         /// </param>
         public void Switch(Action<T1> first, Action<T2> second)
         {
-            Contract.Requires(first != null);
-            Contract.Requires(second != null);
+            Contract.Requires<ArgumentNullException>(first != null, "first");
+            Contract.Requires<ArgumentNullException>(second != null, "second");
         }
 
         /// <summary>
@@ -104,8 +104,8 @@ namespace MorseCode.RxMvvm.Common
         /// </returns>
         public TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second)
         {
-            Contract.Requires(first != null);
-            Contract.Requires(second != null);
+            Contract.Requires<ArgumentNullException>(first != null, "first");
+            Contract.Requires<ArgumentNullException>(second != null, "second");
             return default(TResult);
         }
     }

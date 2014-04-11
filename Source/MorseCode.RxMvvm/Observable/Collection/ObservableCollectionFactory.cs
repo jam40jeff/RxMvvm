@@ -14,7 +14,9 @@
 
 namespace MorseCode.RxMvvm.Observable.Collection
 {
+    using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
 
     /// <summary>
     /// A factory for creating observable collections.
@@ -32,6 +34,8 @@ namespace MorseCode.RxMvvm.Observable.Collection
         /// </returns>
         public static IObservableCollection<T> CreateObservableCollection<T>()
         {
+            Contract.Ensures(Contract.Result<IObservableCollection<T>>() != null);
+
             return new ObservableCollection<T>();
         }
 
@@ -49,7 +53,30 @@ namespace MorseCode.RxMvvm.Observable.Collection
         /// </returns>
         public static IObservableCollection<T> CreateObservableCollection<T>(IList<T> list)
         {
+            Contract.Requires<ArgumentNullException>(list != null, "list");
+            Contract.Ensures(Contract.Result<IObservableCollection<T>>() != null);
+
             return new ObservableCollection<T>(list);
+        }
+
+        /// <summary>
+        /// Creates a read-only observable collection from a list of items.
+        /// </summary>
+        /// <param name="list">
+        /// The list of items.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of the items in the collection.
+        /// </typeparam>
+        /// <returns>
+        /// The <see cref="IReadableObservableCollection{T}"/>.
+        /// </returns>
+        public static IReadableObservableCollection<T> CreateReadOnlyObservableCollection<T>(IList<T> list)
+        {
+            Contract.Requires<ArgumentNullException>(list != null, "list");
+            Contract.Ensures(Contract.Result<IReadableObservableCollection<T>>() != null);
+
+            return new ReadOnlyObservableCollection<T>(list);
         }
     }
 }

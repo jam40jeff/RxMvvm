@@ -113,9 +113,9 @@ namespace MorseCode.RxMvvm.Common
         /// </param>
         public void Switch(Action<T1> first, Action<T2> second, Action<T3> third)
         {
-            Contract.Requires(first != null);
-            Contract.Requires(second != null);
-            Contract.Requires(third != null);
+            Contract.Requires<ArgumentNullException>(first != null, "first");
+            Contract.Requires<ArgumentNullException>(second != null, "second");
+            Contract.Requires<ArgumentNullException>(third != null, "third");
         }
 
         /// <summary>
@@ -138,9 +138,9 @@ namespace MorseCode.RxMvvm.Common
         /// </returns>
         public TResult Switch<TResult>(Func<T1, TResult> first, Func<T2, TResult> second, Func<T3, TResult> third)
         {
-            Contract.Requires(first != null);
-            Contract.Requires(second != null);
-            Contract.Requires(third != null);
+            Contract.Requires<ArgumentNullException>(first != null, "first");
+            Contract.Requires<ArgumentNullException>(second != null, "second");
+            Contract.Requires<ArgumentNullException>(third != null, "third");
             return default(TResult);
         }
     }

@@ -56,9 +56,9 @@ namespace MorseCode.RxMvvm.Reactive
             where T2 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
-            Contract.Requires(onNextFirst != null);
-            Contract.Requires(onNextSecond != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
+            Contract.Requires<ArgumentNullException>(onNextFirst != null, "onNextFirst");
+            Contract.Requires<ArgumentNullException>(onNextSecond != null, "onNextSecond");
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
             return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2>(onNextFirst, onNextSecond));
@@ -100,10 +100,10 @@ namespace MorseCode.RxMvvm.Reactive
             where T2 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
-            Contract.Requires(onNextFirst != null);
-            Contract.Requires(onNextSecond != null);
-            Contract.Requires(onError != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
+            Contract.Requires<ArgumentNullException>(onNextFirst != null, "onNextFirst");
+            Contract.Requires<ArgumentNullException>(onNextSecond != null, "onNextSecond");
+            Contract.Requires<ArgumentNullException>(onError != null, "onError");
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
             return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2>(onNextFirst, onNextSecond, onError));
@@ -145,10 +145,10 @@ namespace MorseCode.RxMvvm.Reactive
             where T2 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
-            Contract.Requires(onNextFirst != null);
-            Contract.Requires(onNextSecond != null);
-            Contract.Requires(onCompleted != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
+            Contract.Requires<ArgumentNullException>(onNextFirst != null, "onNextFirst");
+            Contract.Requires<ArgumentNullException>(onNextSecond != null, "onNextSecond");
+            Contract.Requires<ArgumentNullException>(onCompleted != null, "onCompleted");
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
             return source.Subscribe(ObservableRxMvvm.CreateDiscriminatedUnion<TCommon, T1, T2>(onNextFirst, onNextSecond, onCompleted));
@@ -194,11 +194,11 @@ namespace MorseCode.RxMvvm.Reactive
             where T2 : TCommon
             where TCommon : class
         {
-            Contract.Requires(source != null);
-            Contract.Requires(onNextFirst != null);
-            Contract.Requires(onNextSecond != null);
-            Contract.Requires(onError != null);
-            Contract.Requires(onCompleted != null);
+            Contract.Requires<ArgumentNullException>(source != null, "source");
+            Contract.Requires<ArgumentNullException>(onNextFirst != null, "onNextFirst");
+            Contract.Requires<ArgumentNullException>(onNextSecond != null, "onNextSecond");
+            Contract.Requires<ArgumentNullException>(onError != null, "onError");
+            Contract.Requires<ArgumentNullException>(onCompleted != null, "onCompleted");
             Contract.Ensures(Contract.Result<IDisposable>() != null);
 
             return

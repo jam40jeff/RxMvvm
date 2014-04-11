@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 
 // Copyright 2014 MorseCode Software
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,30 +12,19 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Observable.Property
+namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
 {
     using System;
-    using System.Diagnostics.Contracts;
+    using System.ComponentModel;
 
     /// <summary>
-    /// Interface representing a readable property.
+    /// Interface representing a readable property implementing <see cref="INotifyPropertyChanged"/>.
     /// </summary>
     /// <typeparam name="T">
     /// The type of the property.
     /// </typeparam>
-    [ContractClass(typeof(ReadableObservablePropertyContract<>))]
-    public interface IReadableObservableProperty<out T> : IObservable<T>, IDisposable
+    public interface IReadableNotifyPropertyChangedProperty<out T> : INotifyPropertyChanged, IDisposable
     {
-        /// <summary>
-        /// Gets an observable which notifies when a value change occurs.
-        /// </summary>
-        IObservable<T> OnChanged { get; }
-
-        /// <summary>
-        /// Gets an observable which notifies when a value set occurs.
-        /// </summary>
-        IObservable<T> OnSet { get; }
-
         /// <summary>
         /// Gets the latest value.
         /// </summary>

@@ -28,6 +28,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
 
         int IWritableObservableCollection<T>.IndexOf(T item)
         {
+            Contract.Ensures(Contract.Result<int>() >= -1);
             return 0;
         }
 

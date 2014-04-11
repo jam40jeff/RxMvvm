@@ -36,6 +36,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
         internal ObservableCollection(IList<T> list)
             : base(list)
         {
+            Contract.Requires<ArgumentNullException>(list != null, "list");
             Contract.Ensures(this.collectionChanged != null);
 
             this.collectionChanged = new Subject<IObservableCollectionChanged<T>>();
@@ -55,6 +56,21 @@ namespace MorseCode.RxMvvm.Observable.Collection
         }
 
         private event PropertyChangedEventHandler PropertyChanged;
+
+        int IObservableCollection<T>.IndexOf(T item)
+        {
+            return this.IndexOf(item);
+        }
+
+        int IWritableObservableCollection<T>.IndexOf(T item)
+        {
+            return this.IndexOf(item);
+        }
+
+        void IObservableCollection<T>.Clear()
+        {
+            this.Clear();
+        }
 
         IDisposable IObservable<IObservableCollectionChanged<T>>.Subscribe(
             IObserver<IObservableCollectionChanged<T>> observer)

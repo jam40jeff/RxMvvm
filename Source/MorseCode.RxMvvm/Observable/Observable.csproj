@@ -90,6 +90,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Collection\CollectionObservable.cs" />
+    <Compile Include="Collection\NotifyCollectionChanged\NotifyCollectionChangedCollectionFactory.cs" />
+    <Compile Include="Collection\ReadOnlyObservableCollection{T}.cs" />
+    <Compile Include="Collection\NotifyCollectionChanged\NotifyCollectionChangedCollection{T}.cs" />
+    <Compile Include="Collection\NotifyCollectionChanged\INotifyCollectionChangedCollection{T}.cs" />
+    <Compile Include="Collection\NotifyCollectionChanged\IWritableNotifyCollectionChangedCollection{T}.cs" />
+    <Compile Include="Collection\NotifyCollectionChanged\IReadableNotifyCollectionChangedCollection{T}.cs" />
+    <Compile Include="Collection\NotifyCollectionChanged\ReadOnlyNotifyCollectionChangedCollection{T}.cs" />
     <Compile Include="Collection\WritableObservableCollectionContract{T}.cs" />
     <Compile Include="Collection\ReadableObservableCollectionContract{T}.cs" />
     <Compile Include="Collection\IObservableCollectionChanged{T}.cs" />
@@ -109,6 +116,13 @@
     <Compile Include="Property\CalculatedPropertyUtility.cs" />
     <Compile Include="Property\CalculatedProperty{T}.cs" />
     <Compile Include="ChainedObservable.cs" />
+    <Compile Include="Property\NotifyPropertyChanged\NotifyPropertyChangedPropertyFactory.cs" />
+    <Compile Include="Property\NotifyPropertyChanged\ReadOnlyNotifyPropertyChangedProperty{T}.cs" />
+    <Compile Include="Property\NotifyPropertyChanged\INotifyPropertyChangedProperty{T}.cs" />
+    <Compile Include="Property\NotifyPropertyChanged\IReadableNotifyPropertyChangedProperty{T}.cs" />
+    <Compile Include="Property\NotifyPropertyChanged\IWritableNotifyPropertyChangedProperty{T}.cs" />
+    <Compile Include="Property\NotifyPropertyChanged\NotifyPropertyChangedProperty{T}.cs" />
+    <Compile Include="Property\NotifyPropertyChanged\ReadableNotifyPropertyChangedPropertyUtility.cs" />
     <Compile Include="Property\ReadOnlyPropertyContract{T}.cs" />
     <Compile Include="Property\IReadOnlyProperty.cs" />
     <Compile Include="Property\WritableObservablePropertyContract{T}.cs" />
@@ -121,7 +135,6 @@
     <Compile Include="Property\ReadableObservablePropertyBase{T}.cs" />
     <Compile Include="Property\ObservablePropertyFactory.cs" />
     <Compile Include="Property\ObservableProperty{T}.cs" />
-    <Compile Include="Property\ReadableObservablePropertyUtility.cs" />
     <Compile Include="Property\ReadOnlyProperty{T}.cs" />
   </ItemGroup>
   <ItemGroup>
