@@ -16,43 +16,33 @@ namespace MorseCode.RxMvvm.Observable.Collection
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
 
-    /// <summary>
-    /// A factory for creating observable collections.
-    /// </summary>
-    public class ObservableCollectionFactory : IObservableCollectionFactory
+    [ContractClassFor(typeof(IObservableCollectionFactory))]
+    internal abstract class ObservableCollectionFactoryContract : IObservableCollectionFactory
     {
-        private static readonly Lazy<ObservableCollectionFactory> InstanceLazy =
-            new Lazy<ObservableCollectionFactory>(() => new ObservableCollectionFactory());
-
-        private ObservableCollectionFactory()
-        {
-        }
-
-        /// <summary>
-        /// Gets the singleton instance of an <see cref="ObservableCollectionFactory"/>.
-        /// </summary>
-        public static IObservableCollectionFactory Instance
-        {
-            get
-            {
-                return InstanceLazy.Value;
-            }
-        }
-
         IObservableCollection<T> IObservableCollectionFactory.CreateObservableCollection<T>()
         {
-            return new ObservableCollection<T>();
+            Contract.Ensures(Contract.Result<IObservableCollection<T>>() != null);
+
+            return null;
         }
 
         IObservableCollection<T> IObservableCollectionFactory.CreateObservableCollection<T>(IList<T> list)
         {
-            return new ObservableCollection<T>(list);
+            Contract.Requires<ArgumentNullException>(list != null, "list");
+            Contract.Ensures(Contract.Result<IObservableCollection<T>>() != null);
+
+            return null;
         }
 
-        IReadableObservableCollection<T> IObservableCollectionFactory.CreateReadOnlyObservableCollection<T>(IList<T> list)
+        IReadableObservableCollection<T> IObservableCollectionFactory.CreateReadOnlyObservableCollection<T>(
+            IList<T> list)
         {
-            return new ReadOnlyObservableCollection<T>(list);
+            Contract.Requires<ArgumentNullException>(list != null, "list");
+            Contract.Ensures(Contract.Result<IReadableObservableCollection<T>>() != null);
+
+            return null;
         }
     }
 }

@@ -29,21 +29,27 @@ namespace MorseCode.RxMvvm.UI.Wpf
     /// <typeparam name="T">
     /// The type on which to create bindings.
     /// </typeparam>
-    public static class BindingFactory<T>
+    public class BindingFactory<T> : IBindingFactory<T>
     {
+        private static readonly Lazy<BindingFactory<T>> InstanceLazy =
+            new Lazy<BindingFactory<T>>(() => new BindingFactory<T>());
+
+        private BindingFactory()
+        {
+        }
+
         /// <summary>
-        /// Create a one-way binding.
+        /// Gets the singleton instance of a <see cref="BindingFactory{T}"/>.
         /// </summary>
-        /// <param name="getPropertyName">
-        /// An expression to get the property to bind.
-        /// </param>
-        /// <typeparam name="TProperty">
-        /// The type of the property to bind.
-        /// </typeparam>
-        /// <returns>
-        /// The <see cref="Binding"/>.
-        /// </returns>
-        public static Binding CreateOneWayBinding<TProperty>(
+        public static BindingFactory<T> Instance
+        {
+            get
+            {
+                return InstanceLazy.Value;
+            }
+        }
+
+        Binding IBindingFactory<T>.CreateOneWayBinding<TProperty>(
             Expression<Func<T, IReadableObservableProperty<TProperty>>> getPropertyName)
         {
             PropertyInfo pathParameters =
@@ -53,24 +59,12 @@ namespace MorseCode.RxMvvm.UI.Wpf
                        {
                            Path =
                                new PropertyPath(
-                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters), 
+                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters),
                            Mode = BindingMode.OneWay
                        };
         }
 
-        /// <summary>
-        /// Create a one-way-to-source binding.
-        /// </summary>
-        /// <param name="getPropertyName">
-        /// An expression to get the property to bind.
-        /// </param>
-        /// <typeparam name="TProperty">
-        /// The type of the property to bind.
-        /// </typeparam>
-        /// <returns>
-        /// The <see cref="Binding"/>.
-        /// </returns>
-        public static Binding CreateOneWayToSourceBinding<TProperty>(
+        Binding IBindingFactory<T>.CreateOneWayToSourceBinding<TProperty>(
             Expression<Func<T, IWritableObservableProperty<TProperty>>> getPropertyName)
         {
             PropertyInfo pathParameters =
@@ -80,24 +74,12 @@ namespace MorseCode.RxMvvm.UI.Wpf
                        {
                            Path =
                                new PropertyPath(
-                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters), 
+                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters),
                            Mode = BindingMode.OneWayToSource
                        };
         }
 
-        /// <summary>
-        /// Create a two-way binding.
-        /// </summary>
-        /// <param name="getPropertyName">
-        /// An expression to get the property to bind.
-        /// </param>
-        /// <typeparam name="TProperty">
-        /// The type of the property to bind.
-        /// </typeparam>
-        /// <returns>
-        /// The <see cref="Binding"/>.
-        /// </returns>
-        public static Binding CreateTwoWayBinding<TProperty>(
+        Binding IBindingFactory<T>.CreateTwoWayBinding<TProperty>(
             Expression<Func<T, IObservableProperty<TProperty>>> getPropertyName)
         {
             PropertyInfo pathParameters =
@@ -107,24 +89,12 @@ namespace MorseCode.RxMvvm.UI.Wpf
                        {
                            Path =
                                new PropertyPath(
-                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters), 
+                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters),
                            Mode = BindingMode.TwoWay
                        };
         }
 
-        /// <summary>
-        /// Create a one-way binding from an <see cref="ICalculatedProperty{TProperty}"/> by accessing the <see cref="ICalculatedProperty{TProperty}.LatestSuccessfulValue"/> property.
-        /// </summary>
-        /// <param name="getPropertyName">
-        /// An expression to get the property to bind.
-        /// </param>
-        /// <typeparam name="TProperty">
-        /// The type of the property to bind.
-        /// </typeparam>
-        /// <returns>
-        /// The <see cref="Binding"/>.
-        /// </returns>
-        public static Binding CreateCalculatedBinding<TProperty>(
+        Binding IBindingFactory<T>.CreateCalculatedBinding<TProperty>(
             Expression<Func<T, ICalculatedProperty<TProperty>>> getPropertyName)
         {
             PropertyInfo pathParameters =
@@ -134,7 +104,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
                        {
                            Path =
                                new PropertyPath(
-                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters), 
+                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters),
                            Mode = BindingMode.OneWay
                        };
         }

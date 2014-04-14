@@ -26,91 +26,44 @@ namespace MorseCode.RxMvvm.Observable.Property
     /// <summary>
     /// A factory for creating observable properties.
     /// </summary>
-    public static class ObservablePropertyFactory
+    public class ObservablePropertyFactory : IObservablePropertyFactory
     {
-        /// <summary>
-        /// Creates a read-only property.
-        /// </summary>
-        /// <param name="value">
-        /// The value for the property.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the property.
-        /// </typeparam>
-        /// <returns>
-        /// The read-only property as <see cref="IReadableObservableProperty{T}"/>.
-        /// </returns>
-        public static IReadOnlyProperty<T> CreateReadOnlyProperty<T>(T value)
-        {
-            Contract.Ensures(Contract.Result<IReadableObservableProperty<T>>() != null);
+        private static readonly Lazy<ObservablePropertyFactory> InstanceLazy =
+            new Lazy<ObservablePropertyFactory>(() => new ObservablePropertyFactory());
 
+        private ObservablePropertyFactory()
+        {
+        }
+
+        /// <summary>
+        /// Gets the singleton instance of an <see cref="ObservablePropertyFactory"/>.
+        /// </summary>
+        public static IObservablePropertyFactory Instance
+        {
+            get
+            {
+                return InstanceLazy.Value;
+            }
+        }
+
+        IReadOnlyProperty<T> IObservablePropertyFactory.CreateReadOnlyProperty<T>(T value)
+        {
             return new ReadOnlyProperty<T>(new Lazy<T>(() => value));
         }
 
-        /// <summary>
-        /// Creates a read-only property whose value is lazily evaluated.
-        /// </summary>
-        /// <param name="value">
-        /// The lazily evaluated value for the property.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the property.
-        /// </typeparam>
-        /// <returns>
-        /// The read-only property as <see cref="IReadableObservableProperty{T}"/>.
-        /// </returns>
-        public static IReadOnlyProperty<T> CreateReadOnlyProperty<T>(Lazy<T> value)
+        IReadOnlyProperty<T> IObservablePropertyFactory.CreateReadOnlyProperty<T>(Lazy<T> value)
         {
-            Contract.Requires<ArgumentNullException>(value != null, "value");
-            Contract.Ensures(Contract.Result<IReadableObservableProperty<T>>() != null);
-
             return new ReadOnlyProperty<T>(value);
         }
 
-        /// <summary>
-        /// Creates an observable read-write property.
-        /// </summary>
-        /// <param name="initialValue">
-        /// The initial value for the property.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the property.
-        /// </typeparam>
-        /// <returns>
-        /// The observable read-write property as <see cref="IObservableProperty{T}"/>.
-        /// </returns>
-        public static IObservableProperty<T> CreateProperty<T>(T initialValue)
+        IObservableProperty<T> IObservablePropertyFactory.CreateProperty<T>(T initialValue)
         {
-            Contract.Ensures(Contract.Result<IObservableProperty<T>>() != null);
-
             return new ObservableProperty<T>(initialValue);
         }
 
-        /// <summary>
-        /// Creates a calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateCalculatedProperty<TFirst, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, T>(
             IReadableObservableProperty<TFirst> firstProperty, Func<TFirst, T> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<TFirst, IDiscriminatedUnion<object, T, Exception>> calculate = first =>
                 {
                     IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
@@ -150,40 +103,11 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates a calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateCalculatedProperty<TFirst, TSecond, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, TSecond, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             IReadableObservableProperty<TSecond> secondProperty,
             Func<TFirst, TSecond, T> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<TFirst, TSecond, IDiscriminatedUnion<object, T, Exception>> calculate = (first, second) =>
                 {
                     IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
@@ -224,48 +148,12 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates a calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateCalculatedProperty<TFirst, TSecond, TThird, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, TSecond, TThird, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             IReadableObservableProperty<TSecond> secondProperty,
             IReadableObservableProperty<TThird> thirdProperty,
             Func<TFirst, TSecond, TThird, T> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
-            Contract.Requires<ArgumentNullException>(thirdProperty != null, "thirdProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<TFirst, TSecond, TThird, IDiscriminatedUnion<object, T, Exception>> calculate = (first, second, third) =>
                 {
                     IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
@@ -307,56 +195,13 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates a calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="fourthProperty">
-        /// The fourth property involved in the calculation.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TFourth">
-        /// The type of the fourth property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             IReadableObservableProperty<TSecond> secondProperty,
             IReadableObservableProperty<TThird> thirdProperty,
             IReadableObservableProperty<TFourth> fourthProperty,
             Func<TFirst, TSecond, TThird, TFourth, T> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
-            Contract.Requires<ArgumentNullException>(thirdProperty != null, "thirdProperty");
-            Contract.Requires<ArgumentNullException>(fourthProperty != null, "fourthProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<TFirst, TSecond, TThird, TFourth, IDiscriminatedUnion<object, T, Exception>> calculate =
                 (first, second, third, fourth) =>
                 {
@@ -402,36 +247,11 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             TimeSpan throttleTime,
             Func<TFirst, T> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<TFirst, IDiscriminatedUnion<object, T, Exception>> calculate =
                 first =>
                 {
@@ -493,44 +313,12 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             IReadableObservableProperty<TSecond> secondProperty,
             TimeSpan throttleTime,
             Func<TFirst, TSecond, T> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<TFirst, TSecond, IDiscriminatedUnion<object, T, Exception>> calculate =
                 (first, second) =>
                 {
@@ -594,52 +382,13 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             IReadableObservableProperty<TSecond> secondProperty,
             IReadableObservableProperty<TThird> thirdProperty,
             TimeSpan throttleTime,
             Func<TFirst, TSecond, TThird, T> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
-            Contract.Requires<ArgumentNullException>(thirdProperty != null, "thirdProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<TFirst, TSecond, TThird, IDiscriminatedUnion<object, T, Exception>> calculate =
                 (first, second, third) =>
                 {
@@ -703,46 +452,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="fourthProperty">
-        /// The fourth property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TFourth">
-        /// The type of the fourth property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             IReadableObservableProperty<TSecond> secondProperty,
             IReadableObservableProperty<TThird> thirdProperty,
@@ -750,13 +460,6 @@ namespace MorseCode.RxMvvm.Observable.Property
             TimeSpan throttleTime,
             Func<TFirst, TSecond, TThird, TFourth, T> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
-            Contract.Requires<ArgumentNullException>(thirdProperty != null, "thirdProperty");
-            Contract.Requires<ArgumentNullException>(fourthProperty != null, "fourthProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<TFirst, TSecond, TThird, TFourth, IDiscriminatedUnion<object, T, Exception>> calculate =
                 (first, second, third, fourth) =>
                 {
@@ -820,36 +523,11 @@ namespace MorseCode.RxMvvm.Observable.Property
                 });
         }
 
-        /// <summary>
-        /// Creates a cancellable asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateCancellableAsyncCalculatedProperty<TFirst, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TFirst, Task<T>> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<AsyncCalculationHelper, TFirst, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
                 async (helper, first) =>
                 {
@@ -916,44 +594,12 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates a cancellable asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             IReadableObservableProperty<TSecond> secondProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TFirst, TSecond, Task<T>> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<AsyncCalculationHelper, TFirst, TSecond, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
                 async (helper, first, second) =>
                 {
@@ -1021,52 +667,13 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates a cancellable asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             IReadableObservableProperty<TSecond> secondProperty,
             IReadableObservableProperty<TThird> thirdProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<T>> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
-            Contract.Requires<ArgumentNullException>(thirdProperty != null, "thirdProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
                 async (helper, first, second, third) =>
                 {
@@ -1135,46 +742,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             });
         }
 
-        /// <summary>
-        /// Creates a cancellable asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="fourthProperty">
-        /// The fourth property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TFourth">
-        /// The type of the fourth property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        public static ICalculatedProperty<T> CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
             IReadableObservableProperty<TFirst> firstProperty,
             IReadableObservableProperty<TSecond> secondProperty,
             IReadableObservableProperty<TThird> thirdProperty,
@@ -1182,13 +750,6 @@ namespace MorseCode.RxMvvm.Observable.Property
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue)
         {
-            Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
-            Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
-            Contract.Requires<ArgumentNullException>(thirdProperty != null, "thirdProperty");
-            Contract.Requires<ArgumentNullException>(fourthProperty != null, "fourthProperty");
-            Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
-            Contract.Ensures(Contract.Result<ICalculatedProperty<T>>() != null);
-
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
                 async (helper, first, second, third, fourth) =>
                 {

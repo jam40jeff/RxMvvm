@@ -22,55 +22,19 @@ namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
     /// <summary>
     /// A factory for creating properties implementing <see cref="INotifyPropertyChanged"/>.
     /// </summary>
-    public static class NotifyPropertyChangedPropertyFactory
+    public class NotifyPropertyChangedPropertyFactory : INotifyPropertyChangedPropertyFactory
     {
-        /// <summary>
-        /// Creates a property implementing <see cref="INotifyPropertyChanged"/>.
-        /// </summary>
-        /// <param name="observableProperty">
-        /// The observable property to create the property from.
-        /// </param>
-        /// <param name="scheduler">
-        /// The scheduler to run the notifications on.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the property.
-        /// </typeparam>
-        /// <returns>
-        /// The <see cref="INotifyPropertyChangedProperty{T}"/>.
-        /// </returns>
-        public static INotifyPropertyChangedProperty<T> CreateNotifyCollectionChangedCollection<T>(
+        INotifyPropertyChangedProperty<T>
+            INotifyPropertyChangedPropertyFactory.CreateNotifyCollectionChangedCollection<T>(
             IObservableProperty<T> observableProperty, IScheduler scheduler)
         {
-            Contract.Requires<ArgumentNullException>(observableProperty != null, "observableProperty");
-            Contract.Requires<ArgumentNullException>(scheduler != null, "scheduler");
-            Contract.Ensures(Contract.Result<INotifyPropertyChangedProperty<T>>() != null);
-
             return new NotifyPropertyChangedProperty<T>(observableProperty, scheduler);
         }
 
-        /// <summary>
-        /// Creates a read-only property implementing <see cref="INotifyPropertyChanged"/>.
-        /// </summary>
-        /// <param name="observable">
-        /// The observable to create the property from.
-        /// </param>
-        /// <param name="scheduler">
-        /// The scheduler to run the notifications on.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the property.
-        /// </typeparam>
-        /// <returns>
-        /// The <see cref="IReadableNotifyPropertyChangedProperty{T}"/>.
-        /// </returns>
-        public static IReadableNotifyPropertyChangedProperty<T> CreateReadOnlyNotifyCollectionChangedCollection<T>(
+        IReadableNotifyPropertyChangedProperty<T>
+            INotifyPropertyChangedPropertyFactory.CreateReadOnlyNotifyCollectionChangedCollection<T>(
             IObservable<T> observable, IScheduler scheduler)
         {
-            Contract.Requires<ArgumentNullException>(observable != null, "observable");
-            Contract.Requires<ArgumentNullException>(scheduler != null, "scheduler");
-            Contract.Ensures(Contract.Result<IReadableNotifyPropertyChangedProperty<T>>() != null);
-
             return new ReadOnlyNotifyPropertyChangedProperty<T>(observable, scheduler);
         }
     }

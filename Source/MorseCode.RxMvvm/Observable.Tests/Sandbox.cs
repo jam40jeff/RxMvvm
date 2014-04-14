@@ -1144,7 +1144,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
             employee4.LastName.Value = "Employee";
 
             IObservableCollection<Employee> employees =
-                ObservableCollectionFactory.CreateObservableCollection(new List<Employee> { employee1, employee2 });
+                ObservableCollectionFactory.Instance.CreateObservableCollection(new List<Employee> { employee1, employee2 });
 
             employees.SubscribeItems(
                 e =>
@@ -1187,7 +1187,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
             employee2.Company.Value = company3;
 
             IObservableCollection<Employee> employees =
-                ObservableCollectionFactory.CreateObservableCollection(new List<Employee> { employee1 });
+                ObservableCollectionFactory.Instance.CreateObservableCollection(new List<Employee> { employee1 });
 
             employees.SubscribeItems(
                 e =>
@@ -1231,7 +1231,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
             Employee employee3 = new Employee();
             Employee employee4 = new Employee();
             IObservableCollection<Employee> employees =
-                ObservableCollectionFactory.CreateObservableCollection(new List<Employee> { employee1, employee2 });
+                ObservableCollectionFactory.Instance.CreateObservableCollection(new List<Employee> { employee1, employee2 });
             IReadableNotifyCollectionChangedCollection<Employee> employeesCollection =
                 NotifyCollectionChangedCollectionFactory.CreateReadOnlyNotifyCollectionChangedCollection(
                     employees, Scheduler.Immediate);
@@ -1244,9 +1244,9 @@ namespace MorseCode.RxMvvm.Observable.Tests
 
         private class Company
         {
-            private readonly IObservableProperty<string> id = ObservablePropertyFactory.CreateProperty<string>(null);
+            private readonly IObservableProperty<string> id = ObservablePropertyFactory.Instance.CreateProperty<string>(null);
 
-            private readonly IObservableProperty<string> name = ObservablePropertyFactory.CreateProperty<string>(null);
+            private readonly IObservableProperty<string> name = ObservablePropertyFactory.Instance.CreateProperty<string>(null);
 
             public IObservableProperty<string> Id
             {
@@ -1267,22 +1267,22 @@ namespace MorseCode.RxMvvm.Observable.Tests
 
         private class Employee
         {
-            private readonly IObservableProperty<string> id = ObservablePropertyFactory.CreateProperty<string>(null);
+            private readonly IObservableProperty<string> id = ObservablePropertyFactory.Instance.CreateProperty<string>(null);
 
             private readonly IObservableProperty<string> firstName =
-                ObservablePropertyFactory.CreateProperty<string>(null);
+                ObservablePropertyFactory.Instance.CreateProperty<string>(null);
 
             private readonly IObservableProperty<string> lastName =
-                ObservablePropertyFactory.CreateProperty<string>(null);
+                ObservablePropertyFactory.Instance.CreateProperty<string>(null);
 
             private readonly ICalculatedProperty<string> fullName;
 
             private readonly IObservableProperty<Company> company =
-                ObservablePropertyFactory.CreateProperty<Company>(null);
+                ObservablePropertyFactory.Instance.CreateProperty<Company>(null);
 
             public Employee()
             {
-                fullName = ObservablePropertyFactory.CreateCalculatedProperty(
+                fullName = ObservablePropertyFactory.Instance.CreateCalculatedProperty(
                     this.firstName, this.lastName, (firstName, lastName) => firstName + " " + lastName);
             }
 
@@ -1329,14 +1329,14 @@ namespace MorseCode.RxMvvm.Observable.Tests
 
         private class WorkTask
         {
-            private readonly IObservableProperty<string> id = ObservablePropertyFactory.CreateProperty<string>(null);
+            private readonly IObservableProperty<string> id = ObservablePropertyFactory.Instance.CreateProperty<string>(null);
 
-            private readonly IObservableProperty<double> estimatedHours = ObservablePropertyFactory.CreateProperty(0.0);
+            private readonly IObservableProperty<double> estimatedHours = ObservablePropertyFactory.Instance.CreateProperty(0.0);
 
-            private readonly IObservableProperty<string> name = ObservablePropertyFactory.CreateProperty<string>(null);
+            private readonly IObservableProperty<string> name = ObservablePropertyFactory.Instance.CreateProperty<string>(null);
 
             private readonly IObservableProperty<Employee> employee =
-                ObservablePropertyFactory.CreateProperty<Employee>(null);
+                ObservablePropertyFactory.Instance.CreateProperty<Employee>(null);
 
             public IObservableProperty<string> Id
             {

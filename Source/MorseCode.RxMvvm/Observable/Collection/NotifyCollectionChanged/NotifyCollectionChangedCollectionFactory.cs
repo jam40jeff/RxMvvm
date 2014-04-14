@@ -17,61 +17,40 @@ namespace MorseCode.RxMvvm.Observable.Collection.NotifyCollectionChanged
     using System;
     using System.Collections.Specialized;
     using System.ComponentModel;
-    using System.Diagnostics.Contracts;
     using System.Reactive.Concurrency;
 
     /// <summary>
     /// A factory for creating collections implementing <see cref="INotifyCollectionChanged"/> and <see cref="INotifyPropertyChanged"/>.
     /// </summary>
-    public static class NotifyCollectionChangedCollectionFactory
+    public class NotifyCollectionChangedCollectionFactory : INotifyCollectionChangedCollectionFactory
     {
-        /// <summary>
-        /// Creates a collection implementing <see cref="INotifyCollectionChanged"/> and <see cref="INotifyPropertyChanged"/>.
-        /// </summary>
-        /// <param name="observableCollection">
-        /// The observable collection to create the collection from.
-        /// </param>
-        /// <param name="scheduler">
-        /// The scheduler to run the notifications on.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the items in the collection.
-        /// </typeparam>
-        /// <returns>
-        /// The <see cref="INotifyCollectionChangedCollection{T}"/>.
-        /// </returns>
-        public static INotifyCollectionChangedCollection<T> CreateNotifyCollectionChangedCollection<T>(
-            IObservableCollection<T> observableCollection, IScheduler scheduler)
-        {
-            Contract.Requires<ArgumentNullException>(observableCollection != null, "observableCollection");
-            Contract.Requires<ArgumentNullException>(scheduler != null, "scheduler");
-            Contract.Ensures(Contract.Result<INotifyCollectionChangedCollection<T>>() != null);
+        private static readonly Lazy<NotifyCollectionChangedCollectionFactory> InstanceLazy =
+            new Lazy<NotifyCollectionChangedCollectionFactory>(() => new NotifyCollectionChangedCollectionFactory());
 
-            return new NotifyCollectionChangedCollection<T>(observableCollection, scheduler);
+        private NotifyCollectionChangedCollectionFactory()
+        {
         }
 
         /// <summary>
-        /// Creates a read-only collection implementing <see cref="INotifyCollectionChanged"/> and <see cref="INotifyPropertyChanged"/>.
+        /// Gets the singleton instance of an <see cref="NotifyCollectionChangedCollectionFactory"/>.
         /// </summary>
-        /// <param name="observableCollection">
-        /// The observable collection to create the collection from.
-        /// </param>
-        /// <param name="scheduler">
-        /// The scheduler to run the notifications on.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the items in the collection.
-        /// </typeparam>
-        /// <returns>
-        /// The <see cref="IReadableNotifyCollectionChangedCollection{T}"/>.
-        /// </returns>
-        public static IReadableNotifyCollectionChangedCollection<T> CreateReadOnlyNotifyCollectionChangedCollection<T>(
+        public static INotifyCollectionChangedCollectionFactory Instance
+        {
+            get
+            {
+                return InstanceLazy.Value;
+            }
+        }
+
+        INotifyCollectionChangedCollection<T> INotifyCollectionChangedCollectionFactory.CreateNotifyCollectionChangedCollection<T>(
+            IObservableCollection<T> observableCollection, IScheduler scheduler)
+        {
+            return new NotifyCollectionChangedCollection<T>(observableCollection, scheduler);
+        }
+
+        IReadableNotifyCollectionChangedCollection<T> INotifyCollectionChangedCollectionFactory.CreateReadOnlyNotifyCollectionChangedCollection<T>(
             IReadableObservableCollection<T> observableCollection, IScheduler scheduler)
         {
-            Contract.Requires<ArgumentNullException>(observableCollection != null, "observableCollection");
-            Contract.Requires<ArgumentNullException>(scheduler != null, "scheduler");
-            Contract.Ensures(Contract.Result<IReadableNotifyCollectionChangedCollection<T>>() != null);
-
             return new ReadOnlyNotifyCollectionChangedCollection<T>(observableCollection, scheduler);
         }
     }
