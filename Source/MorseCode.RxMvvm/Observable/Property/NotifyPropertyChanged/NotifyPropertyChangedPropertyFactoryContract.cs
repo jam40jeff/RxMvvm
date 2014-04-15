@@ -21,7 +21,7 @@ namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
     [ContractClassFor(typeof(INotifyPropertyChangedPropertyFactory))]
     internal abstract class NotifyPropertyChangedPropertyFactoryContract : INotifyPropertyChangedPropertyFactory
     {
-        INotifyPropertyChangedProperty<T> INotifyPropertyChangedPropertyFactory.CreateNotifyCollectionChangedCollection<T>(
+        INotifyPropertyChangedProperty<T> INotifyPropertyChangedPropertyFactory.CreateNotifyPropertyChangedProperty<T>(
             IObservableProperty<T> observableProperty, IScheduler scheduler)
         {
             Contract.Requires<ArgumentNullException>(observableProperty != null, "observableProperty");
@@ -31,7 +31,7 @@ namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
             return null;
         }
 
-        IReadableNotifyPropertyChangedProperty<T> INotifyPropertyChangedPropertyFactory.CreateReadOnlyNotifyCollectionChangedCollection<T>(
+        IReadableNotifyPropertyChangedProperty<T> INotifyPropertyChangedPropertyFactory.CreateReadOnlyNotifyPropertyChangedProperty<T>(
             IObservable<T> observable, IScheduler scheduler)
         {
             Contract.Requires<ArgumentNullException>(observable != null, "observable");

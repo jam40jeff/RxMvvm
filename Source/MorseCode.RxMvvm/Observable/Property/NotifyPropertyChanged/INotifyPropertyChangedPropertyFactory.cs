@@ -40,7 +40,7 @@ namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
         /// <returns>
         /// The <see cref="INotifyPropertyChangedProperty{T}"/>.
         /// </returns>
-        INotifyPropertyChangedProperty<T> CreateNotifyCollectionChangedCollection<T>(
+        INotifyPropertyChangedProperty<T> CreateNotifyPropertyChangedProperty<T>(
             IObservableProperty<T> observableProperty, IScheduler scheduler);
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
         /// <returns>
         /// The <see cref="IReadableNotifyPropertyChangedProperty{T}"/>.
         /// </returns>
-        IReadableNotifyPropertyChangedProperty<T> CreateReadOnlyNotifyCollectionChangedCollection<T>(
+        IReadableNotifyPropertyChangedProperty<T> CreateReadOnlyNotifyPropertyChangedProperty<T>(
             IObservable<T> observable, IScheduler scheduler);
     }
 }

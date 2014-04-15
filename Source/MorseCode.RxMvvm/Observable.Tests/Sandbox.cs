@@ -1214,7 +1214,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
         {
             Employee employee = new Employee();
             IReadableNotifyPropertyChangedProperty<IDiscriminatedUnion<object, string, Exception>> fullNameProperty =
-                NotifyPropertyChangedPropertyFactory.CreateReadOnlyNotifyCollectionChangedCollection(
+                NotifyPropertyChangedPropertyFactory.Instance.CreateReadOnlyNotifyPropertyChangedProperty(
                     employee.FullName, Scheduler.Immediate);
             fullNameProperty.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed.");
             employee.FirstName.Value = "John";
@@ -1233,7 +1233,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
             IObservableCollection<Employee> employees =
                 ObservableCollectionFactory.Instance.CreateObservableCollection(new List<Employee> { employee1, employee2 });
             IReadableNotifyCollectionChangedCollection<Employee> employeesCollection =
-                NotifyCollectionChangedCollectionFactory.CreateReadOnlyNotifyCollectionChangedCollection(
+                NotifyCollectionChangedCollectionFactory.Instance.CreateReadOnlyNotifyCollectionChangedCollection(
                     employees, Scheduler.Immediate);
             employeesCollection.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed.");
             employees.Add(employee3);

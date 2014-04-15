@@ -16,7 +16,6 @@ namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
 {
     using System;
     using System.ComponentModel;
-    using System.Diagnostics.Contracts;
     using System.Reactive.Concurrency;
 
     /// <summary>
@@ -24,15 +23,33 @@ namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
     /// </summary>
     public class NotifyPropertyChangedPropertyFactory : INotifyPropertyChangedPropertyFactory
     {
+        private static readonly Lazy<NotifyPropertyChangedPropertyFactory> InstanceLazy =
+            new Lazy<NotifyPropertyChangedPropertyFactory>(() => new NotifyPropertyChangedPropertyFactory());
+
+        private NotifyPropertyChangedPropertyFactory()
+        {
+        }
+
+        /// <summary>
+        /// Gets the singleton instance of an <see cref="NotifyPropertyChangedPropertyFactory"/>.
+        /// </summary>
+        public static INotifyPropertyChangedPropertyFactory Instance
+        {
+            get
+            {
+                return InstanceLazy.Value;
+            }
+        }
+
         INotifyPropertyChangedProperty<T>
-            INotifyPropertyChangedPropertyFactory.CreateNotifyCollectionChangedCollection<T>(
+            INotifyPropertyChangedPropertyFactory.CreateNotifyPropertyChangedProperty<T>(
             IObservableProperty<T> observableProperty, IScheduler scheduler)
         {
             return new NotifyPropertyChangedProperty<T>(observableProperty, scheduler);
         }
 
         IReadableNotifyPropertyChangedProperty<T>
-            INotifyPropertyChangedPropertyFactory.CreateReadOnlyNotifyCollectionChangedCollection<T>(
+            INotifyPropertyChangedPropertyFactory.CreateReadOnlyNotifyPropertyChangedProperty<T>(
             IObservable<T> observable, IScheduler scheduler)
         {
             return new ReadOnlyNotifyPropertyChangedProperty<T>(observable, scheduler);
