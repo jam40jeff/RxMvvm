@@ -21,6 +21,7 @@ namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
     using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable.Collection;
 
     internal class ReadOnlyNotifyPropertyChangedProperty<T> : IReadableNotifyPropertyChangedProperty<T>

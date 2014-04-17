@@ -21,6 +21,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System.Linq;
     using System.Reactive.Subjects;
 
+    [Serializable]
     internal class ObservableCollection<T> : Collection<T>, IObservableCollection<T>
     {
         private readonly Subject<IObservableCollectionChanged<T>> collectionChanged;

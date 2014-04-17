@@ -20,6 +20,7 @@ namespace MorseCode.RxMvvm.Reactive
     using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
 
     /// <summary>
     /// Provides <see langword="static"/> methods for <see cref="IObservable{T}"/>.

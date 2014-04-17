@@ -24,6 +24,7 @@ namespace MorseCode.RxMvvm.Observable.Collection.NotifyCollectionChanged
     using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.StaticReflection;
 
     internal class ReadOnlyNotifyCollectionChangedCollection<T> : IReadableNotifyCollectionChangedCollection<T>
     {

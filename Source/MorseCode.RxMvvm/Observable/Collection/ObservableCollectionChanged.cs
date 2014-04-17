@@ -19,6 +19,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System.Linq;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.StaticReflection;
 
     /// <summary>
     /// Contains extension methods for interface <see cref="IObservableCollectionChanged{T}"/>.

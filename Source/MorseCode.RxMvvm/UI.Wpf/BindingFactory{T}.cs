@@ -21,6 +21,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
     using System.Windows.Data;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable.Property;
 
     /// <summary>

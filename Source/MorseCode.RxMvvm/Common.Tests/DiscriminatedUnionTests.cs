@@ -20,6 +20,8 @@ namespace MorseCode.RxMvvm.Common.Tests
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
+
     [TestClass]
     public class DiscriminatedUnionTests
     {

@@ -23,6 +23,8 @@ namespace MorseCode.RxMvvm.Common.Tests
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using MorseCode.RxMvvm.Common.StaticReflection;
+
     [TestClass]
     public class StaticReflectionTests
     {

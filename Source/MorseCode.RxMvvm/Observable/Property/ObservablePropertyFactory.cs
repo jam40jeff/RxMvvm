@@ -15,13 +15,9 @@
 namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
-    using System.Diagnostics.Contracts;
-    using System.Reactive.Concurrency;
-    using System.Reactive.Disposables;
-    using System.Reactive.Linq;
     using System.Threading.Tasks;
 
-    using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Observable.Property.Internal;
 
     /// <summary>
     /// A factory for creating observable properties.
@@ -64,758 +60,250 @@ namespace MorseCode.RxMvvm.Observable.Property
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, T>(
             IReadableObservableProperty<TFirst> firstProperty, Func<TFirst, T> calculateValue)
         {
-            Func<TFirst, IDiscriminatedUnion<object, T, Exception>> calculate = first =>
-                {
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion = DiscriminatedUnion.First<object, T, Exception>(calculateValue(first));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
-
-                    return discriminatedUnion;
-                };
-
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                resultSubject.OnNext(calculate(firstProperty.Value));
-
-                return firstProperty.Subscribe(
-                        v =>
-                        {
-                            isCalculatingSubject.OnNext(true);
-
-                            try
-                            {
-                                resultSubject.OnNext(calculate(v));
-                            }
-                            catch (Exception e)
-                            {
-                                resultSubject.OnNext(
-                                    DiscriminatedUnion.Second<object, T, Exception>(e));
-                            }
-
-                            isCalculatingSubject.OnNext(false);
-                        });
-            });
+            return new CalculatedProperty<TFirst, T>(firstProperty, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, TSecond, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
             Func<TFirst, TSecond, T> calculateValue)
         {
-            Func<TFirst, TSecond, IDiscriminatedUnion<object, T, Exception>> calculate = (first, second) =>
-                {
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion = DiscriminatedUnion.First<object, T, Exception>(calculateValue(first, second));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
-
-                    return discriminatedUnion;
-                };
-
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                resultSubject.OnNext(calculate(firstProperty.Value, secondProperty.Value));
-
-                IObservable<Tuple<TFirst, TSecond>> o = firstProperty.CombineLatest(secondProperty, Tuple.Create);
-                return o.Subscribe(
-                        v =>
-                        {
-                            isCalculatingSubject.OnNext(true);
-
-                            try
-                            {
-                                resultSubject.OnNext(calculate(v.Item1, v.Item2));
-                            }
-                            catch (Exception e)
-                            {
-                                resultSubject.OnNext(
-                                    DiscriminatedUnion.Second<object, T, Exception>(e));
-                            }
-
-                            isCalculatingSubject.OnNext(false);
-                        });
-            });
+            return new CalculatedProperty<TFirst, TSecond, T>(firstProperty, secondProperty, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, TSecond, TThird, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
             Func<TFirst, TSecond, TThird, T> calculateValue)
         {
-            Func<TFirst, TSecond, TThird, IDiscriminatedUnion<object, T, Exception>> calculate = (first, second, third) =>
-                {
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion = DiscriminatedUnion.First<object, T, Exception>(
-                            calculateValue(first, second, third));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
-
-                    return discriminatedUnion;
-                };
-
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                resultSubject.OnNext(calculate(firstProperty.Value, secondProperty.Value, thirdProperty.Value));
-
-                IObservable<Tuple<TFirst, TSecond, TThird>> o = firstProperty.CombineLatest(secondProperty, thirdProperty, Tuple.Create);
-                return o.Subscribe(
-                        v =>
-                        {
-                            isCalculatingSubject.OnNext(true);
-
-                            try
-                            {
-                                resultSubject.OnNext(calculate(v.Item1, v.Item2, v.Item3));
-                            }
-                            catch (Exception e)
-                            {
-                                resultSubject.OnNext(
-                                    DiscriminatedUnion.Second<object, T, Exception>(e));
-                            }
-
-                            isCalculatingSubject.OnNext(false);
-                        });
-            });
+            return new CalculatedProperty<TFirst, TSecond, TThird, T>(
+                firstProperty, secondProperty, thirdProperty, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            IReadableObservableProperty<TFourth> fourthProperty,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            IReadableObservableProperty<TFourth> fourthProperty, 
             Func<TFirst, TSecond, TThird, TFourth, T> calculateValue)
         {
-            Func<TFirst, TSecond, TThird, TFourth, IDiscriminatedUnion<object, T, Exception>> calculate =
-                (first, second, third, fourth) =>
-                {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
+            return new CalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
+                firstProperty, secondProperty, thirdProperty, fourthProperty, calculateValue);
+        }
 
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion =
-                            DiscriminatedUnion.First<object, T, Exception>(calculateValue(first, second, third, fourth));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedPropertyWithContext<TContext, TFirst, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            Func<TContext, TFirst, T> calculateValue)
+        {
+            return new CalculatedPropertyWithContext<TContext, TFirst, T>(context, firstProperty, calculateValue);
+        }
 
-                    return discriminatedUnion;
-                };
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            Func<TContext, TFirst, TSecond, T> calculateValue)
+        {
+            return new CalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
+                context, firstProperty, secondProperty, calculateValue);
+        }
 
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                resultSubject.OnNext(calculate(firstProperty.Value, secondProperty.Value, thirdProperty.Value, fourthProperty.Value));
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            Func<TContext, TFirst, TSecond, TThird, T> calculateValue)
+        {
+            return new CalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
+                context, firstProperty, secondProperty, thirdProperty, calculateValue);
+        }
 
-                IObservable<Tuple<TFirst, TSecond, TThird, TFourth>> o = firstProperty.CombineLatest(
-                    secondProperty, thirdProperty, fourthProperty, Tuple.Create);
-                return o.Subscribe(
-                        v =>
-                        {
-                            isCalculatingSubject.OnNext(true);
-
-                            try
-                            {
-                                resultSubject.OnNext(calculate(v.Item1, v.Item2, v.Item3, v.Item4));
-                            }
-                            catch (Exception e)
-                            {
-                                resultSubject.OnNext(
-                                    DiscriminatedUnion.Second<object, T, Exception>(e));
-                            }
-
-                            isCalculatingSubject.OnNext(false);
-                        });
-            });
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            IReadableObservableProperty<TFourth> fourthProperty, 
+            Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue)
+        {
+            return new CalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
+                context, firstProperty, secondProperty, thirdProperty, fourthProperty, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            TimeSpan throttleTime,
-            Func<TFirst, T> calculateValue)
+            IReadableObservableProperty<TFirst> firstProperty, TimeSpan throttleTime, Func<TFirst, T> calculateValue)
         {
-            Func<TFirst, IDiscriminatedUnion<object, T, Exception>> calculate =
-                first =>
-                {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion =
-                            DiscriminatedUnion.First<object, T, Exception>(calculateValue(first));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
-
-                    return discriminatedUnion;
-                };
-
-            // TODO: pick a better scheduler
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                CompositeDisposable d = new CompositeDisposable();
-                IScheduler scheduler = Scheduler.Default;
-
-                IDisposable scheduledTask = scheduler.ScheduleAsync(async (s, t) => resultSubject.OnNext(await Task.FromResult(calculate(firstProperty.Value))));
-                d.Add(scheduledTask);
-
-                IObservable<TFirst> o = throttleTime > TimeSpan.Zero ? firstProperty.Throttle(throttleTime, scheduler) : firstProperty.ObserveOn(scheduler);
-                d.Add(
-                    o.Subscribe(
-                        v =>
-                        {
-                            using (scheduledTask)
-                            {
-                            }
-
-                            isCalculatingSubject.OnNext(true);
-
-                            scheduledTask = scheduler.ScheduleAsync(
-                                async (s, t) =>
-                                {
-                                    try
-                                    {
-                                        resultSubject.OnNext(
-                                            await Task.FromResult(calculate(v)));
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        resultSubject.OnNext(
-                                            DiscriminatedUnion.Second<object, T, Exception>(e));
-                                    }
-
-                                    isCalculatingSubject.OnNext(false);
-                                });
-                        }));
-
-                return d;
-            });
+            return new AsyncCalculatedProperty<TFirst, T>(firstProperty, throttleTime, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            TimeSpan throttleTime,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            TimeSpan throttleTime, 
             Func<TFirst, TSecond, T> calculateValue)
         {
-            Func<TFirst, TSecond, IDiscriminatedUnion<object, T, Exception>> calculate =
-                (first, second) =>
-                {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion =
-                            DiscriminatedUnion.First<object, T, Exception>(calculateValue(first, second));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
-
-                    return discriminatedUnion;
-                };
-
-            // TODO: pick a better scheduler
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                CompositeDisposable d = new CompositeDisposable();
-                IScheduler scheduler = Scheduler.Default;
-
-                IDisposable scheduledTask = scheduler.ScheduleAsync(async (s, t) => resultSubject.OnNext(await Task.FromResult(calculate(firstProperty.Value, secondProperty.Value))));
-                d.Add(scheduledTask);
-
-                IObservable<Tuple<TFirst, TSecond>> o = firstProperty.CombineLatest(
-                    secondProperty, Tuple.Create);
-                o = throttleTime > TimeSpan.Zero ? o.Throttle(throttleTime, scheduler) : o.ObserveOn(scheduler);
-                d.Add(
-                    o.Subscribe(
-                        v =>
-                        {
-                            using (scheduledTask)
-                            {
-                            }
-
-                            isCalculatingSubject.OnNext(true);
-
-                            scheduledTask = scheduler.ScheduleAsync(
-                                async (s, t) =>
-                                {
-                                    try
-                                    {
-                                        resultSubject.OnNext(
-                                            await Task.FromResult(calculate(v.Item1, v.Item2)));
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        resultSubject.OnNext(
-                                            DiscriminatedUnion.Second<object, T, Exception>(e));
-                                    }
-
-                                    isCalculatingSubject.OnNext(false);
-                                });
-                        }));
-
-                return d;
-            });
+            return new AsyncCalculatedProperty<TFirst, TSecond, T>(
+                firstProperty, secondProperty, throttleTime, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            TimeSpan throttleTime,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            TimeSpan throttleTime, 
             Func<TFirst, TSecond, TThird, T> calculateValue)
         {
-            Func<TFirst, TSecond, TThird, IDiscriminatedUnion<object, T, Exception>> calculate =
-                (first, second, third) =>
-                {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion =
-                            DiscriminatedUnion.First<object, T, Exception>(calculateValue(first, second, third));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
-
-                    return discriminatedUnion;
-                };
-
-            // TODO: pick a better scheduler
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                CompositeDisposable d = new CompositeDisposable();
-                IScheduler scheduler = Scheduler.Default;
-
-                IDisposable scheduledTask = scheduler.ScheduleAsync(async (s, t) => resultSubject.OnNext(await Task.FromResult(calculate(firstProperty.Value, secondProperty.Value, thirdProperty.Value))));
-                d.Add(scheduledTask);
-
-                IObservable<Tuple<TFirst, TSecond, TThird>> o = firstProperty.CombineLatest(
-                    secondProperty, thirdProperty, Tuple.Create);
-                o = throttleTime > TimeSpan.Zero ? o.Throttle(throttleTime, scheduler) : o.ObserveOn(scheduler);
-                d.Add(
-                    o.Subscribe(
-                        v =>
-                        {
-                            using (scheduledTask)
-                            {
-                            }
-
-                            isCalculatingSubject.OnNext(true);
-
-                            scheduledTask = scheduler.ScheduleAsync(
-                                async (s, t) =>
-                                {
-                                    try
-                                    {
-                                        resultSubject.OnNext(
-                                            await Task.FromResult(calculate(v.Item1, v.Item2, v.Item3)));
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        resultSubject.OnNext(
-                                            DiscriminatedUnion.Second<object, T, Exception>(e));
-                                    }
-
-                                    isCalculatingSubject.OnNext(false);
-                                });
-                        }));
-
-                return d;
-            });
+            return new AsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
+                firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            IReadableObservableProperty<TFourth> fourthProperty,
-            TimeSpan throttleTime,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            IReadableObservableProperty<TFourth> fourthProperty, 
+            TimeSpan throttleTime, 
             Func<TFirst, TSecond, TThird, TFourth, T> calculateValue)
         {
-            Func<TFirst, TSecond, TThird, TFourth, IDiscriminatedUnion<object, T, Exception>> calculate =
-                (first, second, third, fourth) =>
-                {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
+            return new AsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
+                firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue);
+        }
 
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion =
-                            DiscriminatedUnion.First<object, T, Exception>(calculateValue(first, second, third, fourth));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            TimeSpan throttleTime, 
+            Func<TContext, TFirst, T> calculateValue)
+        {
+            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
+                context, firstProperty, throttleTime, calculateValue);
+        }
 
-                    return discriminatedUnion;
-                };
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            TimeSpan throttleTime, 
+            Func<TContext, TFirst, TSecond, T> calculateValue)
+        {
+            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
+                context, firstProperty, secondProperty, throttleTime, calculateValue);
+        }
 
-            // TODO: pick a better scheduler
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-                {
-                    CompositeDisposable d = new CompositeDisposable();
-                    IScheduler scheduler = Scheduler.Default;
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            TimeSpan throttleTime, 
+            Func<TContext, TFirst, TSecond, TThird, T> calculateValue)
+        {
+            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
+                context, firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue);
+        }
 
-                    IDisposable scheduledTask = scheduler.ScheduleAsync(async (s, t) => resultSubject.OnNext(await Task.FromResult(calculate(firstProperty.Value, secondProperty.Value, thirdProperty.Value, fourthProperty.Value))));
-                    d.Add(scheduledTask);
-
-                    IObservable<Tuple<TFirst, TSecond, TThird, TFourth>> o = firstProperty.CombineLatest(
-                        secondProperty, thirdProperty, fourthProperty, Tuple.Create);
-                    o = throttleTime > TimeSpan.Zero ? o.Throttle(throttleTime, scheduler) : o.ObserveOn(scheduler);
-                    d.Add(
-                        o.Subscribe(
-                            v =>
-                            {
-                                using (scheduledTask)
-                                {
-                                }
-
-                                isCalculatingSubject.OnNext(true);
-
-                                scheduledTask = scheduler.ScheduleAsync(
-                                    async (s, t) =>
-                                    {
-                                        try
-                                        {
-                                            resultSubject.OnNext(
-                                                await Task.FromResult(calculate(v.Item1, v.Item2, v.Item3, v.Item4)));
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            resultSubject.OnNext(
-                                                DiscriminatedUnion.Second<object, T, Exception>(e));
-                                        }
-
-                                        isCalculatingSubject.OnNext(false);
-                                    });
-                            }));
-
-                    return d;
-                });
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            IReadableObservableProperty<TFourth> fourthProperty, 
+            TimeSpan throttleTime, 
+            Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue)
+        {
+            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
+                context, firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            TimeSpan throttleTime,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            TimeSpan throttleTime, 
             Func<AsyncCalculationHelper, TFirst, Task<T>> calculateValue)
         {
-            Func<AsyncCalculationHelper, TFirst, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
-                async (helper, first) =>
-                {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion =
-                            DiscriminatedUnion.First<object, T, Exception>(await calculateValue(helper, first));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
-
-                    return discriminatedUnion;
-                };
-
-            // TODO: pick a better scheduler
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                CompositeDisposable d = new CompositeDisposable();
-                IScheduler scheduler = Scheduler.Default;
-
-                IDisposable scheduledTask = scheduler.ScheduleAsync(
-                    async (s, t) =>
-                    {
-                        await s.Yield();
-                        resultSubject.OnNext(await calculate(new AsyncCalculationHelper(s, t), firstProperty.Value));
-                    });
-                d.Add(scheduledTask);
-
-                IObservable<TFirst> o = throttleTime > TimeSpan.Zero ? firstProperty.Throttle(throttleTime, scheduler) : firstProperty.ObserveOn(scheduler);
-                d.Add(
-                    o.Subscribe(
-                        v =>
-                        {
-                            using (scheduledTask)
-                            {
-                            }
-
-                            isCalculatingSubject.OnNext(true);
-
-                            scheduledTask = scheduler.ScheduleAsync(
-                                async (s, t) =>
-                                {
-                                    try
-                                    {
-                                        await s.Yield();
-                                        resultSubject.OnNext(await calculate(new AsyncCalculationHelper(s, t), v));
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        resultSubject.OnNext(
-                                            DiscriminatedUnion.Second<object, T, Exception>(e));
-                                    }
-
-                                    isCalculatingSubject.OnNext(false);
-                                });
-                        }));
-
-                return d;
-            });
+            return new CancellableAsyncCalculatedProperty<TFirst, T>(firstProperty, throttleTime, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            TimeSpan throttleTime,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            TimeSpan throttleTime, 
             Func<AsyncCalculationHelper, TFirst, TSecond, Task<T>> calculateValue)
         {
-            Func<AsyncCalculationHelper, TFirst, TSecond, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
-                async (helper, first, second) =>
-                {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion =
-                            DiscriminatedUnion.First<object, T, Exception>(await calculateValue(helper, first, second));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
-
-                    return discriminatedUnion;
-                };
-
-            // TODO: pick a better scheduler
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                CompositeDisposable d = new CompositeDisposable();
-                IScheduler scheduler = Scheduler.Default;
-
-                IDisposable scheduledTask = scheduler.ScheduleAsync(
-                    async (s, t) =>
-                    {
-                        await s.Yield();
-                        resultSubject.OnNext(await calculate(new AsyncCalculationHelper(s, t), firstProperty.Value, secondProperty.Value));
-                    });
-                d.Add(scheduledTask);
-
-                IObservable<Tuple<TFirst, TSecond>> o = firstProperty.CombineLatest(secondProperty, Tuple.Create);
-                o = throttleTime > TimeSpan.Zero ? o.Throttle(throttleTime, scheduler) : o.ObserveOn(scheduler);
-                d.Add(
-                    o.Subscribe(
-                        v =>
-                        {
-                            using (scheduledTask)
-                            {
-                            }
-
-                            isCalculatingSubject.OnNext(true);
-
-                            scheduledTask = scheduler.ScheduleAsync(
-                                async (s, t) =>
-                                {
-                                    try
-                                    {
-                                        await s.Yield();
-                                        resultSubject.OnNext(await calculate(new AsyncCalculationHelper(s, t), v.Item1, v.Item2));
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        resultSubject.OnNext(
-                                            DiscriminatedUnion.Second<object, T, Exception>(e));
-                                    }
-
-                                    isCalculatingSubject.OnNext(false);
-                                });
-                        }));
-
-                return d;
-            });
+            return new CancellableAsyncCalculatedProperty<TFirst, TSecond, T>(
+                firstProperty, secondProperty, throttleTime, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            TimeSpan throttleTime,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            TimeSpan throttleTime, 
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<T>> calculateValue)
         {
-            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
-                async (helper, first, second, third) =>
-                {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion =
-                            DiscriminatedUnion.First<object, T, Exception>(await calculateValue(helper, first, second, third));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
-
-                    return discriminatedUnion;
-                };
-
-            // TODO: pick a better scheduler
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                CompositeDisposable d = new CompositeDisposable();
-                IScheduler scheduler = Scheduler.Default;
-
-                IDisposable scheduledTask = scheduler.ScheduleAsync(
-                    async (s, t) =>
-                    {
-                        await s.Yield();
-                        resultSubject.OnNext(await calculate(new AsyncCalculationHelper(s, t), firstProperty.Value, secondProperty.Value, thirdProperty.Value));
-                    });
-                d.Add(scheduledTask);
-
-                IObservable<Tuple<TFirst, TSecond, TThird>> o = firstProperty.CombineLatest(
-                    secondProperty, thirdProperty, Tuple.Create);
-                o = throttleTime > TimeSpan.Zero ? o.Throttle(throttleTime, scheduler) : o.ObserveOn(scheduler);
-                d.Add(
-                    o.Subscribe(
-                        v =>
-                        {
-                            using (scheduledTask)
-                            {
-                            }
-
-                            isCalculatingSubject.OnNext(true);
-
-                            scheduledTask = scheduler.ScheduleAsync(
-                                async (s, t) =>
-                                {
-                                    try
-                                    {
-                                        await s.Yield();
-                                        resultSubject.OnNext(await calculate(new AsyncCalculationHelper(s, t), v.Item1, v.Item2, v.Item3));
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        resultSubject.OnNext(
-                                            DiscriminatedUnion.Second<object, T, Exception>(e));
-                                    }
-
-                                    isCalculatingSubject.OnNext(false);
-                                });
-                        }));
-
-                return d;
-            });
+            return new CancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
+                firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            IReadableObservableProperty<TFourth> fourthProperty,
-            TimeSpan throttleTime,
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            IReadableObservableProperty<TFourth> fourthProperty, 
+            TimeSpan throttleTime, 
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue)
         {
-            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
-                async (helper, first, second, third, fourth) =>
-                {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
+            return new CancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
+                firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue);
+        }
 
-                    IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
-                    try
-                    {
-                        discriminatedUnion =
-                            DiscriminatedUnion.First<object, T, Exception>(await calculateValue(helper, first, second, third, fourth));
-                    }
-                    catch (Exception e)
-                    {
-                        discriminatedUnion = DiscriminatedUnion.Second<object, T, Exception>(e);
-                    }
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            TimeSpan throttleTime, 
+            Func<AsyncCalculationHelper, TContext, TFirst, Task<T>> calculateValue)
+        {
+            return new CancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
+                context, firstProperty, throttleTime, calculateValue);
+        }
 
-                    return discriminatedUnion;
-                };
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            TimeSpan throttleTime, 
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue)
+        {
+            return new CancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
+                context, firstProperty, secondProperty, throttleTime, calculateValue);
+        }
 
-            // TODO: pick a better scheduler
-            return new CalculatedProperty<T>((resultSubject, isCalculatingSubject) =>
-            {
-                CompositeDisposable d = new CompositeDisposable();
-                IScheduler scheduler = Scheduler.Default;
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            TimeSpan throttleTime, 
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue)
+        {
+            return new CancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
+                context, firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue);
+        }
 
-                IDisposable scheduledTask = scheduler.ScheduleAsync(
-                    async (s, t) =>
-                    {
-                        await s.Yield();
-                        resultSubject.OnNext(await calculate(new AsyncCalculationHelper(s, t), firstProperty.Value, secondProperty.Value, thirdProperty.Value, fourthProperty.Value));
-                    });
-                d.Add(scheduledTask);
-
-                IObservable<Tuple<TFirst, TSecond, TThird, TFourth>> o = firstProperty.CombineLatest(
-                    secondProperty, thirdProperty, fourthProperty, Tuple.Create);
-                o = throttleTime > TimeSpan.Zero ? o.Throttle(throttleTime, scheduler) : o.ObserveOn(scheduler);
-                d.Add(
-                    o.Subscribe(
-                        v =>
-                        {
-                            using (scheduledTask)
-                            {
-                            }
-
-                            isCalculatingSubject.OnNext(true);
-
-                            scheduledTask = scheduler.ScheduleAsync(
-                                async (s, t) =>
-                                {
-                                    try
-                                    {
-                                        await s.Yield();
-                                        resultSubject.OnNext(await calculate(new AsyncCalculationHelper(s, t), v.Item1, v.Item2, v.Item3, v.Item4));
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        resultSubject.OnNext(
-                                            DiscriminatedUnion.Second<object, T, Exception>(e));
-                                    }
-
-                                    isCalculatingSubject.OnNext(false);
-                                });
-                        }));
-
-                return d;
-            });
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
+            TContext context, 
+            IReadableObservableProperty<TFirst> firstProperty, 
+            IReadableObservableProperty<TSecond> secondProperty, 
+            IReadableObservableProperty<TThird> thirdProperty, 
+            IReadableObservableProperty<TFourth> fourthProperty, 
+            TimeSpan throttleTime, 
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue)
+        {
+            return
+                new CancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
+                    context, firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue);
         }
     }
 }

@@ -19,6 +19,8 @@ namespace MorseCode.RxMvvm.Observable
     using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
+    using MorseCode.RxMvvm.Common.StaticReflection;
 
     /// <summary>
     /// A static class providing extension methods for creating chained observables.  Chained observables automatically re-subscribe the rest of the chain when any of the intermediate property values change.

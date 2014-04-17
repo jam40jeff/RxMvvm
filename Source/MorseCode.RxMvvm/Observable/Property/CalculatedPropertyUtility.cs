@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Observable.Property
 {
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.StaticReflection;
 
     internal static class CalculatedPropertyUtility
     {

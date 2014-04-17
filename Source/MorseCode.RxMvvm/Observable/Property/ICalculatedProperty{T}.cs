@@ -18,6 +18,7 @@ namespace MorseCode.RxMvvm.Observable.Property
     using System.Diagnostics.Contracts;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
 
     /// <summary>
     /// Interface representing a property that is automatically calculated when its dependencies change.

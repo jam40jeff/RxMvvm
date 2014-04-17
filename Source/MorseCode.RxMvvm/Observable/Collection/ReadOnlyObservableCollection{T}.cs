@@ -21,7 +21,9 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.StaticReflection;
 
+    [Serializable]
     internal class ReadOnlyObservableCollection<T> : ReadOnlyCollection<T>, IReadableObservableCollection<T>
     {
         private readonly IObservable<IObservableCollectionChanged<T>> collectionChanged;

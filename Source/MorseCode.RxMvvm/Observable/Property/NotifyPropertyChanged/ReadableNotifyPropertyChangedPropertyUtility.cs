@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
 {
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.StaticReflection;
 
     internal static class ReadableNotifyPropertyChangedPropertyUtility
     {

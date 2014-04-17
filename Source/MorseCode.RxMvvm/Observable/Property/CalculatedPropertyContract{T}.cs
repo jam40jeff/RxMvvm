@@ -18,6 +18,7 @@ namespace MorseCode.RxMvvm.Observable.Property
     using System.Diagnostics.Contracts;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
 
     [ContractClassFor(typeof(ICalculatedProperty<>))]
     internal abstract class CalculatedPropertyContract<T> : ICalculatedProperty<T>
