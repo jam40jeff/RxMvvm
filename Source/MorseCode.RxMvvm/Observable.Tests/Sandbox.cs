@@ -39,9 +39,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
     using MorseCode.RxMvvm.Common.Serialization;
     using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable.Collection;
-    using MorseCode.RxMvvm.Observable.Collection.NotifyCollectionChanged;
     using MorseCode.RxMvvm.Observable.Property;
-    using MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged;
 
     [TestClass]
     //[Ignore]
@@ -1218,11 +1216,10 @@ namespace MorseCode.RxMvvm.Observable.Tests
         [TestMethod]
         public void NotifyPropertyChangedForProperties()
         {
+            RxMvvmConfiguration.SetNotifyPropertyChangedSchedulerFactory(() => Scheduler.Immediate);
+
             Employee employee = new Employee();
-            IReadableNotifyPropertyChangedProperty<IDiscriminatedUnion<object, string, Exception>> fullNameProperty =
-                NotifyPropertyChangedPropertyFactory.Instance.CreateReadOnlyNotifyPropertyChangedProperty(
-                    employee.FullName, Scheduler.Immediate);
-            fullNameProperty.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed.");
+            employee.FullName.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed, now " + employee.FullName.LatestSuccessfulValue + ".");
             employee.FirstName.Value = "John";
             employee.LastName.Value = "Smith";
             employee.LastName.Value = "Smith";
@@ -1232,6 +1229,8 @@ namespace MorseCode.RxMvvm.Observable.Tests
         [TestMethod]
         public void NotifyPropertyChangedForCollections()
         {
+            RxMvvmConfiguration.SetNotifyPropertyChangedSchedulerFactory(() => Scheduler.Immediate);
+
             Employee employee1 = new Employee();
             Employee employee2 = new Employee();
             Employee employee3 = new Employee();
@@ -1239,10 +1238,8 @@ namespace MorseCode.RxMvvm.Observable.Tests
             IObservableCollection<Employee> employees =
                 ObservableCollectionFactory.Instance.CreateObservableCollection(
                     new List<Employee> { employee1, employee2 });
-            IReadableNotifyCollectionChangedCollection<Employee> employeesCollection =
-                NotifyCollectionChangedCollectionFactory.Instance.CreateReadOnlyNotifyCollectionChangedCollection(
-                    employees, Scheduler.Immediate);
-            employeesCollection.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed.");
+            employees.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed, count now " + employees.Count + ".");
+            employees.CollectionChanged += (sender, args) => Console.WriteLine("Collection changed: " + args.Action + ".");
             employees.Add(employee3);
             employees[1] = employee4;
             employees.Remove(employee1);
