@@ -16,11 +16,13 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 {
     using System;
     using System.Diagnostics.Contracts;
+    using System.Reactive.Concurrency;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
     using System.Runtime.Serialization;
     using System.Security.Permissions;
 
+    using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Common.StaticReflection;
 
     [Serializable]
@@ -31,6 +33,8 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         private readonly IObservable<T> allNotificationsObservable;
 
         private readonly IObservable<T> changeObservable;
+
+        private readonly IDisposable onChangedSubscription;
 
         internal ObservableProperty(T initialValue)
         {
@@ -53,6 +57,12 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                 throw new InvalidOperationException(
                     StaticReflection.GetInScopeMemberInfo(() => this.allNotificationsObservable).Name
                     + " may not be null.");
+            }
+
+            IScheduler notifyPropertyChangedScheduler = RxMvvmConfiguration.GetNotifyPropertyChangedScheduler();
+            if (notifyPropertyChangedScheduler != null)
+            {
+                this.onChangedSubscription = this.changeObservable.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnValueChanged());
             }
         }
 
@@ -139,6 +149,10 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             base.Dispose();
 
             this.behaviorSubject.Dispose();
+
+            using (this.onChangedSubscription)
+            {
+            }
         }
 
         /// <summary>

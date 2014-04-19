@@ -15,10 +15,26 @@
 namespace MorseCode.RxMvvm.Observable.Property.Internal
 {
     using System;
+    using System.ComponentModel;
 
     [Serializable]
     internal abstract class ReadableObservablePropertyBase<T> : IReadableObservableProperty<T>
     {
+        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        {
+            add
+            {
+                this.PropertyChanged += value;
+            }
+
+            remove
+            {
+                this.PropertyChanged -= value;
+            }
+        }
+
+        private event PropertyChangedEventHandler PropertyChanged;
+
         IObservable<T> IReadableObservableProperty<T>.OnChanged
         {
             get
@@ -76,6 +92,30 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         /// </summary>
         protected virtual void Dispose()
         {
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// The event arguments.
+        /// </param>
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            PropertyChangedEventHandler handler = this.PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="IReadableObservableProperty{T}.Value"/> property.
+        /// </summary>
+        protected virtual void OnValueChanged()
+        {
+            this.OnPropertyChanged(
+                new PropertyChangedEventArgs(ReadableObservablePropertyUtility.ValuePropertyName));
         }
     }
 }

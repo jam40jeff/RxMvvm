@@ -17,20 +17,26 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Collections.Specialized;
+    using System.ComponentModel;
     using System.Diagnostics.Contracts;
     using System.Linq;
+    using System.Reactive.Concurrency;
+    using System.Reactive.Linq;
     using System.Reactive.Subjects;
+
+    using MorseCode.RxMvvm.Common;
 
     [Serializable]
     internal class ObservableCollection<T> : Collection<T>, IObservableCollection<T>
     {
         private readonly Subject<IObservableCollectionChanged<T>> collectionChanged;
 
-        internal ObservableCollection()
-        {
-            Contract.Ensures(this.collectionChanged != null);
+        private readonly IDisposable subscription;
 
-            this.collectionChanged = new Subject<IObservableCollectionChanged<T>>();
+        internal ObservableCollection()
+            : this(new List<T>())
+        {
         }
 
         internal ObservableCollection(IList<T> list)
@@ -40,7 +46,61 @@ namespace MorseCode.RxMvvm.Observable.Collection
             Contract.Ensures(this.collectionChanged != null);
 
             this.collectionChanged = new Subject<IObservableCollectionChanged<T>>();
+
+            IScheduler notifyPropertyChangedScheduler = RxMvvmConfiguration.GetNotifyPropertyChangedScheduler();
+            if (notifyPropertyChangedScheduler != null)
+            {
+                this.subscription = this.collectionChanged.ObserveOn(notifyPropertyChangedScheduler).Subscribe(
+                    c =>
+                    {
+                        int oldItemsCount = c.OldItems == null ? 0 : c.OldItems.Count;
+                        int newItemsCount = c.NewItems == null ? 0 : c.NewItems.Count;
+                        if (oldItemsCount == 0 && newItemsCount == 0)
+                        {
+                            return;
+                        }
+
+                        OnItemsChanged();
+                        if (oldItemsCount != newItemsCount)
+                        {
+                            OnCountChanged();
+                        }
+
+                        // TODO: optimize by passing indexes through
+                        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                    });
+            }
         }
+
+        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        {
+            add
+            {
+                this.PropertyChanged += value;
+            }
+
+            remove
+            {
+                this.PropertyChanged -= value;
+            }
+        }
+
+        private event PropertyChangedEventHandler PropertyChanged;
+
+        event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged
+        {
+            add
+            {
+                this.CollectionChanged += value;
+            }
+
+            remove
+            {
+                this.CollectionChanged -= value;
+            }
+        }
+
+        private event NotifyCollectionChangedEventHandler CollectionChanged;
 
         int IObservableCollection<T>.IndexOf(T item)
         {
@@ -66,6 +126,10 @@ namespace MorseCode.RxMvvm.Observable.Collection
         void IDisposable.Dispose()
         {
             this.collectionChanged.Dispose();
+
+            using (this.subscription)
+            {
+            }
         }
 
         /// <summary>
@@ -73,7 +137,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
         /// </summary>
         protected override void ClearItems()
         {
-            List<T> oldItems = this.ToList();
+            List<T> oldItems = Enumerable.ToList(this);
 
             base.ClearItems();
 
@@ -143,6 +207,56 @@ namespace MorseCode.RxMvvm.Observable.Collection
             if (canSet)
             {
                 this.collectionChanged.OnNext(new ObservableCollectionChanged<T>(oldItems, new[] { item }));
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// The event arguments.
+        /// </param>
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            PropertyChangedEventHandler handler = this.PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="IReadOnlyCollection{T}.Count"/> property.
+        /// </summary>
+        protected virtual void OnCountChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+        }
+
+        // The property syntax in the see tag is correct.
+#pragma warning disable 1584,1711,1572,1581,1580
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="P:IReadOnlyList{T}.Item(Int32)"/> property.
+        /// </summary>
+#pragma warning restore 1584,1711,1572,1581,1580
+        protected virtual void OnItemsChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyCollectionChanged.CollectionChanged"/> event.
+        /// </summary>
+        /// <param name="e">
+        /// The event arguments.
+        /// </param>
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            NotifyCollectionChangedEventHandler handler = this.CollectionChanged;
+            if (handler != null)
+            {
+                handler(this, e);
             }
         }
 

@@ -31,8 +31,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
         private readonly Func<TContext, TFirst, T> calculateValue;
 
-        private readonly CalculatedPropertyHelper helper;
-
         internal CalculatedPropertyWithContext(
             TContext context, 
             IReadableObservableProperty<TFirst> firstProperty, 
@@ -42,9 +40,8 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
             Contract.Ensures(this.firstProperty != null);
             Contract.Ensures(this.calculateValue != null);
-            Contract.Ensures(this.helper != null);
 
-            RxMvvm.EnsureSerializableDelegateIfUsingSerialization(calculateValue);
+            RxMvvmConfiguration.EnsureSerializableDelegateIfUsingSerialization(calculateValue);
 
             this.context = context;
             this.firstProperty = firstProperty;
@@ -66,7 +63,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                     return discriminatedUnion;
                 };
 
-            this.helper = new CalculatedPropertyHelper(
+            this.SetHelper(new CalculatedPropertyHelper(
                 (resultSubject, isCalculatingSubject) =>
                     {
                         resultSubject.OnNext(calculate(firstProperty.Value));
@@ -87,7 +84,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
                                     isCalculatingSubject.OnNext(false);
                                 });
-                    });
+                    }));
         }
 
         /// <summary>
@@ -108,17 +105,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                 (IReadableObservableProperty<TFirst>)info.GetValue("p1", typeof(IReadableObservableProperty<TFirst>)), 
                 (Func<TContext, TFirst, T>)info.GetValue("f", typeof(Func<TContext, TFirst, T>)))
         {
-        }
-
-        /// <summary>
-        /// Gets the helper.
-        /// </summary>
-        protected override CalculatedPropertyHelper Helper
-        {
-            get
-            {
-                return this.helper;
-            }
         }
 
         /// <summary>
@@ -153,7 +139,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             Contract.Invariant(this.firstProperty != null);
             Contract.Invariant(this.calculateValue != null);
-            Contract.Invariant(this.helper != null);
         }
     }
 }

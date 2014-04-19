@@ -42,7 +42,7 @@ namespace MorseCode.RxMvvm.Common.Serialization
             Contract.Requires<ArgumentNullException>(action != null, "valueFactory");
             Contract.Ensures(this.action != null);
 
-            RxMvvm.EnsureSerializableDelegateIfUsingSerialization(action);
+            RxMvvmConfiguration.EnsureSerializableDelegateIfUsingSerialization(action);
 
             this.context = context;
             this.action = action;

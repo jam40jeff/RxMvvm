@@ -22,9 +22,9 @@ namespace MorseCode.RxMvvm.UI.Wpf
     using MorseCode.RxMvvm.Observable.Property;
 
     [ContractClassFor(typeof(IBindingFactory<>))]
-    internal abstract class BindingFactoryContract : IBindingFactory<object>
+    internal abstract class BindingFactoryContract<T> : IBindingFactory<T>
     {
-        Binding IBindingFactory<object>.CreateOneWayBinding<TProperty>(Expression<Func<object, IReadableObservableProperty<TProperty>>> getPropertyName)
+        Binding IBindingFactory<T>.CreateOneWayBinding<TProperty>(Expression<Func<T, IReadableObservableProperty<TProperty>>> getPropertyName)
         {
             Contract.Requires<ArgumentNullException>(getPropertyName != null, "getPropertyName");
             Contract.Ensures(Contract.Result<Binding>() != null);
@@ -32,7 +32,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
             return null;
         }
 
-        Binding IBindingFactory<object>.CreateOneWayToSourceBinding<TProperty>(Expression<Func<object, IWritableObservableProperty<TProperty>>> getPropertyName)
+        Binding IBindingFactory<T>.CreateOneWayToSourceBinding<TProperty>(Expression<Func<T, IWritableObservableProperty<TProperty>>> getPropertyName)
         {
             Contract.Requires<ArgumentNullException>(getPropertyName != null, "getPropertyName");
             Contract.Ensures(Contract.Result<Binding>() != null);
@@ -40,7 +40,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
             return null;
         }
 
-        Binding IBindingFactory<object>.CreateTwoWayBinding<TProperty>(Expression<Func<object, IObservableProperty<TProperty>>> getPropertyName)
+        Binding IBindingFactory<T>.CreateTwoWayBinding<TProperty>(Expression<Func<T, IObservableProperty<TProperty>>> getPropertyName)
         {
             Contract.Requires<ArgumentNullException>(getPropertyName != null, "getPropertyName");
             Contract.Ensures(Contract.Result<Binding>() != null);
@@ -48,7 +48,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
             return null;
         }
 
-        Binding IBindingFactory<object>.CreateCalculatedBinding<TProperty>(Expression<Func<object, ICalculatedProperty<TProperty>>> getPropertyName)
+        Binding IBindingFactory<T>.CreateCalculatedBinding<TProperty>(Expression<Func<T, ICalculatedProperty<TProperty>>> getPropertyName)
         {
             Contract.Requires<ArgumentNullException>(getPropertyName != null, "getPropertyName");
             Contract.Ensures(Contract.Result<Binding>() != null);

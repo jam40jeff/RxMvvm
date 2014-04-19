@@ -27,7 +27,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
     /// <typeparam name="T">
     /// The type on which to create bindings.
     /// </typeparam>
-    [ContractClass(typeof(BindingFactoryContract))]
+    [ContractClass(typeof(BindingFactoryContract<>))]
     public interface IBindingFactory<T>
     {
         /// <summary>

@@ -15,14 +15,25 @@
 namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
+    using System.ComponentModel;
     using System.Diagnostics.Contracts;
 
-    using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
 
     [ContractClassFor(typeof(ICalculatedProperty<>))]
     internal abstract class CalculatedPropertyContract<T> : ICalculatedProperty<T>
     {
+        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        {
+            add
+            {
+            }
+
+            remove
+            {
+            }
+        }
+
         IObservable<IDiscriminatedUnion<object, T, Exception>> IReadableObservableProperty<IDiscriminatedUnion<object, T, Exception>>.OnChanged
         {
             get

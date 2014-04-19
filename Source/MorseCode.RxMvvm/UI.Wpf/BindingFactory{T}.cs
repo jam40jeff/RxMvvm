@@ -20,7 +20,6 @@ namespace MorseCode.RxMvvm.UI.Wpf
     using System.Windows;
     using System.Windows.Data;
 
-    using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable.Property;
 
@@ -42,7 +41,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
         /// <summary>
         /// Gets the singleton instance of a <see cref="BindingFactory{T}"/>.
         /// </summary>
-        public static BindingFactory<T> Instance
+        public static IBindingFactory<T> Instance
         {
             get
             {
@@ -54,8 +53,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Expression<Func<T, IReadableObservableProperty<TProperty>>> getPropertyName)
         {
             PropertyInfo pathParameters =
-                typeof(IReadableObservableProperty<TProperty>).GetProperty(
-                    StaticReflection<IReadableObservableProperty<TProperty>>.GetMemberInfo(o => o.Value).Name);
+                typeof(IReadableObservableProperty<TProperty>).GetProperty(BindingFactoryUtility.ValuePropertyName);
             return new Binding
                        {
                            Path =
@@ -69,8 +67,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Expression<Func<T, IWritableObservableProperty<TProperty>>> getPropertyName)
         {
             PropertyInfo pathParameters =
-                typeof(IWritableObservableProperty<TProperty>).GetProperty(
-                    StaticReflection<IReadableObservableProperty<TProperty>>.GetMemberInfo(o => o.Value).Name);
+                typeof(IWritableObservableProperty<TProperty>).GetProperty(BindingFactoryUtility.ValuePropertyName);
             return new Binding
                        {
                            Path =
@@ -84,8 +81,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Expression<Func<T, IObservableProperty<TProperty>>> getPropertyName)
         {
             PropertyInfo pathParameters =
-                typeof(IObservableProperty<TProperty>).GetProperty(
-                    StaticReflection<IObservableProperty<TProperty>>.GetMemberInfo(o => o.Value).Name);
+                typeof(IObservableProperty<TProperty>).GetProperty(BindingFactoryUtility.ValuePropertyName);
             return new Binding
                        {
                            Path =
@@ -99,8 +95,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Expression<Func<T, ICalculatedProperty<TProperty>>> getPropertyName)
         {
             PropertyInfo pathParameters =
-                typeof(ICalculatedProperty<TProperty>).GetProperty(
-                    StaticReflection<ICalculatedProperty<TProperty>>.GetMemberInfo(o => o.LatestSuccessfulValue).Name);
+                typeof(ICalculatedProperty<TProperty>).GetProperty(BindingFactoryUtility.LatestSuccessfulValuePropertyName);
             return new Binding
                        {
                            Path =

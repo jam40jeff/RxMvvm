@@ -12,22 +12,17 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
+namespace MorseCode.RxMvvm.UI.Wpf
 {
-    using System;
-    using System.ComponentModel;
+    using MorseCode.RxMvvm.Common.StaticReflection;
+    using MorseCode.RxMvvm.Observable.Property;
 
-    /// <summary>
-    /// Interface representing a readable property implementing <see cref="INotifyPropertyChanged"/>.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The type of the property.
-    /// </typeparam>
-    public interface IReadableNotifyPropertyChangedProperty<out T> : INotifyPropertyChanged, IDisposable
+    internal static class BindingFactoryUtility
     {
-        /// <summary>
-        /// Gets the latest value.
-        /// </summary>
-        T Value { get; }
+        internal static readonly string ValuePropertyName =
+            StaticReflection<IReadableObservableProperty<object>>.GetMemberInfo(o => o.Value).Name;
+
+        internal static readonly string LatestSuccessfulValuePropertyName =
+            StaticReflection<ICalculatedProperty<object>>.GetMemberInfo(o => o.LatestSuccessfulValue).Name;
     }
 }

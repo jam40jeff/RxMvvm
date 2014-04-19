@@ -18,18 +18,19 @@
 
 namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
 {
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Controls.Primitives;
-
+    using MorseCode.RxMvvm.Observable.Property;
     using MorseCode.RxMvvm.Samples.Calculator.ViewModels;
     using MorseCode.RxMvvm.UI.Wpf;
+    using MorseCode.RxMvvm.UI.Wpf.Controls;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
+        private static readonly IBindingFactory<CalculatorViewModel> BindingFactory =
+            BindingFactory<CalculatorViewModel>.Instance;
+
         public MainWindow()
         {
             this.InitializeComponent();
@@ -37,26 +38,16 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
             CalculatorViewModel viewModel = new CalculatorViewModel(false);
             DataContext = viewModel;
 
-            FunctionDropDown.SetBinding(
-                ItemsControl.ItemsSourceProperty,
-                BindingFactory<CalculatorViewModel>.CreateOneWayBinding(o => o.Operators));
+            IReadableObservableProperty<CalculatorViewModel> viewModelProperty =
+                ObservablePropertyFactory.Instance.CreateReadOnlyProperty(viewModel);
 
-            FunctionDropDown.SetBinding(
-                Selector.SelectedItemProperty,
-                BindingFactory<CalculatorViewModel>.CreateTwoWayBinding(o => o.SelectedOperator));
-
-            Operand1TextBox.SetBinding(
-                TextBox.TextProperty, BindingFactory<CalculatorViewModel>.CreateTwoWayBinding(o => o.Operand1));
-
-            OperatorLabel.SetBinding(
-                ContentProperty,
-                BindingFactory<CalculatorViewModel>.CreateCalculatedBinding(o => o.SelectedOperatorString));
-
-            Operand2TextBox.SetBinding(
-                TextBox.TextProperty, BindingFactory<CalculatorViewModel>.CreateTwoWayBinding(o => o.Operand2));
-
-            ResultLabel.SetBinding(
-                ContentProperty, BindingFactory<CalculatorViewModel>.CreateCalculatedBinding(o => o.Result));
+            //FunctionDropDown.BindItemsForStructWithNoSelection(viewModelProperty, d => d.Operators, o => o.ToString(), "[Select an Item]", d => d.SelectedOperator, BindingFactory);
+            FunctionDropDown.BindItemsForStruct(viewModelProperty, d => d.Operators, o => o.ToString(), d => d.SelectedOperator, BindingFactory);
+            Operand1TextBox.BindText(viewModelProperty, o => o.Operand1, BindingFactory);
+            OperatorLabel.BindContent(
+                viewModelProperty, o => o.SelectedOperatorString, BindingFactory);
+            Operand2TextBox.BindText(viewModelProperty, o => o.Operand2, BindingFactory);
+            ResultLabel.BindContent(viewModelProperty, o => o.Result, BindingFactory);
         }
     }
 }

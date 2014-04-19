@@ -43,7 +43,7 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
 
         private readonly IObservableProperty<string> operand1;
 
-        private readonly IObservableProperty<Operator?> selectedOperator;
+        private readonly IObservableProperty<Operator> selectedOperator;
 
         private readonly ICalculatedProperty<string> selectedOperatorString;
 
@@ -53,32 +53,27 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
 
         public CalculatorViewModel(bool supportsAsync)
         {
-            this.updateInRealTimeItems = ObservablePropertyFactory.CreateReadOnlyProperty(ObservableCollectionFactory.CreateObservableCollection(new[] { true, false }));
-            this.updateInRealTimeSelection = ObservablePropertyFactory.CreateProperty<bool?>(true);
-            this.updateInRealTime = ObservablePropertyFactory.CreateCalculatedProperty(
+            this.updateInRealTimeItems = ObservablePropertyFactory.Instance.CreateReadOnlyProperty(ObservableCollectionFactory.Instance.CreateObservableCollection(new[] { true, false }));
+            this.updateInRealTimeSelection = ObservablePropertyFactory.Instance.CreateProperty<bool?>(true);
+            this.updateInRealTime = ObservablePropertyFactory.Instance.CreateCalculatedProperty(
                 this.updateInRealTimeSelection,
                 updateInRealTimeSelection => updateInRealTimeSelection.HasValue && updateInRealTimeSelection.Value);
-            this.supportsAsync = ObservablePropertyFactory.CreateReadOnlyProperty(supportsAsync);
-            this.simulateLatencyItems = ObservablePropertyFactory.CreateReadOnlyProperty(ObservableCollectionFactory.CreateObservableCollection(new[] { true, false }));
-            this.simulateLatencySelection = ObservablePropertyFactory.CreateProperty<bool?>(true);
-            this.simulateLatency = ObservablePropertyFactory.CreateCalculatedProperty(
+            this.supportsAsync = ObservablePropertyFactory.Instance.CreateReadOnlyProperty(supportsAsync);
+            this.simulateLatencyItems = ObservablePropertyFactory.Instance.CreateReadOnlyProperty(ObservableCollectionFactory.Instance.CreateObservableCollection(new[] { true, false }));
+            this.simulateLatencySelection = ObservablePropertyFactory.Instance.CreateProperty<bool?>(true);
+            this.simulateLatency = ObservablePropertyFactory.Instance.CreateCalculatedProperty(
                 this.simulateLatencySelection,
                 simulateLatencySelection => simulateLatencySelection.HasValue && simulateLatencySelection.Value);
             this.operators =
-                ObservablePropertyFactory.CreateReadOnlyProperty(ObservableCollectionFactory.CreateObservableCollection(
+                ObservablePropertyFactory.Instance.CreateReadOnlyProperty(ObservableCollectionFactory.Instance.CreateObservableCollection(
                     new[] { Operator.Add, Operator.Subtract, Operator.Multiply, Operator.Divide }));
-            this.operand1 = ObservablePropertyFactory.CreateProperty<string>(null);
-            this.selectedOperator = ObservablePropertyFactory.CreateProperty<Operator?>(Operator.Add);
-            this.selectedOperatorString = ObservablePropertyFactory.CreateCalculatedProperty(
+            this.operand1 = ObservablePropertyFactory.Instance.CreateProperty<string>(null);
+            this.selectedOperator = ObservablePropertyFactory.Instance.CreateProperty(Operator.Add);
+            this.selectedOperatorString = ObservablePropertyFactory.Instance.CreateCalculatedProperty(
                 this.selectedOperator,
                 selectedOperator =>
                 {
-                    if (selectedOperator == null)
-                    {
-                        return null;
-                    }
-
-                    switch (selectedOperator.Value)
+                    switch (selectedOperator)
                     {
                         case Operator.Add:
                             return "+";
@@ -90,20 +85,15 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
                             return "/";
                         default:
                             throw new NotSupportedException(
-                                "Unknown enumeration value " + selectedOperator.Value + ".");
+                                "Unknown enumeration value " + selectedOperator + ".");
                     }
                 });
-            this.operand2 = ObservablePropertyFactory.CreateProperty<string>(null);
-            this.result = ObservablePropertyFactory.CreateCalculatedProperty(this.Operand1, this.Operand2, this.SelectedOperator,
+            this.operand2 = ObservablePropertyFactory.Instance.CreateProperty<string>(null);
+            this.result = ObservablePropertyFactory.Instance.CreateCalculatedProperty(this.Operand1, this.Operand2, this.SelectedOperator,
                                                         (operand1, operand2, selectedOperator) =>
                                                         {
-                                                            if (selectedOperator == null)
-                                                            {
-                                                                return null;
-                                                            }
-
                                                             Func<double?, double?, double?> function;
-                                                            switch (selectedOperator.Value)
+                                                            switch (selectedOperator)
                                                             {
                                                                 case Operator.Add:
                                                                     function = (x, y) => x + y;
@@ -120,7 +110,7 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
                                                                 default:
                                                                     throw new NotSupportedException(
                                                                         "Unknown enumeration value " +
-                                                                        selectedOperator.Value + ".");
+                                                                        selectedOperator + ".");
                                                             }
 
                                                             double operand1Value;
@@ -196,7 +186,7 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
             }
         }
 
-        public IObservableProperty<Operator?> SelectedOperator
+        public IObservableProperty<Operator> SelectedOperator
         {
             get
             {
@@ -232,16 +222,5 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
 		{
 			get { return this.result; }
 		}
-    }
-
-    public enum Operator
-    {
-        Add,
-
-        Subtract,
-
-        Multiply,
-
-        Divide
     }
 }

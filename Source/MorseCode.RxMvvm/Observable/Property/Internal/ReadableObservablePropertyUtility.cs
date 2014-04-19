@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright 2014 MorseCode Software
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,13 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Observable.Property.NotifyPropertyChanged
+namespace MorseCode.RxMvvm.Observable.Property.Internal
 {
-    using System.ComponentModel;
+    using MorseCode.RxMvvm.Common.StaticReflection;
 
-    /// <summary>
-    /// Interface representing a writable property implementing <see cref="INotifyPropertyChanged"/>.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The type of the property.
-    /// </typeparam>
-    public interface IWritableNotifyPropertyChangedProperty<in T> : INotifyPropertyChanged
+    internal static class ReadableObservablePropertyUtility
     {
-        /// <summary>
-        /// Sets the latest value.
-        /// </summary>
-        T Value { set; }
+        internal static readonly string ValuePropertyName =
+            StaticReflection<IReadableObservableProperty<object>>.GetMemberInfo(o => o.Value).Name;
     }
 }

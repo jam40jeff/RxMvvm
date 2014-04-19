@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 
 // Copyright 2014 MorseCode Software
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,24 +12,23 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Observable.Property.Internal
+namespace MorseCode.RxMvvm.UI.Wpf
 {
-    using System.Diagnostics.Contracts;
+    using System.Reactive.Concurrency;
 
-    [ContractClassFor(typeof(CalculatedPropertyBase<>))]
-    internal abstract class CalculatedPropertyBaseContract<T> : CalculatedPropertyBase<T>
+    using MorseCode.RxMvvm.Common;
+
+    /// <summary>
+    /// A helper class for setting up a WPF application.
+    /// </summary>
+    public static class WpfApplicationHelper
     {
         /// <summary>
-        /// Gets the <see cref="CalculatedPropertyBase{T}.CalculatedPropertyHelper"/>.
+        /// Sets up a WPF application.
         /// </summary>
-        protected override CalculatedPropertyHelper Helper
+        public static void SetupRxMvvmConfigurationForWpf()
         {
-            get
-            {
-                Contract.Ensures(Contract.Result<CalculatedPropertyHelper>() != null);
-
-                return null;
-            }
+            RxMvvmConfiguration.SetNotifyPropertyChangedSchedulerFactory(() => DispatcherScheduler.Current);
         }
     }
 }

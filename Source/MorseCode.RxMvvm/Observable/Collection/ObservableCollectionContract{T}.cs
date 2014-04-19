@@ -17,11 +17,35 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
+    using System.ComponentModel;
     using System.Diagnostics.Contracts;
 
     [ContractClassFor(typeof(IObservableCollection<>))]
     internal abstract class ObservableCollectionContract<T> : IObservableCollection<T>
     {
+        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        {
+            add
+            {
+            }
+
+            remove
+            {
+            }
+        }
+
+        event NotifyCollectionChangedEventHandler INotifyCollectionChanged.CollectionChanged
+        {
+            add
+            {
+            }
+
+            remove
+            {
+            }
+        }
+
         int IObservableCollection<T>.Count
         {
             get

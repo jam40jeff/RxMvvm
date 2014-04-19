@@ -15,21 +15,27 @@
 namespace MorseCode.RxMvvm.Observable.Property.Internal
 {
     using System;
+    using System.ComponentModel;
     using System.Diagnostics.Contracts;
+    using System.Reactive.Concurrency;
     using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
+    using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Reactive;
 
     [Serializable]
-    [ContractClass(typeof(CalculatedPropertyBaseContract<>))]
     internal abstract class CalculatedPropertyBase<T> :
         ReadableObservablePropertyBase<IDiscriminatedUnion<object, T, Exception>>, 
         ICalculatedProperty<T>
     {
+        private readonly CompositeDisposable subscriptionsDisposable = new CompositeDisposable();
+
+        private CalculatedPropertyHelper helper;
+
         IObservable<T> ICalculatedProperty<T>.OnSuccessfulValueChanged
         {
             get
@@ -71,11 +77,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         }
 
         /// <summary>
-        /// Gets the <see cref="CalculatedPropertyHelper"/>.
-        /// </summary>
-        protected abstract CalculatedPropertyHelper Helper { get; }
-
-        /// <summary>
         /// Gets the on changed observable.
         /// </summary>
         protected override IObservable<IDiscriminatedUnion<object, T, Exception>> OnChanged
@@ -94,6 +95,24 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             get
             {
                 return this.Helper.OnSet;
+            }
+        }
+
+        private CalculatedPropertyHelper Helper
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<CalculatedPropertyHelper>() != null);
+
+                if (this.helper == null)
+                {
+                    throw new InvalidOperationException(
+                        StaticReflection.GetInScopeMethodInfo(() => this.SetHelper(null)).Name
+                        + " must be called before " + StaticReflection.GetInScopeMemberInfo(() => this.Helper).Name
+                        + " may be accessed.");
+                }
+
+                return this.helper;
             }
         }
 
@@ -120,8 +139,64 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             base.Dispose();
 
-            IDisposable disposableHelper = this.Helper;
-            disposableHelper.Dispose();
+            this.subscriptionsDisposable.Dispose();
+
+            using (this.helper)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Sets the calculated property helper.
+        /// </summary>
+        /// <param name="calculatedPropertyHelper">
+        /// The calculated property helper.
+        /// </param>
+        protected void SetHelper(CalculatedPropertyHelper calculatedPropertyHelper)
+        {
+            Contract.Requires<ArgumentNullException>(calculatedPropertyHelper != null, "calculatedPropertyHelper");
+            Contract.Ensures(this.helper != null);
+
+            if (this.helper != null)
+            {
+                throw new InvalidOperationException(
+                    StaticReflection.GetInScopeMethodInfo(() => this.SetHelper(null)).Name + " may only be called once.");
+            }
+
+            IScheduler notifyPropertyChangedScheduler = RxMvvmConfiguration.GetNotifyPropertyChangedScheduler();
+            if (notifyPropertyChangedScheduler != null)
+            {
+                this.subscriptionsDisposable.Add(
+                    calculatedPropertyHelper.OnChanged.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnValueChanged()));
+                this.subscriptionsDisposable.Add(
+                    calculatedPropertyHelper.OnSuccessfulValueChanged.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnLatestSuccessfulValueChanged()));
+                this.subscriptionsDisposable.Add(
+                    calculatedPropertyHelper.OnCalculationException.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnLatestCalculationExceptionChanged()));
+            }
+
+            this.helper = calculatedPropertyHelper;
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.LatestSuccessfulValue"/> property.
+        /// </summary>
+        protected virtual void OnLatestSuccessfulValueChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.LatestSuccessfulValuePropertyName));
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.LatestCalculationException"/> property.
+        /// </summary>
+        protected virtual void OnLatestCalculationExceptionChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.LatestCalculationExceptionPropertyName));
+        }
+
+        [ContractInvariantMethod]
+        private void CodeContractsInvariants()
+        {
+            Contract.Invariant(this.subscriptionsDisposable != null);
         }
 
         /// <summary>

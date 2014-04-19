@@ -15,11 +15,23 @@
 namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
+    using System.ComponentModel;
     using System.Diagnostics.Contracts;
 
     [ContractClassFor(typeof(IReadOnlyProperty<>))]
     internal abstract class ReadOnlyPropertyContract<T> : IReadOnlyProperty<T>
     {
+        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        {
+            add
+            {
+            }
+
+            remove
+            {
+            }
+        }
+
         IObservable<T> IReadableObservableProperty<T>.OnChanged
         {
             get

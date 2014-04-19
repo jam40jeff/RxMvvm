@@ -31,7 +31,7 @@ namespace MorseCode.RxMvvm.Common.Serialization
             Contract.Requires<ArgumentNullException>(action != null, "action");
             Contract.Ensures(this.action != null);
 
-            RxMvvm.EnsureSerializableDelegateIfUsingSerialization(action);
+            RxMvvmConfiguration.EnsureSerializableDelegateIfUsingSerialization(action);
 
             this.action = action;
 

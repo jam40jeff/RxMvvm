@@ -1252,7 +1252,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
         [TestMethod]
         public void Serialization()
         {
-            RxMvvm.UseSerialization = true;
+            RxMvvmConfiguration.UseSerialization = true;
 
             Employee employee = new Employee();
             employee.FirstName.Value = "John";
@@ -1274,7 +1274,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
         [TestMethod]
         public void Serialization2()
         {
-            RxMvvm.UseSerialization = true;
+            RxMvvmConfiguration.UseSerialization = true;
 
             EmployeeWithFullNameConsoleWrite employee = new EmployeeWithFullNameConsoleWrite();
             employee.FirstName.Value = "John";

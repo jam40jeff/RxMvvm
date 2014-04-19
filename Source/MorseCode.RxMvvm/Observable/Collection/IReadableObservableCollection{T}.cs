@@ -16,6 +16,8 @@ namespace MorseCode.RxMvvm.Observable.Collection
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
+    using System.ComponentModel;
     using System.Diagnostics.Contracts;
 
     /// <summary>
@@ -27,6 +29,8 @@ namespace MorseCode.RxMvvm.Observable.Collection
     [ContractClass(typeof(ReadableObservableCollectionContract<>))]
     public interface IReadableObservableCollection<out T> : IReadOnlyList<T>, 
                                                             IObservable<IObservableCollectionChanged<T>>, 
+                                                            INotifyPropertyChanged, 
+                                                            INotifyCollectionChanged, 
                                                             IDisposable
     {
     }
