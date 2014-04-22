@@ -29,7 +29,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
     [Serializable]
     internal abstract class CalculatedPropertyBase<T> :
-        ReadableObservablePropertyBase<IDiscriminatedUnion<object, T, Exception>>, 
+        ReadableObservablePropertyBase<IDiscriminatedUnion<object, T, Exception>>,
         ICalculatedProperty<T>
     {
         private readonly CompositeDisposable subscriptionsDisposable = new CompositeDisposable();
@@ -49,6 +49,22 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             get
             {
                 return this.Helper.OnSuccessfulValueSet;
+            }
+        }
+
+        IObservable<T> ICalculatedProperty<T>.OnValueOrDefaultChanged
+        {
+            get
+            {
+                return this.GetValueOrDefault(this.helper.OnChanged);
+            }
+        }
+
+        IObservable<T> ICalculatedProperty<T>.OnValueOrDefaultSet
+        {
+            get
+            {
+                return this.GetValueOrDefault(this.helper.OnSet);
             }
         }
 
@@ -191,6 +207,24 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         protected virtual void OnLatestCalculationExceptionChanged()
         {
             this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.LatestCalculationExceptionPropertyName));
+        }
+
+        private IObservable<T> GetValueOrDefault(IObservable<IDiscriminatedUnion<object, T, Exception>> o)
+        {
+            Contract.Requires<ArgumentNullException>(o != null, "o");
+            Contract.Ensures(Contract.Result<IObservable<T>>() != null);
+
+            IObservable<T> result = o.Select(d => d.Switch(v => v, e => default(T)));
+
+            if (result == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<IObservable<T>>.GetMethodInfo(o2 => o2.Select<T, object>(o3 => null)).Name
+                    + " cannot be null.");
+            }
+
+            return result;
         }
 
         [ContractInvariantMethod]

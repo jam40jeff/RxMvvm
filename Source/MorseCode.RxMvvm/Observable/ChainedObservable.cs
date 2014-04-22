@@ -18,7 +18,6 @@ namespace MorseCode.RxMvvm.Observable
     using System.Diagnostics.Contracts;
     using System.Reactive.Linq;
 
-    using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Common.StaticReflection;
 

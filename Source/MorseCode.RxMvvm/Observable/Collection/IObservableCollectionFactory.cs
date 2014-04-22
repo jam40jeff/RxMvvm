@@ -32,7 +32,7 @@
         /// <returns>
         /// The <see cref="IObservableCollection{T}"/>.
         /// </returns>
-        IObservableCollection<T> CreateObservableCollection<T>(IList<T> list);
+        IObservableCollection<T> CreateObservableCollection<T>(IEnumerable<T> list);
 
         /// <summary>
         /// Creates a read-only observable collection from a list of items.
@@ -46,6 +46,6 @@
         /// <returns>
         /// The <see cref="IReadableObservableCollection{T}"/>.
         /// </returns>
-        IReadableObservableCollection<T> CreateReadOnlyObservableCollection<T>(IList<T> list);
+        IReadableObservableCollection<T> CreateReadOnlyObservableCollection<T>(IEnumerable<T> list);
     }
 }

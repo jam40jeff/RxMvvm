@@ -16,6 +16,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// A factory for creating observable collections.
@@ -45,14 +46,14 @@ namespace MorseCode.RxMvvm.Observable.Collection
             return new ObservableCollection<T>();
         }
 
-        IObservableCollection<T> IObservableCollectionFactory.CreateObservableCollection<T>(IList<T> list)
+        IObservableCollection<T> IObservableCollectionFactory.CreateObservableCollection<T>(IEnumerable<T> list)
         {
-            return new ObservableCollection<T>(list);
+            return new ObservableCollection<T>(list.ToList());
         }
 
-        IReadableObservableCollection<T> IObservableCollectionFactory.CreateReadOnlyObservableCollection<T>(IList<T> list)
+        IReadableObservableCollection<T> IObservableCollectionFactory.CreateReadOnlyObservableCollection<T>(IEnumerable<T> list)
         {
-            return new ReadOnlyObservableCollection<T>(list);
+            return new ReadOnlyObservableCollection<T>(list.ToList());
         }
     }
 }

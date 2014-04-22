@@ -78,6 +78,26 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
+        IObservable<T> ICalculatedProperty<T>.OnValueOrDefaultChanged
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<IObservable<T>>() != null);
+
+                return null;
+            }
+        }
+
+        IObservable<T> ICalculatedProperty<T>.OnValueOrDefaultSet
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<IObservable<T>>() != null);
+
+                return null;
+            }
+        }
+
         IObservable<Exception> ICalculatedProperty<T>.OnCalculationException
         {
             get

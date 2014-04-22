@@ -18,6 +18,9 @@
 
 namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
 {
+    using System;
+    using System.Reactive.Disposables;
+
     using MorseCode.RxMvvm.Observable.Property;
     using MorseCode.RxMvvm.Samples.Calculator.ViewModels;
     using MorseCode.RxMvvm.UI.Wpf;
@@ -26,28 +29,38 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow
+    public partial class MainWindow : IDisposable
     {
         private static readonly IBindingFactory<CalculatorViewModel> BindingFactory =
             BindingFactory<CalculatorViewModel>.Instance;
+
+        private readonly CompositeDisposable compositeDisposable = new CompositeDisposable();
 
         public MainWindow()
         {
             this.InitializeComponent();
 
             CalculatorViewModel viewModel = new CalculatorViewModel(false);
-            DataContext = viewModel;
+            CalculatorViewModel viewModel2 = new CalculatorViewModel(false);
 
-            IReadableObservableProperty<CalculatorViewModel> viewModelProperty =
-                ObservablePropertyFactory.Instance.CreateReadOnlyProperty(viewModel);
+            IObservableProperty<CalculatorViewModel> viewModelProperty =
+                ObservablePropertyFactory.Instance.CreateProperty(viewModel);
 
             //FunctionDropDown.BindItemsForStructWithNoSelection(viewModelProperty, d => d.Operators, o => o.ToString(), "[Select an Item]", d => d.SelectedOperator, BindingFactory);
-            FunctionDropDown.BindItemsForStruct(viewModelProperty, d => d.Operators, o => o.ToString(), d => d.SelectedOperator, BindingFactory);
-            Operand1TextBox.BindText(viewModelProperty, o => o.Operand1, BindingFactory);
-            OperatorLabel.BindContent(
-                viewModelProperty, o => o.SelectedOperatorString, BindingFactory);
-            Operand2TextBox.BindText(viewModelProperty, o => o.Operand2, BindingFactory);
-            ResultLabel.BindContent(viewModelProperty, o => o.Result, BindingFactory);
+            this.compositeDisposable.Add(FunctionDropDown.BindItemsForStruct(
+                viewModelProperty, d => d.Operators, o => o.ToString(), d => d.SelectedOperator, BindingFactory));
+            this.compositeDisposable.Add(Operand1TextBox.BindText(viewModelProperty, o => o.Operand1, BindingFactory));
+            this.compositeDisposable.Add(OperatorLabel.BindContent(viewModelProperty, o => o.SelectedOperatorString.OnValueOrDefaultChanged, BindingFactory));
+            this.compositeDisposable.Add(Operand2TextBox.BindText(viewModelProperty, o => o.Operand2, BindingFactory));
+            this.compositeDisposable.Add(ResultLabel.BindContent(viewModelProperty, o => o.Result.OnValueOrDefaultChanged, BindingFactory));
+
+            SwitchDataContextButton.Click += (sender, args) => viewModelProperty.Value = viewModelProperty.Value == viewModel ? viewModel2 : viewModel;
+            SwitchOperatorsButton.Click += (sender, args) => viewModelProperty.Value.SwitchOperators();
+        }
+
+        public void Dispose()
+        {
+            this.compositeDisposable.Dispose();
         }
     }
 }

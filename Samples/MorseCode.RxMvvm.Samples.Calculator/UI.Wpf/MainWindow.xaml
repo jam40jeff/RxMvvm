@@ -10,5 +10,7 @@
         <Label x:Name="ResultLabel" HorizontalAlignment="Left" Margin="393,86,0,0" VerticalAlignment="Top"/>
         <Label Content="Function" HorizontalAlignment="Left" Margin="23,32,0,0" VerticalAlignment="Top"/>
         <ComboBox x:Name="FunctionDropDown" HorizontalAlignment="Left" Margin="84,36,0,0" VerticalAlignment="Top" Width="120"/>
+        <Button x:Name="SwitchDataContextButton" Content="Switch Data Context" HorizontalAlignment="Left" Margin="79,168,0,0" VerticalAlignment="Top" Width="135"/>
+        <Button x:Name="SwitchOperatorsButton" Content="Switch Operators" HorizontalAlignment="Left" Margin="79,131,0,0" VerticalAlignment="Top" Width="135"/>
     </Grid>
 </Window>

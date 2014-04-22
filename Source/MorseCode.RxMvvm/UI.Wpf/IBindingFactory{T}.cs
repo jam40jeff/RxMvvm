@@ -16,8 +16,6 @@ namespace MorseCode.RxMvvm.UI.Wpf
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.Linq.Expressions;
-    using System.Windows.Data;
 
     using MorseCode.RxMvvm.Observable.Property;
 
@@ -29,63 +27,87 @@ namespace MorseCode.RxMvvm.UI.Wpf
     /// </typeparam>
     [ContractClass(typeof(BindingFactoryContract<>))]
     public interface IBindingFactory<T>
+        where T : class
     {
         /// <summary>
         /// Create a one-way binding.
         /// </summary>
-        /// <param name="getPropertyName">
-        /// An expression to get the property to bind.
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getDataContextValue">
+        /// An delegate to get the value to bind.
+        /// </param>
+        /// <param name="setControlValue">
+        /// An delegate to update the control from the latest value.
         /// </param>
         /// <typeparam name="TProperty">
         /// The type of the property to bind.
         /// </typeparam>
         /// <returns>
-        /// The <see cref="Binding"/>.
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
         /// </returns>
-        Binding CreateOneWayBinding<TProperty>(
-            Expression<Func<T, IReadableObservableProperty<TProperty>>> getPropertyName);
+        IBinding CreateOneWayBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IObservable<TProperty>> getDataContextValue,
+            Action<TProperty> setControlValue);
 
         /// <summary>
         /// Create a one-way-to-source binding.
         /// </summary>
-        /// <param name="getPropertyName">
-        /// An expression to get the property to bind.
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getDataContextProperty">
+        /// An delegate to get the property to bind.
+        /// </param>
+        /// <param name="createUiObservable">
+        /// An delegate returning an observable notifying that the UI is ready to provide a new value.  The value of this observable is ignored.
+        /// </param>
+        /// <param name="getControlValue">
+        /// An delegate returning the value of the control.
         /// </param>
         /// <typeparam name="TProperty">
         /// The type of the property to bind.
         /// </typeparam>
         /// <returns>
-        /// The <see cref="Binding"/>.
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
         /// </returns>
-        Binding CreateOneWayToSourceBinding<TProperty>(
-            Expression<Func<T, IWritableObservableProperty<TProperty>>> getPropertyName);
+        IBinding CreateOneWayToSourceBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IWritableObservableProperty<TProperty>> getDataContextProperty,
+            Func<IBinding, IObservable<object>> createUiObservable,
+            Func<TProperty> getControlValue);
 
         /// <summary>
         /// Create a two-way binding.
         /// </summary>
-        /// <param name="getPropertyName">
-        /// An expression to get the property to bind.
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getDataContextProperty">
+        /// An delegate to get the property to bind.
+        /// </param>
+        /// <param name="createUiObservable">
+        /// An delegate returning an observable notifying that the UI is ready to provide a new value.  The value of this observable is ignored.
+        /// </param>
+        /// <param name="setControlValue">
+        /// An delegate to update the control from the latest value.
+        /// </param>
+        /// <param name="getControlValue">
+        /// An delegate returning the value of the control.
         /// </param>
         /// <typeparam name="TProperty">
         /// The type of the property to bind.
         /// </typeparam>
         /// <returns>
-        /// The <see cref="Binding"/>.
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
         /// </returns>
-        Binding CreateTwoWayBinding<TProperty>(Expression<Func<T, IObservableProperty<TProperty>>> getPropertyName);
-
-        /// <summary>
-        /// Create a one-way binding from an <see cref="ICalculatedProperty{TProperty}"/> by accessing the <see cref="ICalculatedProperty{TProperty}.LatestSuccessfulValue"/> property.
-        /// </summary>
-        /// <param name="getPropertyName">
-        /// An expression to get the property to bind.
-        /// </param>
-        /// <typeparam name="TProperty">
-        /// The type of the property to bind.
-        /// </typeparam>
-        /// <returns>
-        /// The <see cref="Binding"/>.
-        /// </returns>
-        Binding CreateCalculatedBinding<TProperty>(Expression<Func<T, ICalculatedProperty<TProperty>>> getPropertyName);
+        IBinding CreateTwoWayBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IObservableProperty<TProperty>> getDataContextProperty,
+            Func<IBinding, IObservable<object>> createUiObservable,
+            Action<TProperty> setControlValue,
+            Func<TProperty> getControlValue);
     }
 }

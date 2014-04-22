@@ -28,7 +28,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
             return null;
         }
 
-        IObservableCollection<T> IObservableCollectionFactory.CreateObservableCollection<T>(IList<T> list)
+        IObservableCollection<T> IObservableCollectionFactory.CreateObservableCollection<T>(IEnumerable<T> list)
         {
             Contract.Requires<ArgumentNullException>(list != null, "list");
             Contract.Ensures(Contract.Result<IObservableCollection<T>>() != null);
@@ -37,7 +37,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
         }
 
         IReadableObservableCollection<T> IObservableCollectionFactory.CreateReadOnlyObservableCollection<T>(
-            IList<T> list)
+            IEnumerable<T> list)
         {
             Contract.Requires<ArgumentNullException>(list != null, "list");
             Contract.Ensures(Contract.Result<IReadableObservableCollection<T>>() != null);

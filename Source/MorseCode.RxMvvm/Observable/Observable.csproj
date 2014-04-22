@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="Collection\CollectionObservable.cs" />
     <Compile Include="Collection\IObservableCollectionFactory.cs" />
+    <Compile Include="Collection\ObservableCollectionExtensionMethods.cs" />
     <Compile Include="Collection\ObservableCollectionFactoryContract.cs" />
     <Compile Include="Collection\ReadOnlyObservableCollection{T}.cs" />
     <Compile Include="Collection\WritableObservableCollectionContract{T}.cs" />

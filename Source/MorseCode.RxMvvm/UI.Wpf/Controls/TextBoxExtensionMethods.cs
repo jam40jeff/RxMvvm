@@ -16,9 +16,9 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.Linq.Expressions;
+    using System.Reactive.Disposables;
+    using System.Reactive.Linq;
     using System.Windows.Controls;
-    using System.Windows.Data;
 
     using MorseCode.RxMvvm.Observable.Property;
 
@@ -45,19 +45,40 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <typeparam name="T">
         /// The type of the data context.
         /// </typeparam>
-        public static void BindText<T>(
+        /// <returns>
+        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// </returns>
+        public static IDisposable BindText<T>(
             this TextBox textBox, 
-            IReadableObservableProperty<T> dataContext, 
-            Expression<Func<T, IObservableProperty<string>>> getTextProperty, 
-            IBindingFactory<T> bindingFactory)
+            IObservable<T> dataContext, 
+            Func<T, IObservableProperty<string>> getTextProperty, 
+            IBindingFactory<T> bindingFactory) where T : class
         {
             Contract.Requires<ArgumentNullException>(textBox != null, "textBox");
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
             Contract.Requires<ArgumentNullException>(getTextProperty != null, "getTextProperty");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            Binding textBinding = bindingFactory.CreateTwoWayBinding(getTextProperty);
-            textBox.SetBinding(TextBox.TextProperty, textBinding);
+            CompositeDisposable compositeDisposable = new CompositeDisposable();
+            compositeDisposable.Add(
+                bindingFactory.CreateTwoWayBinding(
+                    dataContext, 
+                    getTextProperty, 
+                    binding =>
+                    Observable.FromEventPattern<TextChangedEventHandler, TextChangedEventArgs>(
+                        h => (sender, args) =>
+                            {
+                                if (!binding.IsUpdatingControl)
+                                {
+                                    h(sender, args);
+                                }
+                            }, 
+                        h => textBox.TextChanged += h, 
+                        h => textBox.TextChanged -= h), 
+                    v => textBox.Text = v, 
+                    () => textBox.Text));
+            return compositeDisposable;
         }
     }
 }

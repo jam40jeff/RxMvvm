@@ -35,9 +35,19 @@ namespace MorseCode.RxMvvm.Observable.Property
         IObservable<T> OnSuccessfulValueChanged { get; }
 
         /// <summary>
-        /// Gets the on successful value changed.
+        /// Gets an observable which notifies on a successful calculation.
         /// </summary>
         IObservable<T> OnSuccessfulValueSet { get; }
+
+        /// <summary>
+        /// Gets an observable which notifies when a successful calculation or an error (which returns <value>default(<typeparamref name="T"/>)</value>) results in a value change.
+        /// </summary>
+        IObservable<T> OnValueOrDefaultChanged { get; }
+
+        /// <summary>
+        /// Gets an observable which notifies on a successful calculation or an error (which returns <value>default(<typeparamref name="T"/>)</value>).
+        /// </summary>
+        IObservable<T> OnValueOrDefaultSet { get; }
 
         /// <summary>
         /// Gets an observable which notifies when a calculation error occurs.

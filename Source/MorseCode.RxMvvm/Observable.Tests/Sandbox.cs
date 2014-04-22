@@ -24,6 +24,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Reactive;
     using System.Reactive.Concurrency;
     using System.Reactive.Disposables;
     using System.Reactive.Linq;
@@ -35,7 +36,6 @@ namespace MorseCode.RxMvvm.Observable.Tests
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using MorseCode.RxMvvm.Common;
-    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Common.Serialization;
     using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable.Collection;
@@ -1219,7 +1219,9 @@ namespace MorseCode.RxMvvm.Observable.Tests
             RxMvvmConfiguration.SetNotifyPropertyChangedSchedulerFactory(() => Scheduler.Immediate);
 
             Employee employee = new Employee();
-            employee.FullName.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed, now " + employee.FullName.LatestSuccessfulValue + ".");
+            employee.FullName.PropertyChanged +=
+                (sender, args) =>
+                Console.WriteLine(args.PropertyName + " changed, now " + employee.FullName.LatestSuccessfulValue + ".");
             employee.FirstName.Value = "John";
             employee.LastName.Value = "Smith";
             employee.LastName.Value = "Smith";
@@ -1238,8 +1240,10 @@ namespace MorseCode.RxMvvm.Observable.Tests
             IObservableCollection<Employee> employees =
                 ObservableCollectionFactory.Instance.CreateObservableCollection(
                     new List<Employee> { employee1, employee2 });
-            employees.PropertyChanged += (sender, args) => Console.WriteLine(args.PropertyName + " changed, count now " + employees.Count + ".");
-            employees.CollectionChanged += (sender, args) => Console.WriteLine("Collection changed: " + args.Action + ".");
+            employees.PropertyChanged +=
+                (sender, args) => Console.WriteLine(args.PropertyName + " changed, count now " + employees.Count + ".");
+            employees.CollectionChanged +=
+                (sender, args) => Console.WriteLine("Collection changed: " + args.Action + ".");
             employees.Add(employee3);
             employees[1] = employee4;
             employees.Remove(employee1);
@@ -1288,6 +1292,113 @@ namespace MorseCode.RxMvvm.Observable.Tests
             e.LastName.Value = "Davis";
         }
 
+        [TestMethod]
+        public void Switch()
+        {
+            IConnectableObservable<string> o1 = Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "a" + v).Publish();
+            IConnectableObservable<string> o2 = Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "b" + v).Publish();
+            IConnectableObservable<string> o3 = Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "c" + v).Publish();
+            IConnectableObservable<string> o4 = Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "d" + v).Publish();
+
+            IObservable<long> o = Observable.Interval(TimeSpan.FromSeconds(1.7500012312));
+
+            o1.Connect();
+            o2.Connect();
+            o3.Connect();
+            o4.Connect();
+
+            IObservable<string> observable = o.Select(v =>
+                {
+                    switch (v % 4)
+                    {
+                        case 0:
+                            return o1;
+                        case 1:
+                            return o2;
+                        case 2:
+                            return o3;
+                        case 3:
+                            return o4;
+                        default:
+                            throw new InvalidOperationException();
+                    }
+                }).Switch();
+
+            observable.Subscribe(Console.WriteLine);
+
+            Thread.Sleep(12000);
+        }
+
+        [TestMethod]
+        public void Join()
+        {
+            Employee employee = new Employee();
+
+            employee.FirstName.Value = "John";
+            employee.LastName.Value = "Davis";
+
+            IReadOnlyProperty<Employee> employeeProperty = ObservablePropertyFactory.Instance.CreateReadOnlyProperty(employee);
+
+            IObservable<string> firstNameObservable = employeeProperty.BeginChain().Add(e => e.FirstName).CompleteWithDefaultIfNotComputable();
+            firstNameObservable.Subscribe(Console.WriteLine);
+            IObservable<string> lastNameObservable = employeeProperty.BeginChain().Add(e => e.LastName).CompleteWithDefaultIfNotComputable();
+            lastNameObservable.Subscribe(Console.WriteLine);
+            firstNameObservable.Join(
+                lastNameObservable,
+                s => firstNameObservable.Skip(1),
+                i => Observable.Empty<Unit>(),
+                Tuple.Create).Subscribe(Console.WriteLine);
+
+            employee.FirstName.Value = "Fred";
+            employee.LastName.Value = "Smith";
+            employee.FirstName.Value = "John";
+            employee.LastName.Value = "Davis";
+            employee.FirstName.Value = "Fred";
+            employee.LastName.Value = "Smith";
+        }
+
+        [TestMethod]
+        public void Buffer()
+        {
+            Employee employee1 = new Employee();
+            employee1.Id.Value = "1";
+            employee1.FirstName.Value = "First";
+            employee1.LastName.Value = "Employee";
+            Employee employee2 = new Employee();
+            employee2.Id.Value = "2";
+            employee2.FirstName.Value = "Second";
+            employee2.LastName.Value = "Employee";
+            Employee employee3 = new Employee();
+            employee3.Id.Value = "3";
+            employee3.FirstName.Value = "Third";
+            employee3.LastName.Value = "Employee";
+            Employee employee4 = new Employee();
+            employee4.Id.Value = "4";
+            employee4.FirstName.Value = "Fourth";
+            employee4.LastName.Value = "Employee";
+
+            IObservableCollection<Employee> employees =
+                ObservableCollectionFactory.Instance.CreateObservableCollection(
+                    new List<Employee> { employee1, employee2 });
+
+            IObservableCollection<Employee> employees2 =
+                ObservableCollectionFactory.Instance.CreateObservableCollection(
+                    new List<Employee> { employee3, employee4 });
+
+            IObservableProperty<IObservableCollection<Employee>> employeesProperty = ObservablePropertyFactory.Instance.CreateProperty(employees);
+
+            employeesProperty.StartWith(new IObservableCollection<Employee>[] { null }).Buffer(2, 1).Subscribe(v =>
+                {
+                    string previousFirstEmployeeId = v[0] == null ? null : v[0][0].Id.Value;
+                    string firstEmployeeId = v[1] == null ? null : v[1][0].Id.Value;
+                    Console.WriteLine("Previous: " + previousFirstEmployeeId + ", Current: " + firstEmployeeId);
+                });
+
+            employeesProperty.Value = employees2;
+            employeesProperty.Value = null;
+            employeesProperty.Value = employees;
+        }
+
         private class Company
         {
             private readonly IObservableProperty<string> id =
@@ -1320,7 +1431,9 @@ namespace MorseCode.RxMvvm.Observable.Tests
 
             public EmployeeWithFullNameConsoleWrite()
             {
-                this.fullNameSubscription = SerializableActionFactory.Instance.CreateSerializableActionWithContext(this.FullName, v => v.Subscribe(Console.WriteLine));
+                this.fullNameSubscription =
+                    SerializableActionFactory.Instance.CreateSerializableActionWithContext(
+                        this.FullName, v => v.Subscribe(Console.WriteLine));
             }
 
             public void Dispose()

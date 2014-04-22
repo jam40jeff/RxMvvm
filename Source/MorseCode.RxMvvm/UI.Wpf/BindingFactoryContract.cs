@@ -16,42 +16,54 @@ namespace MorseCode.RxMvvm.UI.Wpf
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.Linq.Expressions;
-    using System.Windows.Data;
 
     using MorseCode.RxMvvm.Observable.Property;
 
     [ContractClassFor(typeof(IBindingFactory<>))]
     internal abstract class BindingFactoryContract<T> : IBindingFactory<T>
+        where T : class
     {
-        Binding IBindingFactory<T>.CreateOneWayBinding<TProperty>(Expression<Func<T, IReadableObservableProperty<TProperty>>> getPropertyName)
+        IBinding IBindingFactory<T>.CreateOneWayBinding<TProperty>(
+            IObservable<T> dataContext, 
+            Func<T, IObservable<TProperty>> getDataContextValue, 
+            Action<TProperty> setControlValue)
         {
-            Contract.Requires<ArgumentNullException>(getPropertyName != null, "getPropertyName");
-            Contract.Ensures(Contract.Result<Binding>() != null);
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getDataContextValue != null, "getDataContextValue");
+            Contract.Requires<ArgumentNullException>(setControlValue != null, "setControlValue");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
 
             return null;
         }
 
-        Binding IBindingFactory<T>.CreateOneWayToSourceBinding<TProperty>(Expression<Func<T, IWritableObservableProperty<TProperty>>> getPropertyName)
+        IBinding IBindingFactory<T>.CreateOneWayToSourceBinding<TProperty>(
+            IObservable<T> dataContext, 
+            Func<T, IWritableObservableProperty<TProperty>> getDataContextProperty, 
+            Func<IBinding, IObservable<object>> createUiObservable, 
+            Func<TProperty> getControlValue)
         {
-            Contract.Requires<ArgumentNullException>(getPropertyName != null, "getPropertyName");
-            Contract.Ensures(Contract.Result<Binding>() != null);
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getDataContextProperty != null, "getDataContextProperty");
+            Contract.Requires<ArgumentNullException>(createUiObservable != null, "createUiObservable");
+            Contract.Requires<ArgumentNullException>(getControlValue != null, "getControlValue");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
 
             return null;
         }
 
-        Binding IBindingFactory<T>.CreateTwoWayBinding<TProperty>(Expression<Func<T, IObservableProperty<TProperty>>> getPropertyName)
+        IBinding IBindingFactory<T>.CreateTwoWayBinding<TProperty>(
+            IObservable<T> dataContext, 
+            Func<T, IObservableProperty<TProperty>> getDataContextProperty, 
+            Func<IBinding, IObservable<object>> createUiObservable, 
+            Action<TProperty> setControlValue, 
+            Func<TProperty> getControlValue)
         {
-            Contract.Requires<ArgumentNullException>(getPropertyName != null, "getPropertyName");
-            Contract.Ensures(Contract.Result<Binding>() != null);
-
-            return null;
-        }
-
-        Binding IBindingFactory<T>.CreateCalculatedBinding<TProperty>(Expression<Func<T, ICalculatedProperty<TProperty>>> getPropertyName)
-        {
-            Contract.Requires<ArgumentNullException>(getPropertyName != null, "getPropertyName");
-            Contract.Ensures(Contract.Result<Binding>() != null);
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getDataContextProperty != null, "getDataContextProperty");
+            Contract.Requires<ArgumentNullException>(createUiObservable != null, "createUiObservable");
+            Contract.Requires<ArgumentNullException>(setControlValue != null, "setControlValue");
+            Contract.Requires<ArgumentNullException>(getControlValue != null, "getControlValue");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
 
             return null;
         }

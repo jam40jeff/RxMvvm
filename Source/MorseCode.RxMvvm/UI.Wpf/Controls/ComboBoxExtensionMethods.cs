@@ -15,17 +15,17 @@
 namespace MorseCode.RxMvvm.UI.Wpf.Controls
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
-    using System.Globalization;
     using System.Linq;
-    using System.Linq.Expressions;
+    using System.Reactive;
+    using System.Reactive.Disposables;
+    using System.Reactive.Linq;
     using System.Windows.Controls;
     using System.Windows.Controls.Primitives;
-    using System.Windows.Data;
 
-    using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.StaticReflection;
+    using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Collection;
     using MorseCode.RxMvvm.Observable.Property;
 
@@ -43,14 +43,14 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <param name="dataContext">
         /// The data context.
         /// </param>
-        /// <param name="getItemsProperty">
-        /// The items property.
+        /// <param name="getItems">
+        /// A delegate to get the items.
         /// </param>
         /// <param name="getItemText">
         /// A delegate to get the text to display for an item.
         /// </param>
         /// <param name="getSelectedItemProperty">
-        /// The selected item property.
+        /// A delegate to get the selected item property.
         /// </param>
         /// <param name="bindingFactory">
         /// The binding factory.
@@ -61,27 +61,39 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <typeparam name="TItem">
         /// The type of the items.
         /// </typeparam>
-        public static void BindItems<T, TItem>(
-            this ComboBox comboBox,
-            IReadableObservableProperty<T> dataContext,
-            Expression<Func<T, IReadableObservableProperty<IReadableObservableCollection<TItem>>>> getItemsProperty,
-            Func<TItem, string> getItemText,
-            Expression<Func<T, IObservableProperty<TItem>>> getSelectedItemProperty,
-            IBindingFactory<T> bindingFactory) where TItem : class
+        /// <returns>
+        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// </returns>
+        public static IDisposable BindItems<T, TItem>(
+            this ComboBox comboBox, 
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IReadableObservableCollection<TItem>>> getItems, 
+            Func<TItem, string> getItemText, 
+            Func<T, IObservableProperty<TItem>> getSelectedItemProperty, 
+            IBindingFactory<T> bindingFactory) where T : class where TItem : class
         {
             Contract.Requires<ArgumentNullException>(comboBox != null, "comboBox");
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
-            Contract.Requires<ArgumentNullException>(getItemsProperty != null, "getItemsProperty");
+            Contract.Requires<ArgumentNullException>(getItems != null, "getItems");
             Contract.Requires<ArgumentNullException>(getSelectedItemProperty != null, "getSelectedItemProperty");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            Binding itemsBinding = bindingFactory.CreateOneWayBinding(getItemsProperty);
-            itemsBinding.Converter = new ItemsConverterForClass<TItem>(getItemText);
-            comboBox.SetBinding(ItemsControl.ItemsSourceProperty, itemsBinding);
-
-            Binding selectedItemBinding = bindingFactory.CreateTwoWayBinding(getSelectedItemProperty);
-            selectedItemBinding.Converter = new SelectedItemConverterForClass<TItem>(comboBox);
-            comboBox.SetBinding(Selector.SelectedItemProperty, selectedItemBinding);
+            return BindItemsInternal(
+                comboBox, 
+                dataContext, 
+                getItems, 
+                getItemText, 
+                false, 
+                null, 
+                getSelectedItemProperty, 
+                v => v, 
+                v => v, 
+                v => v, 
+                null, 
+                v => v == null, 
+                (x, y) => x == y, 
+                bindingFactory);
         }
 
         /// <summary>
@@ -93,14 +105,14 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <param name="dataContext">
         /// The data context.
         /// </param>
-        /// <param name="getItemsProperty">
-        /// The items property.
+        /// <param name="getItems">
+        /// A delegate to get the items.
         /// </param>
         /// <param name="getItemText">
         /// A delegate to get the text to display for an item.
         /// </param>
         /// <param name="getSelectedItemProperty">
-        /// The selected item property.
+        /// A delegate to get the selected item property.
         /// </param>
         /// <param name="bindingFactory">
         /// The binding factory.
@@ -111,27 +123,41 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <typeparam name="TItem">
         /// The type of the items.
         /// </typeparam>
-        public static void BindItemsForStruct<T, TItem>(
-            this ComboBox comboBox,
-            IReadableObservableProperty<T> dataContext,
-            Expression<Func<T, IReadableObservableProperty<IReadableObservableCollection<TItem>>>> getItemsProperty,
-            Func<TItem, string> getItemText,
-            Expression<Func<T, IObservableProperty<TItem>>> getSelectedItemProperty,
-            IBindingFactory<T> bindingFactory) where TItem : struct
+        /// <returns>
+        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// </returns>
+        public static IDisposable BindItemsForStruct<T, TItem>(
+            this ComboBox comboBox, 
+            IObservable<T> dataContext, 
+            Func<T, IReadableObservableProperty<IReadableObservableCollection<TItem>>> getItems, 
+            Func<TItem, string> getItemText, 
+            Func<T, IObservableProperty<TItem>> getSelectedItemProperty, 
+            IBindingFactory<T> bindingFactory) where T : class where TItem : struct
         {
             Contract.Requires<ArgumentNullException>(comboBox != null, "comboBox");
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
-            Contract.Requires<ArgumentNullException>(getItemsProperty != null, "getItemsProperty");
+            Contract.Requires<ArgumentNullException>(getItems != null, "getItems");
             Contract.Requires<ArgumentNullException>(getSelectedItemProperty != null, "getSelectedItemProperty");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            Binding itemsBinding = bindingFactory.CreateOneWayBinding(getItemsProperty);
-            itemsBinding.Converter = new ItemsConverterForStruct<TItem>(getItemText);
-            comboBox.SetBinding(ItemsControl.ItemsSourceProperty, itemsBinding);
-
-            Binding selectedItemBinding = bindingFactory.CreateTwoWayBinding(getSelectedItemProperty);
-            selectedItemBinding.Converter = new SelectedItemConverterForStruct<TItem>(comboBox);
-            comboBox.SetBinding(Selector.SelectedItemProperty, selectedItemBinding);
+            return BindItemsInternal(
+                comboBox, 
+                dataContext, 
+                getItems, 
+                getItemText, 
+                false, 
+                null, 
+                getSelectedItemProperty, 
+                v => v, 
+                // ReSharper disable PossibleInvalidOperationException
+                v => v.Value, 
+                // ReSharper restore PossibleInvalidOperationException
+                v => v, 
+                (TItem?)null, 
+                v => v == null, 
+                (x, y) => x.Equals(y), 
+                bindingFactory);
         }
 
         /// <summary>
@@ -143,8 +169,8 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <param name="dataContext">
         /// The data context.
         /// </param>
-        /// <param name="getItemsProperty">
-        /// The items property.
+        /// <param name="getItems">
+        /// A delegate to get the items.
         /// </param>
         /// <param name="getItemText">
         /// A delegate to get the text to display for an item.
@@ -153,7 +179,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The text to show when nothing is selected.
         /// </param>
         /// <param name="getSelectedItemProperty">
-        /// The selected item property.
+        /// A delegate to get the selected item property.
         /// </param>
         /// <param name="bindingFactory">
         /// The binding factory.
@@ -164,28 +190,40 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <typeparam name="TItem">
         /// The type of the items.
         /// </typeparam>
-        public static void BindItemsWithNoSelection<T, TItem>(
-            this ComboBox comboBox,
-            IReadableObservableProperty<T> dataContext,
-            Expression<Func<T, IReadableObservableProperty<IReadableObservableCollection<TItem>>>> getItemsProperty,
-            Func<TItem, string> getItemText,
-            string noSelectionText,
-            Expression<Func<T, IObservableProperty<TItem>>> getSelectedItemProperty,
-            IBindingFactory<T> bindingFactory) where TItem : class
+        /// <returns>
+        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// </returns>
+        public static IDisposable BindItemsWithNoSelection<T, TItem>(
+            this ComboBox comboBox, 
+            IReadableObservableProperty<T> dataContext, 
+            Func<T, IReadableObservableProperty<IReadableObservableCollection<TItem>>> getItems, 
+            Func<TItem, string> getItemText, 
+            string noSelectionText, 
+            Func<T, IObservableProperty<TItem>> getSelectedItemProperty, 
+            IBindingFactory<T> bindingFactory) where T : class where TItem : class
         {
             Contract.Requires<ArgumentNullException>(comboBox != null, "comboBox");
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
-            Contract.Requires<ArgumentNullException>(getItemsProperty != null, "getItemsProperty");
+            Contract.Requires<ArgumentNullException>(getItems != null, "getItems");
             Contract.Requires<ArgumentNullException>(getSelectedItemProperty != null, "getSelectedItemProperty");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            Binding itemsBinding = bindingFactory.CreateOneWayBinding(getItemsProperty);
-            itemsBinding.Converter = new AddNoSelectionItemConverterForClass<TItem>(getItemText, noSelectionText);
-            comboBox.SetBinding(ItemsControl.ItemsSourceProperty, itemsBinding);
-
-            Binding selectedItemBinding = bindingFactory.CreateTwoWayBinding(getSelectedItemProperty);
-            selectedItemBinding.Converter = new SelectedItemConverterForClass<TItem>(comboBox);
-            comboBox.SetBinding(Selector.SelectedItemProperty, selectedItemBinding);
+            return BindItemsInternal(
+                comboBox, 
+                dataContext, 
+                getItems, 
+                getItemText, 
+                true, 
+                noSelectionText, 
+                getSelectedItemProperty, 
+                v => v, 
+                v => v, 
+                v => v, 
+                null, 
+                v => v == null, 
+                (x, y) => x == y, 
+                bindingFactory);
         }
 
         /// <summary>
@@ -197,8 +235,8 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <param name="dataContext">
         /// The data context.
         /// </param>
-        /// <param name="getItemsProperty">
-        /// The items property.
+        /// <param name="getItems">
+        /// A delegate to get the items.
         /// </param>
         /// <param name="getItemText">
         /// A delegate to get the text to display for an item.
@@ -207,7 +245,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The text to show when nothing is selected.
         /// </param>
         /// <param name="getSelectedItemProperty">
-        /// The selected item property.
+        /// A delegate to get the selected item property.
         /// </param>
         /// <param name="bindingFactory">
         /// The binding factory.
@@ -218,28 +256,176 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <typeparam name="TItem">
         /// The type of the items.
         /// </typeparam>
-        public static void BindItemsForStructWithNoSelection<T, TItem>(
-            this ComboBox comboBox,
-            IReadableObservableProperty<T> dataContext,
-            Expression<Func<T, IReadableObservableProperty<IReadableObservableCollection<TItem>>>> getItemsProperty,
-            Func<TItem, string> getItemText,
-            string noSelectionText,
-            Expression<Func<T, IObservableProperty<TItem?>>> getSelectedItemProperty,
-            IBindingFactory<T> bindingFactory) where TItem : struct
+        /// <returns>
+        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// </returns>
+        public static IDisposable BindItemsForStructWithNoSelection<T, TItem>(
+            this ComboBox comboBox, 
+            IReadableObservableProperty<T> dataContext, 
+            Func<T, IReadableObservableProperty<IReadableObservableCollection<TItem>>> getItems, 
+            Func<TItem, string> getItemText, 
+            string noSelectionText, 
+            Func<T, IObservableProperty<TItem?>> getSelectedItemProperty, 
+            IBindingFactory<T> bindingFactory) where T : class where TItem : struct
         {
             Contract.Requires<ArgumentNullException>(comboBox != null, "comboBox");
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
-            Contract.Requires<ArgumentNullException>(getItemsProperty != null, "getItemsProperty");
+            Contract.Requires<ArgumentNullException>(getItems != null, "getItems");
             Contract.Requires<ArgumentNullException>(getSelectedItemProperty != null, "getSelectedItemProperty");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IDisposable>() != null);
 
-            Binding itemsBinding = bindingFactory.CreateOneWayBinding(getItemsProperty);
-            itemsBinding.Converter = new AddNoSelectionItemConverterForStruct<TItem>(getItemText, noSelectionText);
-            comboBox.SetBinding(ItemsControl.ItemsSourceProperty, itemsBinding);
+            return BindItemsInternal(
+                comboBox, 
+                dataContext, 
+                getItems, 
+                getItemText, 
+                true, 
+                noSelectionText, 
+                getSelectedItemProperty, 
+                v => v, 
+                v => v, 
+                v => v, 
+                // ReSharper disable RedundantCast - The type parameters are not correctly inferred when this cast is omitted.
+                (TItem?)null, 
+                // ReSharper restore RedundantCast
+                v => v == null, 
+                (x, y) => x.Equals(y), 
+                bindingFactory);
+        }
 
-            Binding selectedItemBinding = bindingFactory.CreateTwoWayBinding(getSelectedItemProperty);
-            selectedItemBinding.Converter = new SelectedItemConverterForStruct<TItem>(comboBox);
-            comboBox.SetBinding(Selector.SelectedItemProperty, selectedItemBinding);
+        private static IDisposable BindItemsInternal<T, TItem, TItemNullable, TSelectedItem>(
+            this ComboBox comboBox, 
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IReadableObservableCollection<TItem>>> getItems, 
+            Func<TItem, string> getItemText, 
+            bool addNoSelection, 
+            string noSelectionText, 
+            Func<T, IObservableProperty<TSelectedItem>> getSelectedItemProperty, 
+            Func<TSelectedItem, TItemNullable> convertFromSelectedItem, 
+            Func<TItemNullable, TSelectedItem> convertToSelectedItem, 
+            Func<TItem, TItemNullable> convertToNullable, 
+            TItemNullable nullValue, 
+            Func<TItemNullable, bool> isNull, 
+            Func<TItemNullable, TItemNullable, bool> areEqual, 
+            IBindingFactory<T> bindingFactory) where T : class
+        {
+            Contract.Requires<ArgumentNullException>(comboBox != null, "comboBox");
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getItems != null, "getItems");
+            Contract.Requires<ArgumentNullException>(getSelectedItemProperty != null, "getSelectedItemProperty");
+            Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IDisposable>() != null);
+
+            CompositeDisposable compositeDisposable = new CompositeDisposable();
+            List<ComboBoxItem<TItemNullable>> latestItems = null;
+            Func<IEnumerable<TItem>, List<ComboBoxItem<TItemNullable>>> getComboBoxItems = c =>
+                {
+                    List<ComboBoxItem<TItemNullable>> items = new List<ComboBoxItem<TItemNullable>>();
+
+                    if (addNoSelection)
+                    {
+                        items.Add(new ComboBoxItem<TItemNullable>(nullValue, noSelectionText));
+                    }
+
+                    if (c != null)
+                    {
+                        items.AddRange(
+                            c.Select(i => new ComboBoxItem<TItemNullable>(convertToNullable(i), getItemText(i))));
+                    }
+
+                    latestItems = items;
+
+                    return items;
+                };
+
+            bool settingSelectedItem = false;
+            bool itemsChanging = false;
+            IObservable<TSelectedItem> selectedItemObservable =
+                dataContext.BeginChain().Add(getSelectedItemProperty).CompleteWithDefaultIfNotComputable();
+            IObservable<IReadableObservableCollection<TItem>> itemsObservable =
+                dataContext.BeginChain().Add(getItems).CompleteWithDefaultIfNotComputable();
+            compositeDisposable.Add(
+                selectedItemObservable.Join(
+                    itemsObservable.MergeCollectionChangesWithProperty(itemsObservable), 
+                    s => selectedItemObservable.Skip(1), 
+                    i => Observable.Empty<Unit>(), 
+                    Tuple.Create).ObserveOnDispatcher().Subscribe(
+                        v =>
+                            {
+                                itemsChanging = true;
+                                try
+                                {
+                                    comboBox.ItemsSource = getComboBoxItems(v.Item2);
+                                }
+                                finally
+                                {
+                                    itemsChanging = false;
+                                }
+
+                                TItemNullable nullableValue = convertFromSelectedItem(v.Item1);
+
+                                if (!addNoSelection && isNull(nullableValue))
+                                {
+                                    throw new InvalidOperationException("Selected item may not be null.");
+                                }
+
+                                settingSelectedItem = true;
+                                try
+                                {
+                                    comboBox.SelectedItem =
+                                        latestItems.FirstOrDefault(i => areEqual(i.Value, nullableValue));
+                                }
+                                finally
+                                {
+                                    settingSelectedItem = false;
+                                }
+                            }));
+            compositeDisposable.Add(
+                bindingFactory.CreateTwoWayBinding(
+                    dataContext, 
+                    getSelectedItemProperty, 
+                    b =>
+                    Observable.FromEventPattern<SelectionChangedEventHandler, SelectionChangedEventArgs>(
+                        h => (sender, args) =>
+                            {
+                                if (!b.IsUpdatingControl && !settingSelectedItem && !itemsChanging)
+                                {
+                                    h(sender, args);
+                                }
+                            }, 
+                        h => comboBox.SelectionChanged += h, 
+                        h => comboBox.SelectionChanged -= h), 
+                    v =>
+                        {
+                            if (latestItems == null)
+                            {
+                                return;
+                            }
+
+                            TItemNullable nullableValue = convertFromSelectedItem(v);
+
+                            if (!addNoSelection && isNull(nullableValue))
+                            {
+                                throw new InvalidOperationException("Selected item may not be null.");
+                            }
+
+                            comboBox.SelectedItem = latestItems.FirstOrDefault(i => areEqual(i.Value, nullableValue));
+                        }, 
+                    () =>
+                        {
+                            ComboBoxItem<TItemNullable> selectedItem =
+                                comboBox.SelectedItem as ComboBoxItem<TItemNullable>;
+                            if (!addNoSelection && (selectedItem == null || isNull(selectedItem.Value)))
+                            {
+                                throw new InvalidOperationException(
+                                    StaticReflection<ComboBox>.GetMemberInfo(o => o.SelectedItem).Name
+                                    + " may not be null.");
+                            }
+
+                            return convertToSelectedItem(selectedItem == null ? nullValue : selectedItem.Value);
+                        }));
+            return compositeDisposable;
         }
 
         private class ComboBoxItem<T>
@@ -283,153 +469,6 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             public override string ToString()
             {
                 return this.text ?? string.Empty;
-            }
-        }
-
-        private class ItemsConverterForClass<T> : AddNoSelectionItemConverter<T, T>
-            where T : class
-        {
-            internal ItemsConverterForClass(Func<T, string> getItemText)
-                : base(getItemText, false, null, null)
-            {
-            }
-        }
-
-        private class ItemsConverterForStruct<T> : AddNoSelectionItemConverter<T, T?>
-            where T : struct
-        {
-            internal ItemsConverterForStruct(Func<T, string> getItemText)
-                : base(getItemText, false, null, null)
-            {
-            }
-        }
-
-        private class AddNoSelectionItemConverterForClass<T> : AddNoSelectionItemConverter<T, T>
-            where T : class
-        {
-            internal AddNoSelectionItemConverterForClass(Func<T, string> getItemText, string noSelectionText)
-                : base(getItemText, true, noSelectionText, null)
-            {
-            }
-        }
-
-        private class AddNoSelectionItemConverterForStruct<T> : AddNoSelectionItemConverter<T, T?>
-            where T : struct
-        {
-            internal AddNoSelectionItemConverterForStruct(Func<T, string> getItemText, string noSelectionText)
-                : base(getItemText, true, noSelectionText, null)
-            {
-            }
-        }
-
-        private abstract class AddNoSelectionItemConverter<T, TNullable> : IValueConverter
-        {
-            private readonly Func<T, string> getItemText;
-
-            private readonly bool addNoSelection;
-
-            private readonly string noSelectionText;
-
-            private readonly TNullable nullValue;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="AddNoSelectionItemConverter{T,TNullable}"/> class.
-            /// </summary>
-            /// <param name="getItemText">
-            /// The get item text.
-            /// </param>
-            /// <param name="addNoSelection">
-            /// Whether to add the no selection item.
-            /// </param>
-            /// <param name="noSelectionText">
-            /// The text to show when nothing is selected.
-            /// </param>
-            /// <param name="nullValue">
-            /// The null value.
-            /// </param>
-            protected AddNoSelectionItemConverter(Func<T, string> getItemText, bool addNoSelection, string noSelectionText, TNullable nullValue)
-            {
-                this.getItemText = getItemText ?? (o => o.SafeToString());
-                this.addNoSelection = addNoSelection;
-                this.noSelectionText = noSelectionText;
-                this.nullValue = nullValue;
-            }
-
-            object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                List<ComboBoxItem<TNullable>> items = new List<ComboBoxItem<TNullable>>();
-
-                if (this.addNoSelection)
-                {
-                    items.Add(new ComboBoxItem<TNullable>(this.nullValue, this.noSelectionText));
-                }
-
-                if (value != null)
-                {
-                    items.AddRange(
-                        ((IEnumerable)value).Cast<TNullable>()
-                                            .Select(i => new ComboBoxItem<TNullable>(i, this.getItemText((T)(object)i))));
-                }
-
-                return items;
-            }
-
-            object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        private class SelectedItemConverterForClass<T> : SelectedItemConverter<T>
-            where T : class
-        {
-            internal SelectedItemConverterForClass(ComboBox comboBox)
-                : base(comboBox)
-            {
-            }
-        }
-
-        private class SelectedItemConverterForStruct<T> : SelectedItemConverter<T?>
-            where T : struct
-        {
-            internal SelectedItemConverterForStruct(ComboBox comboBox)
-                : base(comboBox)
-            {
-            }
-        }
-
-        private abstract class SelectedItemConverter<T> : IValueConverter
-        {
-            private readonly ComboBox comboBox;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="SelectedItemConverter{T}"/> class.
-            /// </summary>
-            /// <param name="comboBox">
-            /// The combo box.
-            /// </param>
-            protected SelectedItemConverter(ComboBox comboBox)
-            {
-                this.comboBox = comboBox;
-            }
-
-            object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                ItemCollection items = this.comboBox.Items;
-
-                if (items != null)
-                {
-                    return
-                        items.Cast<ComboBoxItem<T>>()
-                             .FirstOrDefault(i => ReferenceEquals(null, i.Value) ? value == null : i.Value.Equals(value));
-                }
-
-                return null;
-            }
-
-            object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                return ((ComboBoxItem<T>)value).Value;
             }
         }
     }

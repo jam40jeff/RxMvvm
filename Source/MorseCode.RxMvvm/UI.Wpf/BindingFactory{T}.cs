@@ -15,12 +15,10 @@
 namespace MorseCode.RxMvvm.UI.Wpf
 {
     using System;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using System.Windows;
-    using System.Windows.Data;
+    using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common.StaticReflection;
+    using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Property;
 
     /// <summary>
@@ -30,6 +28,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
     /// The type on which to create bindings.
     /// </typeparam>
     public class BindingFactory<T> : IBindingFactory<T>
+        where T : class
     {
         private static readonly Lazy<BindingFactory<T>> InstanceLazy =
             new Lazy<BindingFactory<T>>(() => new BindingFactory<T>());
@@ -49,60 +48,104 @@ namespace MorseCode.RxMvvm.UI.Wpf
             }
         }
 
-        Binding IBindingFactory<T>.CreateOneWayBinding<TProperty>(
-            Expression<Func<T, IReadableObservableProperty<TProperty>>> getPropertyName)
+        IBinding IBindingFactory<T>.CreateOneWayBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IObservable<TProperty>> getDataContextValue,
+            Action<TProperty> setControlValue)
         {
-            PropertyInfo pathParameters =
-                typeof(IReadableObservableProperty<TProperty>).GetProperty(BindingFactoryUtility.ValuePropertyName);
-            return new Binding
-                       {
-                           Path =
-                               new PropertyPath(
-                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters),
-                           Mode = BindingMode.OneWay
-                       };
+            Binding binding = new Binding();
+            IObservable<TProperty> viewModelObservable =
+                dataContext.BeginChain().Add(getDataContextValue).CompleteWithDefaultIfNotComputable();
+            IDisposable subscriptionDisposable = viewModelObservable.ObserveOnDispatcher().Subscribe(setControlValue);
+            if (subscriptionDisposable == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
+                    + " cannot be null.");
+            }
+
+            binding.Add(subscriptionDisposable);
+            return binding;
         }
 
-        Binding IBindingFactory<T>.CreateOneWayToSourceBinding<TProperty>(
-            Expression<Func<T, IWritableObservableProperty<TProperty>>> getPropertyName)
+        IBinding IBindingFactory<T>.CreateOneWayToSourceBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IWritableObservableProperty<TProperty>> getDataContextProperty,
+            Func<IBinding, IObservable<object>> createUiObservable,
+            Func<TProperty> getControlValue)
         {
-            PropertyInfo pathParameters =
-                typeof(IWritableObservableProperty<TProperty>).GetProperty(BindingFactoryUtility.ValuePropertyName);
-            return new Binding
-                       {
-                           Path =
-                               new PropertyPath(
-                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters),
-                           Mode = BindingMode.OneWayToSource
-                       };
+            Binding binding = new Binding();
+            IObservable<object> uiObservable = createUiObservable(binding);
+            IDisposable subscriptionDisposable =
+                dataContext.Select(v => v == null ? null : getDataContextProperty(v))
+                           .Select(v => uiObservable.Select(e => v))
+                           .Switch()
+                           .ObserveOnDispatcher()
+                           .Subscribe(
+                               p =>
+                               {
+                                   if (p != null)
+                                   {
+                                       p.Value = getControlValue();
+                                   }
+                               });
+            if (subscriptionDisposable == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
+                    + " cannot be null.");
+            }
+
+            binding.Add(subscriptionDisposable);
+            return binding;
         }
 
-        Binding IBindingFactory<T>.CreateTwoWayBinding<TProperty>(
-            Expression<Func<T, IObservableProperty<TProperty>>> getPropertyName)
+        IBinding IBindingFactory<T>.CreateTwoWayBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IObservableProperty<TProperty>> getDataContextProperty,
+            Func<IBinding, IObservable<object>> createUiObservable,
+            Action<TProperty> setControlValue,
+            Func<TProperty> getControlValue)
         {
-            PropertyInfo pathParameters =
-                typeof(IObservableProperty<TProperty>).GetProperty(BindingFactoryUtility.ValuePropertyName);
-            return new Binding
-                       {
-                           Path =
-                               new PropertyPath(
-                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters),
-                           Mode = BindingMode.TwoWay
-                       };
-        }
+            {
+                Binding binding = new Binding();
+                IObservable<TProperty> viewModelObservable =
+                    dataContext.BeginChain().Add(getDataContextProperty).CompleteWithDefaultIfNotComputable();
+                IDisposable subscriptionDisposable1 =
+                    viewModelObservable.ObserveOnDispatcher().Subscribe(setControlValue);
+                if (subscriptionDisposable1 == null)
+                {
+                    throw new InvalidOperationException(
+                        "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
+                        + " cannot be null.");
+                }
 
-        Binding IBindingFactory<T>.CreateCalculatedBinding<TProperty>(
-            Expression<Func<T, ICalculatedProperty<TProperty>>> getPropertyName)
-        {
-            PropertyInfo pathParameters =
-                typeof(ICalculatedProperty<TProperty>).GetProperty(BindingFactoryUtility.LatestSuccessfulValuePropertyName);
-            return new Binding
-                       {
-                           Path =
-                               new PropertyPath(
-                               StaticReflection<T>.GetMemberInfo(getPropertyName).Name + ".(0)", pathParameters),
-                           Mode = BindingMode.OneWay
-                       };
+                binding.Add(subscriptionDisposable1);
+                IObservable<object> uiObservable = createUiObservable(binding);
+                IDisposable subscriptionDisposable2 =
+                    dataContext.Select(v => v == null ? null : getDataContextProperty(v))
+                               .Select(v => uiObservable.Select(e => v))
+                               .Switch()
+                               .ObserveOnDispatcher()
+                               .Subscribe(
+                                   p =>
+                                   {
+                                       if (p != null)
+                                       {
+                                           p.Value = getControlValue();
+                                       }
+                                   });
+                if (subscriptionDisposable2 == null)
+                {
+                    throw new InvalidOperationException(
+                        "Result of "
+                        + StaticReflection<IObservable<IObservableProperty<TProperty>>>.GetMethodInfo(
+                            o => o.Subscribe()).Name + " cannot be null.");
+                }
+
+                binding.Add(subscriptionDisposable2);
+                return binding;
+            }
         }
     }
 }
