@@ -33,7 +33,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The data context.
         /// </param>
         /// <param name="getTextObservable">
-        /// The text property.
+        /// A delegate to get the text.
         /// </param>
         /// <param name="bindingFactory">
         /// The binding factory.
@@ -44,7 +44,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <returns>
         /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
         /// </returns>
-        public static IDisposable BindContent<T>(
+        public static IBinding BindContent<T>(
             this Label label, 
             IObservable<T> dataContext, 
             Func<T, IObservable<string>> getTextObservable, 
@@ -54,6 +54,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
             Contract.Requires<ArgumentNullException>(getTextObservable != null, "getTextProperty");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
 
             return bindingFactory.CreateOneWayBinding(dataContext, getTextObservable, v => label.Content = v);
         }

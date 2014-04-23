@@ -23,6 +23,7 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
     using MorseCode.RxMvvm.Observable.Collection;
     using MorseCode.RxMvvm.Observable.Property;
 
+    [Serializable]
     public class CalculatorViewModelWithNoSelection
     {
         private readonly IReadOnlyProperty<IObservableCollection<bool>> updateInRealTimeItems;

@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.UI.Wpf
 {
     using System;
+    using System.Reactive;
     using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common.StaticReflection;
@@ -49,8 +50,8 @@ namespace MorseCode.RxMvvm.UI.Wpf
         }
 
         IBinding IBindingFactory<T>.CreateOneWayBinding<TProperty>(
-            IObservable<T> dataContext,
-            Func<T, IObservable<TProperty>> getDataContextValue,
+            IObservable<T> dataContext, 
+            Func<T, IObservable<TProperty>> getDataContextValue, 
             Action<TProperty> setControlValue)
         {
             Binding binding = new Binding();
@@ -69,9 +70,9 @@ namespace MorseCode.RxMvvm.UI.Wpf
         }
 
         IBinding IBindingFactory<T>.CreateOneWayToSourceBinding<TProperty>(
-            IObservable<T> dataContext,
-            Func<T, IWritableObservableProperty<TProperty>> getDataContextProperty,
-            Func<IBinding, IObservable<object>> createUiObservable,
+            IObservable<T> dataContext, 
+            Func<T, IWritableObservableProperty<TProperty>> getDataContextProperty, 
+            Func<IBinding, IObservable<object>> createUiObservable, 
             Func<TProperty> getControlValue)
         {
             Binding binding = new Binding();
@@ -83,12 +84,12 @@ namespace MorseCode.RxMvvm.UI.Wpf
                            .ObserveOnDispatcher()
                            .Subscribe(
                                p =>
-                               {
-                                   if (p != null)
                                    {
-                                       p.Value = getControlValue();
-                                   }
-                               });
+                                       if (p != null)
+                                       {
+                                           p.Value = getControlValue();
+                                       }
+                                   });
             if (subscriptionDisposable == null)
             {
                 throw new InvalidOperationException(
@@ -101,10 +102,10 @@ namespace MorseCode.RxMvvm.UI.Wpf
         }
 
         IBinding IBindingFactory<T>.CreateTwoWayBinding<TProperty>(
-            IObservable<T> dataContext,
-            Func<T, IObservableProperty<TProperty>> getDataContextProperty,
-            Func<IBinding, IObservable<object>> createUiObservable,
-            Action<TProperty> setControlValue,
+            IObservable<T> dataContext, 
+            Func<T, IObservableProperty<TProperty>> getDataContextProperty, 
+            Func<IBinding, IObservable<object>> createUiObservable, 
+            Action<TProperty> setControlValue, 
             Func<TProperty> getControlValue)
         {
             {
@@ -122,19 +123,20 @@ namespace MorseCode.RxMvvm.UI.Wpf
 
                 binding.Add(subscriptionDisposable1);
                 IObservable<object> uiObservable = createUiObservable(binding);
+                IObservable<IObservableProperty<TProperty>> propertyObservable =
+                    dataContext.Select(d => d == null ? null : getDataContextProperty(d));
                 IDisposable subscriptionDisposable2 =
-                    dataContext.Select(v => v == null ? null : getDataContextProperty(v))
-                               .Select(v => uiObservable.Select(e => v))
-                               .Switch()
-                               .ObserveOnDispatcher()
-                               .Subscribe(
-                                   p =>
-                                   {
-                                       if (p != null)
-                                       {
-                                           p.Value = getControlValue();
-                                       }
-                                   });
+                    propertyObservable.Join(
+                        uiObservable, p => propertyObservable.Skip(1), e => Observable.Empty<Unit>(), (p, e) => p)
+                                      .ObserveOnDispatcher()
+                                      .Subscribe(
+                                          p =>
+                                              {
+                                                  if (p != null)
+                                                  {
+                                                      p.Value = getControlValue();
+                                                  }
+                                              });
                 if (subscriptionDisposable2 == null)
                 {
                     throw new InvalidOperationException(
