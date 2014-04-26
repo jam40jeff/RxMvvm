@@ -27,13 +27,13 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
     {
         private readonly TContext context;
 
-        private readonly IReadableObservableProperty<TFirst> firstProperty;
+        private readonly IObservable<TFirst> firstProperty;
 
         private readonly Func<TContext, TFirst, T> calculateValue;
 
         internal CalculatedPropertyWithContext(
             TContext context, 
-            IReadableObservableProperty<TFirst> firstProperty, 
+            IObservable<TFirst> firstProperty, 
             Func<TContext, TFirst, T> calculateValue)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
@@ -64,27 +64,22 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                 };
 
             this.SetHelper(new CalculatedPropertyHelper(
-                (resultSubject, isCalculatingSubject) =>
-                    {
-                        resultSubject.OnNext(calculate(firstProperty.Value));
+                (resultSubject, isCalculatingSubject) => firstProperty.Subscribe(
+                    v =>
+                        {
+                            isCalculatingSubject.OnNext(true);
 
-                        return firstProperty.Subscribe(
-                            v =>
-                                {
-                                    isCalculatingSubject.OnNext(true);
+                            try
+                            {
+                                resultSubject.OnNext(calculate(v));
+                            }
+                            catch (Exception e)
+                            {
+                                resultSubject.OnNext(DiscriminatedUnion.Second<object, T, Exception>(e));
+                            }
 
-                                    try
-                                    {
-                                        resultSubject.OnNext(calculate(v));
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        resultSubject.OnNext(DiscriminatedUnion.Second<object, T, Exception>(e));
-                                    }
-
-                                    isCalculatingSubject.OnNext(false);
-                                });
-                    }));
+                            isCalculatingSubject.OnNext(false);
+                        })));
         }
 
         /// <summary>
@@ -102,7 +97,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             // ReSharper restore UnusedParameter.Local
             : this(
                 (TContext)(info.GetValue("c", typeof(TContext)) ?? default(TContext)), 
-                (IReadableObservableProperty<TFirst>)info.GetValue("p1", typeof(IReadableObservableProperty<TFirst>)), 
+                (IObservable<TFirst>)info.GetValue("p1", typeof(IObservable<TFirst>)), 
                 (Func<TContext, TFirst, T>)info.GetValue("f", typeof(Func<TContext, TFirst, T>)))
         {
         }
@@ -122,16 +117,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             info.AddValue("c", this.context);
             info.AddValue("p1", this.firstProperty);
             info.AddValue("f", this.calculateValue);
-        }
-
-        /// <summary>
-        /// Disposes of the property.
-        /// </summary>
-        protected override void Dispose()
-        {
-            base.Dispose();
-
-            this.firstProperty.Dispose();
         }
 
         [ContractInvariantMethod]

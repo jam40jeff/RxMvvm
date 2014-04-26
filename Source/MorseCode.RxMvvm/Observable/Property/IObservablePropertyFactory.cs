@@ -34,7 +34,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The type of the property.
         /// </typeparam>
         /// <returns>
-        /// The read-only property as <see cref="IReadableObservableProperty{T}"/>.
+        /// The read-only property as <see cref="IReadOnlyProperty{T}"/>.
         /// </returns>
         IReadOnlyProperty<T> CreateReadOnlyProperty<T>(T value);
 
@@ -48,7 +48,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The type of the property.
         /// </typeparam>
         /// <returns>
-        /// The read-only property as <see cref="IReadableObservableProperty{T}"/>.
+        /// The read-only property as <see cref="IReadOnlyProperty{T}"/>.
         /// </returns>
         IReadOnlyProperty<T> CreateReadOnlyProperty<T>(Lazy<T> value);
 
@@ -85,7 +85,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateCalculatedProperty<TFirst, T>(
-            IReadableObservableProperty<TFirst> firstProperty, Func<TFirst, T> calculateValue);
+            IObservable<TFirst> firstProperty, Func<TFirst, T> calculateValue);
 
         /// <summary>
         /// Creates a calculated property.
@@ -112,8 +112,8 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateCalculatedProperty<TFirst, TSecond, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
             Func<TFirst, TSecond, T> calculateValue);
 
         /// <summary>
@@ -147,9 +147,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateCalculatedProperty<TFirst, TSecond, TThird, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
             Func<TFirst, TSecond, TThird, T> calculateValue);
 
         /// <summary>
@@ -189,10 +189,10 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            IReadableObservableProperty<TFourth> fourthProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
             Func<TFirst, TSecond, TThird, TFourth, T> calculateValue);
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateCalculatedPropertyWithContext<TContext, TFirst, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
+            IObservable<TFirst> firstProperty,
             Func<TContext, TFirst, T> calculateValue);
 
         /// <summary>
@@ -256,8 +256,8 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
             Func<TContext, TFirst, TSecond, T> calculateValue);
 
         /// <summary>
@@ -298,9 +298,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
             Func<TContext, TFirst, TSecond, TThird, T> calculateValue);
 
         /// <summary>
@@ -347,10 +347,10 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            IReadableObservableProperty<TFourth> fourthProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
             Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue);
 
         /// <summary>
@@ -375,7 +375,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, T>(
-            IReadableObservableProperty<TFirst> firstProperty, TimeSpan throttleTime, Func<TFirst, T> calculateValue);
+            IObservable<TFirst> firstProperty, TimeSpan throttleTime, Func<TFirst, T> calculateValue);
 
         /// <summary>
         /// Creates an asynchronously calculated property.
@@ -405,8 +405,8 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
             TimeSpan throttleTime,
             Func<TFirst, TSecond, T> calculateValue);
 
@@ -444,9 +444,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
             TimeSpan throttleTime,
             Func<TFirst, TSecond, TThird, T> calculateValue);
 
@@ -490,10 +490,10 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            IReadableObservableProperty<TFourth> fourthProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
             TimeSpan throttleTime,
             Func<TFirst, TSecond, TThird, TFourth, T> calculateValue);
 
@@ -526,7 +526,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
+            IObservable<TFirst> firstProperty,
             TimeSpan throttleTime,
             Func<TContext, TFirst, T> calculateValue);
 
@@ -565,8 +565,8 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
             TimeSpan throttleTime,
             Func<TContext, TFirst, TSecond, T> calculateValue);
 
@@ -611,9 +611,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
             TimeSpan throttleTime,
             Func<TContext, TFirst, TSecond, TThird, T> calculateValue);
 
@@ -664,10 +664,10 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            IReadableObservableProperty<TFourth> fourthProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
             TimeSpan throttleTime,
             Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue);
 
@@ -693,7 +693,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateCancellableAsyncCalculatedProperty<TFirst, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
+            IObservable<TFirst> firstProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TFirst, Task<T>> calculateValue);
 
@@ -725,8 +725,8 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TFirst, TSecond, Task<T>> calculateValue);
 
@@ -764,9 +764,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<T>> calculateValue);
 
@@ -810,10 +810,10 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            IReadableObservableProperty<TFourth> fourthProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue);
 
@@ -846,7 +846,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
+            IObservable<TFirst> firstProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TContext, TFirst, Task<T>> calculateValue);
 
@@ -885,8 +885,8 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue);
 
@@ -931,9 +931,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue);
 
@@ -984,10 +984,10 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </returns>
         ICalculatedProperty<T> CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty,
-            IReadableObservableProperty<TSecond> secondProperty,
-            IReadableObservableProperty<TThird> thirdProperty,
-            IReadableObservableProperty<TFourth> fourthProperty,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
             TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue);
     }

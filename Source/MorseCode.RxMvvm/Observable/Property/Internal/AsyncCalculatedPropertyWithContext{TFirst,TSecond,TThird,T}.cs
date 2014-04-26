@@ -31,21 +31,23 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
     {
         private readonly TContext context;
 
-        private readonly IReadableObservableProperty<TFirst> firstProperty;
+        private readonly IObservable<TFirst> firstProperty;
 
-        private readonly IReadableObservableProperty<TSecond> secondProperty;
+        private readonly IObservable<TSecond> secondProperty;
 
-        private readonly IReadableObservableProperty<TThird> thirdProperty;
+        private readonly IObservable<TThird> thirdProperty;
 
         private readonly TimeSpan throttleTime;
 
         private readonly Func<TContext, TFirst, TSecond, TThird, T> calculateValue;
 
+        private IDisposable scheduledTask;
+
         internal AsyncCalculatedPropertyWithContext(
             TContext context,
-            IReadableObservableProperty<TFirst> firstProperty, 
-            IReadableObservableProperty<TSecond> secondProperty, 
-            IReadableObservableProperty<TThird> thirdProperty, 
+            IObservable<TFirst> firstProperty, 
+            IObservable<TSecond> secondProperty, 
+            IObservable<TThird> thirdProperty, 
             TimeSpan throttleTime, 
             Func<TContext, TFirst, TSecond, TThird, T> calculateValue)
         {
@@ -93,15 +95,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                         CompositeDisposable d = new CompositeDisposable();
                         IScheduler scheduler = Scheduler.Default;
 
-                        IDisposable scheduledTask =
-                            scheduler.ScheduleAsync(
-                                async (s, t) =>
-                                resultSubject.OnNext(
-                                    await
-                                    Task.FromResult(
-                                        calculate(firstProperty.Value, secondProperty.Value, thirdProperty.Value))));
-                        d.Add(scheduledTask);
-
                         IObservable<Tuple<TFirst, TSecond, TThird>> o = firstProperty.CombineLatest(
                             secondProperty, thirdProperty, Tuple.Create);
                         o = throttleTime > TimeSpan.Zero ? o.Throttle(throttleTime, scheduler) : o.ObserveOn(scheduler);
@@ -109,13 +102,13 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                             o.Subscribe(
                                 v =>
                                     {
-                                        using (scheduledTask)
+                                        using (this.scheduledTask)
                                         {
                                         }
 
                                         isCalculatingSubject.OnNext(true);
 
-                                        scheduledTask = scheduler.ScheduleAsync(
+                                        this.scheduledTask = scheduler.ScheduleAsync(
                                             async (s, t) =>
                                                 {
                                                     try
@@ -152,9 +145,9 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             // ReSharper restore UnusedParameter.Local
             : this(
                 (TContext)(info.GetValue("c", typeof(TContext)) ?? default(TContext)),
-                (IReadableObservableProperty<TFirst>)info.GetValue("p1", typeof(IReadableObservableProperty<TFirst>)), 
-                (IReadableObservableProperty<TSecond>)info.GetValue("p2", typeof(IReadableObservableProperty<TSecond>)), 
-                (IReadableObservableProperty<TThird>)info.GetValue("p3", typeof(IReadableObservableProperty<TThird>)), 
+                (IObservable<TFirst>)info.GetValue("p1", typeof(IObservable<TFirst>)), 
+                (IObservable<TSecond>)info.GetValue("p2", typeof(IObservable<TSecond>)), 
+                (IObservable<TThird>)info.GetValue("p3", typeof(IObservable<TThird>)), 
                 (TimeSpan)(info.GetValue("t", typeof(TimeSpan)) ?? default(TimeSpan)),
                 (Func<TContext, TFirst, TSecond, TThird, T>)info.GetValue("f", typeof(Func<TContext, TFirst, TSecond, TThird, T>)))
         {
@@ -187,9 +180,9 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             base.Dispose();
 
-            this.firstProperty.Dispose();
-            this.secondProperty.Dispose();
-            this.thirdProperty.Dispose();
+            using (this.scheduledTask)
+            {
+            }
         }
 
         [ContractInvariantMethod]

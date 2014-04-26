@@ -42,6 +42,10 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
 
         private readonly IReadOnlyProperty<IObservableCollection<Operator>> operators;
 
+        private readonly ICalculatedProperty<bool> showMultiply;
+
+        private readonly ICalculatedProperty<bool> showDivide;
+
         private readonly IObservableProperty<string> operand1;
 
         private readonly IObservableProperty<Operator> selectedOperator;
@@ -75,6 +79,14 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
                 ObservablePropertyFactory.Instance.CreateReadOnlyProperty(
                     ObservableCollectionFactory.Instance.CreateObservableCollection(
                         new[] { Operator.Add, Operator.Subtract, Operator.Multiply, Operator.Divide }));
+            this.showMultiply =
+                ObservablePropertyFactory.Instance.CreateCalculatedProperty(
+                    this.operators.MergeCollectionPropertyWithChanges(this.operators),
+                    c => c.Collection.Contains(Operator.Multiply));
+            this.showDivide =
+                ObservablePropertyFactory.Instance.CreateCalculatedProperty(
+                    this.operators.MergeCollectionPropertyWithChanges(this.operators),
+                    c => c.Collection.Contains(Operator.Divide));
             this.operand1 = ObservablePropertyFactory.Instance.CreateProperty<string>(null);
             this.selectedOperator = ObservablePropertyFactory.Instance.CreateProperty(Operator.Add);
             this.selectedOperatorString =
@@ -185,6 +197,22 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
             get
             {
                 return this.operators;
+            }
+        }
+
+        public ICalculatedProperty<bool> ShowMultiply
+        {
+            get
+            {
+                return this.showMultiply;
+            }
+        }
+
+        public ICalculatedProperty<bool> ShowDivide
+        {
+            get
+            {
+                return this.showDivide;
             }
         }
 

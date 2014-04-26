@@ -16,6 +16,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 {
     using System;
     using System.Diagnostics.Contracts;
+    using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using System.Runtime.Serialization;
     using System.Security.Permissions;
@@ -36,7 +37,12 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Contract.Ensures(this.observable != null);
 
             this.value = value;
-            this.observable = Observable.Return(value.Value);
+            this.observable = Observable.Create<T>(
+                o =>
+                    {
+                        o.OnNext(value.Value);
+                        return Disposable.Empty;
+                    });
 
             if (this.observable == null)
             {

@@ -12,5 +12,9 @@
         <ComboBox x:Name="FunctionDropDown" HorizontalAlignment="Left" Margin="84,36,0,0" VerticalAlignment="Top" Width="120"/>
         <Button x:Name="SwitchDataContextButton" Content="Switch Data Context" HorizontalAlignment="Left" Margin="79,168,0,0" VerticalAlignment="Top" Width="135"/>
         <Button x:Name="SwitchOperatorsButton" Content="Switch Operators" HorizontalAlignment="Left" Margin="79,131,0,0" VerticalAlignment="Top" Width="135"/>
+        <RadioButton x:Name="AddRadioButton" Content="RadioButton" HorizontalAlignment="Left" Margin="238,22,0,0" VerticalAlignment="Top"/>
+        <RadioButton x:Name="SubtractRadioButton" Content="RadioButton" HorizontalAlignment="Left" Margin="238,43,0,0" VerticalAlignment="Top"/>
+        <RadioButton x:Name="MultiplyRadioButton" Content="RadioButton" HorizontalAlignment="Left" Margin="359,22,0,0" VerticalAlignment="Top"/>
+        <RadioButton x:Name="DivideRadioButton" Content="RadioButton" HorizontalAlignment="Left" Margin="359,43,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

@@ -53,6 +53,17 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
             this.compositeDisposable.Add(OperatorLabel.BindContent(viewModelProperty, o => o.SelectedOperatorString.OnValueOrDefaultChanged, BindingFactory));
             this.compositeDisposable.Add(Operand2TextBox.BindText(viewModelProperty, o => o.Operand2, BindingFactory));
             this.compositeDisposable.Add(ResultLabel.BindContent(viewModelProperty, o => o.Result.OnValueOrDefaultChanged, BindingFactory));
+            this.compositeDisposable.Add(RadioButtonBindingUtility.BindGroup(
+                viewModelProperty, d => d.SelectedOperator, o => o.ToString(), BindingFactory)
+                                     .Add(AddRadioButton, d => System.Reactive.Linq.Observable.Return(Operator.Add))
+                                     .Add(SubtractRadioButton, d => System.Reactive.Linq.Observable.Return(Operator.Subtract))
+                                     .Add(MultiplyRadioButton, d => System.Reactive.Linq.Observable.Return(Operator.Multiply))
+                                     .Add(DivideRadioButton, d => System.Reactive.Linq.Observable.Return(Operator.Divide))
+                                     .Complete());
+            this.compositeDisposable.Add(
+                MultiplyRadioButton.BindVisibility(viewModelProperty, d => d.ShowMultiply.OnSuccessfulValueChanged, BindingFactory));
+            this.compositeDisposable.Add(
+                DivideRadioButton.BindVisibility(viewModelProperty, d => d.ShowDivide.OnSuccessfulValueChanged, BindingFactory));
 
             SwitchDataContextButton.Click += (sender, args) => viewModelProperty.Value = viewModelProperty.Value == viewModel ? viewModel2 : viewModel;
             SwitchOperatorsButton.Click += (sender, args) => viewModelProperty.Value.SwitchOperators();

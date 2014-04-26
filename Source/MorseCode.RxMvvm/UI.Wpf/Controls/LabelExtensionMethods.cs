@@ -42,7 +42,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The type of the data context.
         /// </typeparam>
         /// <returns>
-        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
         /// </returns>
         public static IBinding BindContent<T>(
             this Label label, 

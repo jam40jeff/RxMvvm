@@ -62,7 +62,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The type of the items.
         /// </typeparam>
         /// <returns>
-        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// An <see cref="IComboBoxItemsBindings"/> which will clean up the bindings when disposed.
         /// </returns>
         public static IComboBoxItemsBindings BindItems<T, TItem>(
             this ComboBox comboBox,
@@ -126,7 +126,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The type of the items.
         /// </typeparam>
         /// <returns>
-        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// An <see cref="IComboBoxItemsBindings"/> which will clean up the bindings when disposed.
         /// </returns>
         public static IComboBoxItemsBindings BindItemsForStruct<T, TItem>(
             this ComboBox comboBox,
@@ -195,7 +195,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The type of the items.
         /// </typeparam>
         /// <returns>
-        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// An <see cref="IComboBoxItemsBindings"/> which will clean up the bindings when disposed.
         /// </returns>
         public static IComboBoxItemsBindings BindItemsWithNoSelection<T, TItem>(
             this ComboBox comboBox,
@@ -263,7 +263,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The type of the items.
         /// </typeparam>
         /// <returns>
-        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// An <see cref="IComboBoxItemsBindings"/> which will clean up the bindings when disposed.
         /// </returns>
         public static IComboBoxItemsBindings BindItemsForStructWithNoSelection<T, TItem>(
             this ComboBox comboBox,
@@ -355,7 +355,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                 dataContext.BeginChain().Add(getItems).CompleteWithDefaultIfNotComputable();
             compositeDisposable.Add(
                 selectedItemObservable.Join(
-                    itemsObservable.MergeCollectionChangesWithProperty(itemsObservable),
+                    itemsObservable.MergeCollectionPropertyWithChanges(itemsObservable),
                     s => selectedItemObservable.Skip(1),
                     i => Observable.Empty<Unit>(),
                     Tuple.Create).ObserveOnDispatcher().Subscribe(
@@ -364,7 +364,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                             itemsChanging = true;
                             try
                             {
-                                comboBox.ItemsSource = getComboBoxItems(v.Item2);
+                                comboBox.ItemsSource = getComboBoxItems(v.Item2.Collection);
                             }
                             finally
                             {

@@ -37,8 +37,8 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <param name="dataContext">
         /// The data context.
         /// </param>
-        /// <param name="getVisibleProperty">
-        /// A delegate to get the visible property.
+        /// <param name="getVisible">
+        /// A delegate to get whether the control should be visible.
         /// </param>
         /// <param name="bindingFactory">
         /// The binding factory.
@@ -64,20 +64,20 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         public static IBinding BindVisibility<T>(
             this UIElement uiElement, 
             IObservable<T> dataContext, 
-            Func<T, IObservableProperty<bool>> getVisibleProperty, 
+            Func<T, IObservable<bool>> getVisible, 
             IBindingFactory<T> bindingFactory, 
             bool useHiddenWhenNotVisible = false) where T : class
         {
             Contract.Requires<ArgumentNullException>(uiElement != null, "uiElement");
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
-            Contract.Requires<ArgumentNullException>(getVisibleProperty != null, "getVisibleProperty");
+            Contract.Requires<ArgumentNullException>(getVisible != null, "getVisible");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
             Contract.Ensures(Contract.Result<IBinding>() != null);
 
             Visibility notVisibleVisiblity = useHiddenWhenNotVisible ? Visibility.Hidden : Visibility.Collapsed;
             return bindingFactory.CreateOneWayBinding(
                 dataContext, 
-                getVisibleProperty, 
+                getVisible, 
                 v => uiElement.Visibility = v ? Visibility.Visible : notVisibleVisiblity);
         }
 
@@ -90,8 +90,8 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// <param name="dataContext">
         /// The data context.
         /// </param>
-        /// <param name="getEnabledProperty">
-        /// A delegate to get the enabled property.
+        /// <param name="getEnabled">
+        /// A delegate to get whether the control should be enabled.
         /// </param>
         /// <param name="bindingFactory">
         /// The binding factory.
@@ -104,17 +104,17 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// </returns>
         public static IBinding BindIsEnabled<T>(
             this UIElement uiElement, 
-            IObservable<T> dataContext, 
-            Func<T, IObservableProperty<bool>> getEnabledProperty, 
+            IObservable<T> dataContext,
+            Func<T, IObservableProperty<bool>> getEnabled, 
             IBindingFactory<T> bindingFactory) where T : class
         {
             Contract.Requires<ArgumentNullException>(uiElement != null, "uiElement");
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
-            Contract.Requires<ArgumentNullException>(getEnabledProperty != null, "getVisibleProperty");
+            Contract.Requires<ArgumentNullException>(getEnabled != null, "getEnabled");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
             Contract.Ensures(Contract.Result<IBinding>() != null);
 
-            return bindingFactory.CreateOneWayBinding(dataContext, getEnabledProperty, v => uiElement.IsEnabled = v);
+            return bindingFactory.CreateOneWayBinding(dataContext, getEnabled, v => uiElement.IsEnabled = v);
         }
     }
 }

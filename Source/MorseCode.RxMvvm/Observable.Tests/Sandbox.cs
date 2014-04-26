@@ -61,22 +61,22 @@ namespace MorseCode.RxMvvm.Observable.Tests
                                                .CombineLatest(
                                                    s2.ObserveOn(computeScheduler),
                                                    (first, second) =>
-                                                   {
-                                                       Console.WriteLine(
-                                                           "Computing value " + first + " + " + second + " = "
-                                                           + (first + second) + " on Thread "
-                                                           + Thread.CurrentThread.ManagedThreadId + ".");
-                                                       computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                                                       return first + second;
-                                                   });
+                                                       {
+                                                           Console.WriteLine(
+                                                               "Computing value " + first + " + " + second + " = "
+                                                               + (first + second) + " on Thread "
+                                                               + Thread.CurrentThread.ManagedThreadId + ".");
+                                                           computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                                                           return first + second;
+                                                       });
             sumObservable.Subscribe(sum.OnNext);
             sum.ObserveOn(new EventLoopScheduler()).Subscribe(
                 v =>
-                {
-                    Console.WriteLine(
-                        "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
-                    receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                });
+                    {
+                        Console.WriteLine(
+                            "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
+                        receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                    });
             Thread.Sleep(100);
             s2.OnNext(1);
             s1.OnNext(4);
@@ -109,22 +109,22 @@ namespace MorseCode.RxMvvm.Observable.Tests
                                                .CombineLatest(
                                                    s2.ObserveOn(computeScheduler),
                                                    (first, second) =>
-                                                   {
-                                                       Console.WriteLine(
-                                                           "Computing value " + first + " + " + second + " = "
-                                                           + (first + second) + " on Thread "
-                                                           + Thread.CurrentThread.ManagedThreadId + ".");
-                                                       computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                                                       return first + second;
-                                                   });
+                                                       {
+                                                           Console.WriteLine(
+                                                               "Computing value " + first + " + " + second + " = "
+                                                               + (first + second) + " on Thread "
+                                                               + Thread.CurrentThread.ManagedThreadId + ".");
+                                                           computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                                                           return first + second;
+                                                       });
             sumObservable.Throttle(TimeSpan.FromMilliseconds(100), new EventLoopScheduler()).Subscribe(sum.OnNext);
             sum.ObserveOn(new EventLoopScheduler()).Subscribe(
                 v =>
-                {
-                    Console.WriteLine(
-                        "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
-                    receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                });
+                    {
+                        Console.WriteLine(
+                            "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
+                        receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                    });
             Thread.Sleep(150);
             s2.OnNext(1);
             Thread.Sleep(50);
@@ -162,21 +162,21 @@ namespace MorseCode.RxMvvm.Observable.Tests
                   .CombineLatest(
                       s2.Throttle(TimeSpan.FromMilliseconds(100), computeScheduler).ObserveOn(computeScheduler),
                       (first, second) =>
-                      {
-                          Console.WriteLine(
-                              "Computing value " + first + " + " + second + " = " + (first + second) + " on Thread "
-                              + Thread.CurrentThread.ManagedThreadId + ".");
-                          computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                          return first + second;
-                      });
+                          {
+                              Console.WriteLine(
+                                  "Computing value " + first + " + " + second + " = " + (first + second) + " on Thread "
+                                  + Thread.CurrentThread.ManagedThreadId + ".");
+                              computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                              return first + second;
+                          });
             sumObservable.Subscribe(sum.OnNext);
             sum.ObserveOn(new EventLoopScheduler()).Subscribe(
                 v =>
-                {
-                    Console.WriteLine(
-                        "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
-                    receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                });
+                    {
+                        Console.WriteLine(
+                            "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
+                        receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                    });
             Thread.Sleep(150);
             s2.OnNext(1);
             Thread.Sleep(50);
@@ -214,22 +214,22 @@ namespace MorseCode.RxMvvm.Observable.Tests
                   .Throttle(TimeSpan.FromMilliseconds(100), new NewThreadScheduler())
                   .Select(
                       v =>
-                      {
-                          Console.WriteLine(
-                              "Computing value " + v.Item1 + " + " + v.Item2 + " = " + (v.Item1 + v.Item2)
-                              + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
-                          computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                          return v.Item1 + v.Item2;
-                      });
+                          {
+                              Console.WriteLine(
+                                  "Computing value " + v.Item1 + " + " + v.Item2 + " = " + (v.Item1 + v.Item2)
+                                  + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
+                              computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                              return v.Item1 + v.Item2;
+                          });
 
             sumObservable.Subscribe(sum.OnNext);
             sum.ObserveOn(new EventLoopScheduler()).Subscribe(
                 v =>
-                {
-                    Console.WriteLine(
-                        "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
-                    receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                });
+                    {
+                        Console.WriteLine(
+                            "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
+                        receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                    });
             Thread.Sleep(150);
             s2.OnNext(1);
             Thread.Sleep(50);
@@ -270,32 +270,32 @@ namespace MorseCode.RxMvvm.Observable.Tests
             IDisposable sumObservableSubscription = null;
             using (sumObservable.Subscribe(
                 v =>
-                {
-                    if (sumObservableSubscription != null)
                     {
-                        Console.WriteLine("Canceling previous.");
-                        sumObservableSubscription.Dispose();
-                    }
-                    sumObservableSubscription = Observable.Create<int>(
-                        o =>
+                        if (sumObservableSubscription != null)
                         {
-                            Thread.Sleep(200);
-                            Console.WriteLine(
-                                "Computing value " + v.Item1 + " + " + v.Item2 + " = " + (v.Item1 + v.Item2)
-                                + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
-                            computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                            o.OnNext(v.Item1 + v.Item2);
-                            o.OnCompleted();
-                            return Disposable.Empty;
-                        }).SubscribeOn(getComputeScheduler()).ObserveOn(receiveScheduler).Subscribe(
-                                v2 =>
+                            Console.WriteLine("Canceling previous.");
+                            sumObservableSubscription.Dispose();
+                        }
+                        sumObservableSubscription = Observable.Create<int>(
+                            o =>
                                 {
+                                    Thread.Sleep(200);
                                     Console.WriteLine(
-                                        "Received value " + v2 + " on Thread "
-                                        + Thread.CurrentThread.ManagedThreadId + ".");
-                                    receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                                });
-                }))
+                                        "Computing value " + v.Item1 + " + " + v.Item2 + " = " + (v.Item1 + v.Item2)
+                                        + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
+                                    computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                                    o.OnNext(v.Item1 + v.Item2);
+                                    o.OnCompleted();
+                                    return Disposable.Empty;
+                                }).SubscribeOn(getComputeScheduler()).ObserveOn(receiveScheduler).Subscribe(
+                                    v2 =>
+                                        {
+                                            Console.WriteLine(
+                                                "Received value " + v2 + " on Thread "
+                                                + Thread.CurrentThread.ManagedThreadId + ".");
+                                            receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                                        });
+                    }))
             {
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
@@ -343,55 +343,55 @@ namespace MorseCode.RxMvvm.Observable.Tests
                                                .Throttle(TimeSpan.FromMilliseconds(100), switchScheduler)
                                                .Select(
                                                    v =>
-                                                   {
-                                                       Console.WriteLine(
-                                                           "Not yet switching computing value " + v.Item1 + " + "
-                                                           + v.Item2 + " = " + (v.Item1 + v.Item2) + " from Thread "
-                                                           + Thread.CurrentThread.ManagedThreadId + ".");
-                                                       return v;
-                                                   }).Select(
+                                                       {
+                                                           Console.WriteLine(
+                                                               "Not yet switching computing value " + v.Item1 + " + "
+                                                               + v.Item2 + " = " + (v.Item1 + v.Item2) + " from Thread "
+                                                               + Thread.CurrentThread.ManagedThreadId + ".");
+                                                           return v;
+                                                       }).Select(
                                                            v =>
-                                                           {
-                                                               Console.WriteLine(
-                                                                   "Switching computing value " + v.Item1 + " + "
-                                                                   + v.Item2 + " = " + (v.Item1 + v.Item2)
-                                                                   + " from Thread "
-                                                                   + Thread.CurrentThread.ManagedThreadId + ".");
-                                                               return v;
-                                                           }).ObserveOn(computeScheduler).Select(
+                                                               {
+                                                                   Console.WriteLine(
+                                                                       "Switching computing value " + v.Item1 + " + "
+                                                                       + v.Item2 + " = " + (v.Item1 + v.Item2)
+                                                                       + " from Thread "
+                                                                       + Thread.CurrentThread.ManagedThreadId + ".");
+                                                                   return v;
+                                                               }).ObserveOn(computeScheduler).Select(
                                                                    v =>
-                                                                   {
-                                                                       Console.WriteLine(
-                                                                           "Already switched computing value "
-                                                                           + v.Item1 + " + " + v.Item2 + " = "
-                                                                           + (v.Item1 + v.Item2) + " to Thread "
-                                                                           + Thread.CurrentThread.ManagedThreadId
-                                                                           + ".");
-                                                                       return v;
-                                                                   }).Select(
+                                                                       {
+                                                                           Console.WriteLine(
+                                                                               "Already switched computing value "
+                                                                               + v.Item1 + " + " + v.Item2 + " = "
+                                                                               + (v.Item1 + v.Item2) + " to Thread "
+                                                                               + Thread.CurrentThread.ManagedThreadId
+                                                                               + ".");
+                                                                           return v;
+                                                                       }).Select(
                                                                            v =>
-                                                                           {
-                                                                               Console.WriteLine(
-                                                                                   "Computing value " + v.Item1
-                                                                                   + " + " + v.Item2 + " = "
-                                                                                   + (v.Item1 + v.Item2)
-                                                                                   + " on Thread "
-                                                                                   + Thread.CurrentThread
-                                                                                           .ManagedThreadId + ".");
-                                                                               computeThreads.Add(
-                                                                                   Thread.CurrentThread
-                                                                                         .ManagedThreadId);
-                                                                               return v.Item1 + v.Item2;
-                                                                           });
+                                                                               {
+                                                                                   Console.WriteLine(
+                                                                                       "Computing value " + v.Item1
+                                                                                       + " + " + v.Item2 + " = "
+                                                                                       + (v.Item1 + v.Item2)
+                                                                                       + " on Thread "
+                                                                                       + Thread.CurrentThread
+                                                                                               .ManagedThreadId + ".");
+                                                                                   computeThreads.Add(
+                                                                                       Thread.CurrentThread
+                                                                                             .ManagedThreadId);
+                                                                                   return v.Item1 + v.Item2;
+                                                                               });
 
             sumObservable.Subscribe(sum.OnNext);
             sum.ObserveOn(new EventLoopScheduler()).Subscribe(
                 v =>
-                {
-                    Console.WriteLine(
-                        "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
-                    receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                });
+                    {
+                        Console.WriteLine(
+                            "Received value " + v + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
+                        receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                    });
             Thread.Sleep(150);
             s2.OnNext(1);
             Thread.Sleep(50);
@@ -418,25 +418,25 @@ namespace MorseCode.RxMvvm.Observable.Tests
         {
             IObservable<int> observable = Observable.Create<int>(
                 o =>
-                {
-                    Thread.Sleep(1000);
-                    Console.WriteLine("Sending synchronous value.");
-                    o.OnNext(3);
-                    o.OnCompleted();
-                    return Disposable.Empty;
-                });
+                    {
+                        Thread.Sleep(1000);
+                        Console.WriteLine("Sending synchronous value.");
+                        o.OnNext(3);
+                        o.OnCompleted();
+                        return Disposable.Empty;
+                    });
             IObservable<int> observableAsync = Observable.Create<int>(
                 (o, token) => Task.Factory.StartNew(
                     () =>
-                    {
-                        Thread.Sleep(1000);
-                        if (!token.IsCancellationRequested)
                         {
-                            Console.WriteLine("Sending asynchronous value.");
-                            o.OnNext(5);
-                        }
-                        o.OnCompleted();
-                    }));
+                            Thread.Sleep(1000);
+                            if (!token.IsCancellationRequested)
+                            {
+                                Console.WriteLine("Sending asynchronous value.");
+                                o.OnNext(5);
+                            }
+                            o.OnCompleted();
+                        }));
 
             Console.WriteLine("Observing synchronous.");
             IDisposable syncSubscription = observable.Subscribe(Console.WriteLine);
@@ -470,37 +470,37 @@ namespace MorseCode.RxMvvm.Observable.Tests
             IDisposable sumObservableSubscription = null;
             using (sumObservable.Subscribe(
                 v =>
-                {
-                    if (sumObservableSubscription != null)
                     {
-                        Console.WriteLine("Canceling previous.");
-                        sumObservableSubscription.Dispose();
-                    }
-                    sumObservableSubscription = Observable.Create<int>(
-                        (o, token) => Task.Factory.StartNew(
-                            () =>
-                            {
-                                Thread.Sleep(200);
-                                if (!token.IsCancellationRequested)
-                                {
-                                    Console.WriteLine(
-                                        "Computing value " + v.Item1 + " + " + v.Item2 + " = "
-                                        + (v.Item1 + v.Item2) + " on Thread "
-                                        + Thread.CurrentThread.ManagedThreadId + ".");
-                                    computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                                    o.OnNext(v.Item1 + v.Item2);
-                                }
-                                o.OnCompleted();
-                                return Disposable.Empty;
-                            })).ObserveOn(receiveScheduler).Subscribe(
-                                    v2 =>
+                        if (sumObservableSubscription != null)
+                        {
+                            Console.WriteLine("Canceling previous.");
+                            sumObservableSubscription.Dispose();
+                        }
+                        sumObservableSubscription = Observable.Create<int>(
+                            (o, token) => Task.Factory.StartNew(
+                                () =>
                                     {
-                                        Console.WriteLine(
-                                            "Received value " + v2 + " on Thread "
-                                            + Thread.CurrentThread.ManagedThreadId + ".");
-                                        receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                                    });
-                }))
+                                        Thread.Sleep(200);
+                                        if (!token.IsCancellationRequested)
+                                        {
+                                            Console.WriteLine(
+                                                "Computing value " + v.Item1 + " + " + v.Item2 + " = "
+                                                + (v.Item1 + v.Item2) + " on Thread "
+                                                + Thread.CurrentThread.ManagedThreadId + ".");
+                                            computeThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                                            o.OnNext(v.Item1 + v.Item2);
+                                        }
+                                        o.OnCompleted();
+                                        return Disposable.Empty;
+                                    })).ObserveOn(receiveScheduler).Subscribe(
+                                        v2 =>
+                                            {
+                                                Console.WriteLine(
+                                                    "Received value " + v2 + " on Thread "
+                                                    + Thread.CurrentThread.ManagedThreadId + ".");
+                                                receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                                            });
+                    }))
             {
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
@@ -560,35 +560,35 @@ namespace MorseCode.RxMvvm.Observable.Tests
             BehaviorSubject<int> sum = new BehaviorSubject<int>(0);
             IDisposable scheduledTask = computeScheduler.ScheduleAsync(
                 async (scheduler, token) =>
-                {
-                    await scheduler.Yield();
-                    sum.OnNext(await calculate(new CalculatedPropertyHelper(scheduler, token), s1.Value, s2.Value));
-                });
+                    {
+                        await scheduler.Yield();
+                        sum.OnNext(await calculate(new CalculatedPropertyHelper(scheduler, token), s1.Value, s2.Value));
+                    });
             using (sumObservable.Subscribe(
                 v =>
-                {
-                    if (scheduledTask != null)
                     {
-                        Console.WriteLine("Canceling previous.");
-                        scheduledTask.Dispose();
-                    }
-                    scheduledTask = computeScheduler.ScheduleAsync(
-                        async (scheduler, token) =>
+                        if (scheduledTask != null)
                         {
-                            await scheduler.Yield();
-                            sum.OnNext(
-                                await
-                                calculate(new CalculatedPropertyHelper(scheduler, token), v.Item1, v.Item2));
-                        });
-                }))
+                            Console.WriteLine("Canceling previous.");
+                            scheduledTask.Dispose();
+                        }
+                        scheduledTask = computeScheduler.ScheduleAsync(
+                            async (scheduler, token) =>
+                                {
+                                    await scheduler.Yield();
+                                    sum.OnNext(
+                                        await
+                                        calculate(new CalculatedPropertyHelper(scheduler, token), v.Item1, v.Item2));
+                                });
+                    }))
             {
                 using (sum.ObserveOn(receiveScheduler).Subscribe(
                     v2 =>
-                    {
-                        Console.WriteLine(
-                            "Received value " + v2 + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
-                        receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
-                    }))
+                        {
+                            Console.WriteLine(
+                                "Received value " + v2 + " on Thread " + Thread.CurrentThread.ManagedThreadId + ".");
+                            receiveThreads.Add(Thread.CurrentThread.ManagedThreadId);
+                        }))
                 {
                     Stopwatch stopwatch = new Stopwatch();
                     stopwatch.Start();
@@ -625,14 +625,14 @@ namespace MorseCode.RxMvvm.Observable.Tests
         {
             RunScheduleAsync(
                 () =>
-                {
-                    Console.WriteLine("Originally running on thread: " + Thread.CurrentThread.ManagedThreadId);
-                    Thread.Sleep(500);
-                    Console.WriteLine("Running on thread: " + Thread.CurrentThread.ManagedThreadId);
-                    Thread.Sleep(500);
-                    Console.WriteLine("Still running on thread: " + Thread.CurrentThread.ManagedThreadId);
-                    return 5;
-                });
+                    {
+                        Console.WriteLine("Originally running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                        Thread.Sleep(500);
+                        Console.WriteLine("Running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                        Thread.Sleep(500);
+                        Console.WriteLine("Still running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                        return 5;
+                    });
         }
 
         [TestMethod]
@@ -640,16 +640,16 @@ namespace MorseCode.RxMvvm.Observable.Tests
         {
             RunScheduleAsync(
                 async checkCancellationToken =>
-                {
-                    Console.WriteLine("Originally running on thread: " + Thread.CurrentThread.ManagedThreadId);
-                    Thread.Sleep(500);
-                    await checkCancellationToken();
-                    Console.WriteLine("Running on thread: " + Thread.CurrentThread.ManagedThreadId);
-                    Thread.Sleep(500);
-                    await checkCancellationToken();
-                    Console.WriteLine("Still running on thread: " + Thread.CurrentThread.ManagedThreadId);
-                    return 5;
-                });
+                    {
+                        Console.WriteLine("Originally running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                        Thread.Sleep(500);
+                        await checkCancellationToken();
+                        Console.WriteLine("Running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                        Thread.Sleep(500);
+                        await checkCancellationToken();
+                        Console.WriteLine("Still running on thread: " + Thread.CurrentThread.ManagedThreadId);
+                        return 5;
+                    });
         }
 
         private void RunScheduleAsync(Func<int> calculate)
@@ -662,20 +662,20 @@ namespace MorseCode.RxMvvm.Observable.Tests
             Console.WriteLine("Running on thread: " + Thread.CurrentThread.ManagedThreadId);
             IObservable<int> observable = Observable.Create<int>(
                 o =>
-                {
-                    IDisposable d = new NewThreadScheduler().ScheduleAsync(
-                        async (scheduler, token) =>
-                        {
-                            o.OnNext(await calculate(scheduler.Yield));
-                            o.OnCompleted();
-                        });
-                    return Disposable.Create(
-                        () =>
-                        {
-                            d.Dispose();
-                            Console.WriteLine("Disposed!");
-                        });
-                });
+                    {
+                        IDisposable d = new NewThreadScheduler().ScheduleAsync(
+                            async (scheduler, token) =>
+                                {
+                                    o.OnNext(await calculate(scheduler.Yield));
+                                    o.OnCompleted();
+                                });
+                        return Disposable.Create(
+                            () =>
+                                {
+                                    d.Dispose();
+                                    Console.WriteLine("Disposed!");
+                                });
+                    });
             Console.WriteLine("Subscribing.");
             CompositeDisposable s = new CompositeDisposable();
             for (int i = 0; i < 12; i++)
@@ -702,47 +702,47 @@ namespace MorseCode.RxMvvm.Observable.Tests
             RunTwoScheduleAsync(
                 start,
                 async helper =>
-                {
-                    Console.WriteLine(
-                        GetElapsedTimeString(start) + ": Originally running 1 on thread: "
-                        + Thread.CurrentThread.ManagedThreadId);
+                    {
+                        Console.WriteLine(
+                            GetElapsedTimeString(start) + ": Originally running 1 on thread: "
+                            + Thread.CurrentThread.ManagedThreadId);
 
-                    //await Task.Delay(500, cancellationToken);
-                    //await scheduler.Sleep(TimeSpan.FromSeconds(0.5), cancellationToken);
-                    Thread.Sleep(500);
-                    helper.CheckCancellationToken();
-                    Console.WriteLine(GetElapsedTimeString(start) + ": Checking token.");
+                        //await Task.Delay(500, cancellationToken);
+                        //await scheduler.Sleep(TimeSpan.FromSeconds(0.5), cancellationToken);
+                        Thread.Sleep(500);
+                        helper.CheckCancellationToken();
+                        Console.WriteLine(GetElapsedTimeString(start) + ": Checking token.");
 
-                    Console.WriteLine(
-                        GetElapsedTimeString(start) + ": Running 1 on thread: "
-                        + Thread.CurrentThread.ManagedThreadId);
+                        Console.WriteLine(
+                            GetElapsedTimeString(start) + ": Running 1 on thread: "
+                            + Thread.CurrentThread.ManagedThreadId);
 
-                    //await Task.Delay(500, cancellationToken);
-                    //await scheduler.Sleep(TimeSpan.FromSeconds(0.5), cancellationToken);
-                    Thread.Sleep(500);
-                    helper.CheckCancellationToken();
-                    Console.WriteLine(GetElapsedTimeString(start) + ": Checking token.");
+                        //await Task.Delay(500, cancellationToken);
+                        //await scheduler.Sleep(TimeSpan.FromSeconds(0.5), cancellationToken);
+                        Thread.Sleep(500);
+                        helper.CheckCancellationToken();
+                        Console.WriteLine(GetElapsedTimeString(start) + ": Checking token.");
 
-                    Console.WriteLine(
-                        GetElapsedTimeString(start) + ": Still running 1 on thread: "
-                        + Thread.CurrentThread.ManagedThreadId);
-                    return await Task.FromResult(5);
-                },
+                        Console.WriteLine(
+                            GetElapsedTimeString(start) + ": Still running 1 on thread: "
+                            + Thread.CurrentThread.ManagedThreadId);
+                        return await Task.FromResult(5);
+                    },
                 () =>
-                {
-                    Console.WriteLine(
-                        GetElapsedTimeString(start) + ": Originally running 2 on thread: "
-                        + Thread.CurrentThread.ManagedThreadId);
-                    Thread.Sleep(500);
-                    Console.WriteLine(
-                        GetElapsedTimeString(start) + ": Running 2 on thread: "
-                        + Thread.CurrentThread.ManagedThreadId);
-                    Thread.Sleep(500);
-                    Console.WriteLine(
-                        GetElapsedTimeString(start) + ": Still running 2 on thread: "
-                        + Thread.CurrentThread.ManagedThreadId);
-                    return 5;
-                });
+                    {
+                        Console.WriteLine(
+                            GetElapsedTimeString(start) + ": Originally running 2 on thread: "
+                            + Thread.CurrentThread.ManagedThreadId);
+                        Thread.Sleep(500);
+                        Console.WriteLine(
+                            GetElapsedTimeString(start) + ": Running 2 on thread: "
+                            + Thread.CurrentThread.ManagedThreadId);
+                        Thread.Sleep(500);
+                        Console.WriteLine(
+                            GetElapsedTimeString(start) + ": Still running 2 on thread: "
+                            + Thread.CurrentThread.ManagedThreadId);
+                        return 5;
+                    });
         }
 
         private class CalculatedPropertyHelper
@@ -795,37 +795,37 @@ namespace MorseCode.RxMvvm.Observable.Tests
                 GetElapsedTimeString(start) + ": Running on thread: " + Thread.CurrentThread.ManagedThreadId);
             IObservable<int> observable1 = Observable.Create<int>(
                 o =>
-                {
-                    IDisposable d = eventLoopScheduler.ScheduleAsync(
-                        async (scheduler, token) =>
-                        {
-                            await scheduler.Yield();
-                            o.OnNext(await calculate1(new CalculatedPropertyHelper(scheduler, token)));
-                            o.OnCompleted();
-                        });
-                    return Disposable.Create(
-                        () =>
-                        {
-                            d.Dispose();
-                            Console.WriteLine(GetElapsedTimeString(start) + ": Disposed!");
-                        });
-                });
+                    {
+                        IDisposable d = eventLoopScheduler.ScheduleAsync(
+                            async (scheduler, token) =>
+                                {
+                                    await scheduler.Yield();
+                                    o.OnNext(await calculate1(new CalculatedPropertyHelper(scheduler, token)));
+                                    o.OnCompleted();
+                                });
+                        return Disposable.Create(
+                            () =>
+                                {
+                                    d.Dispose();
+                                    Console.WriteLine(GetElapsedTimeString(start) + ": Disposed!");
+                                });
+                    });
             IObservable<int> observable2 = Observable.Create<int>(
                 o =>
-                {
-                    IDisposable d = eventLoopScheduler.ScheduleAsync(
-                        async (scheduler, token) =>
-                        {
-                            o.OnNext(await Task.FromResult(calculate2()));
-                            o.OnCompleted();
-                        });
-                    return Disposable.Create(
-                        () =>
-                        {
-                            d.Dispose();
-                            Console.WriteLine(GetElapsedTimeString(start) + ": Disposed!");
-                        });
-                });
+                    {
+                        IDisposable d = eventLoopScheduler.ScheduleAsync(
+                            async (scheduler, token) =>
+                                {
+                                    o.OnNext(await Task.FromResult(calculate2()));
+                                    o.OnCompleted();
+                                });
+                        return Disposable.Create(
+                            () =>
+                                {
+                                    d.Dispose();
+                                    Console.WriteLine(GetElapsedTimeString(start) + ": Disposed!");
+                                });
+                    });
             Console.WriteLine(GetElapsedTimeString(start) + ": Subscribing.");
             CompositeDisposable s = new CompositeDisposable();
             for (int i = 0; i < 8; i++)
@@ -1295,10 +1295,14 @@ namespace MorseCode.RxMvvm.Observable.Tests
         [TestMethod]
         public void Switch()
         {
-            IConnectableObservable<string> o1 = Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "a" + v).Publish();
-            IConnectableObservable<string> o2 = Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "b" + v).Publish();
-            IConnectableObservable<string> o3 = Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "c" + v).Publish();
-            IConnectableObservable<string> o4 = Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "d" + v).Publish();
+            IConnectableObservable<string> o1 =
+                Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "a" + v).Publish();
+            IConnectableObservable<string> o2 =
+                Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "b" + v).Publish();
+            IConnectableObservable<string> o3 =
+                Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "c" + v).Publish();
+            IConnectableObservable<string> o4 =
+                Observable.Interval(TimeSpan.FromSeconds(1)).Select(v => "d" + v).Publish();
 
             IObservable<long> o = Observable.Interval(TimeSpan.FromSeconds(1.7500012312));
 
@@ -1307,22 +1311,23 @@ namespace MorseCode.RxMvvm.Observable.Tests
             o3.Connect();
             o4.Connect();
 
-            IObservable<string> observable = o.Select(v =>
-                {
-                    switch (v % 4)
+            IObservable<string> observable = o.Select(
+                v =>
                     {
-                        case 0:
-                            return o1;
-                        case 1:
-                            return o2;
-                        case 2:
-                            return o3;
-                        case 3:
-                            return o4;
-                        default:
-                            throw new InvalidOperationException();
-                    }
-                }).Switch();
+                        switch (v % 4)
+                        {
+                            case 0:
+                                return o1;
+                            case 1:
+                                return o2;
+                            case 2:
+                                return o3;
+                            case 3:
+                                return o4;
+                            default:
+                                throw new InvalidOperationException();
+                        }
+                    }).Switch();
 
             observable.Subscribe(Console.WriteLine);
 
@@ -1337,17 +1342,18 @@ namespace MorseCode.RxMvvm.Observable.Tests
             employee.FirstName.Value = "John";
             employee.LastName.Value = "Davis";
 
-            IReadOnlyProperty<Employee> employeeProperty = ObservablePropertyFactory.Instance.CreateReadOnlyProperty(employee);
+            IReadOnlyProperty<Employee> employeeProperty =
+                ObservablePropertyFactory.Instance.CreateReadOnlyProperty(employee);
 
-            IObservable<string> firstNameObservable = employeeProperty.BeginChain().Add(e => e.FirstName).CompleteWithDefaultIfNotComputable();
+            IObservable<string> firstNameObservable =
+                employeeProperty.BeginChain().Add(e => e.FirstName).CompleteWithDefaultIfNotComputable();
             firstNameObservable.Subscribe(Console.WriteLine);
-            IObservable<string> lastNameObservable = employeeProperty.BeginChain().Add(e => e.LastName).CompleteWithDefaultIfNotComputable();
+            IObservable<string> lastNameObservable =
+                employeeProperty.BeginChain().Add(e => e.LastName).CompleteWithDefaultIfNotComputable();
             lastNameObservable.Subscribe(Console.WriteLine);
             firstNameObservable.Join(
-                lastNameObservable,
-                s => firstNameObservable.Skip(1),
-                i => Observable.Empty<Unit>(),
-                Tuple.Create).Subscribe(Console.WriteLine);
+                lastNameObservable, s => firstNameObservable.Skip(1), i => Observable.Empty<Unit>(), Tuple.Create)
+                               .Subscribe(Console.WriteLine);
 
             employee.FirstName.Value = "Fred";
             employee.LastName.Value = "Smith";
@@ -1385,18 +1391,231 @@ namespace MorseCode.RxMvvm.Observable.Tests
                 ObservableCollectionFactory.Instance.CreateObservableCollection(
                     new List<Employee> { employee3, employee4 });
 
-            IObservableProperty<IObservableCollection<Employee>> employeesProperty = ObservablePropertyFactory.Instance.CreateProperty(employees);
+            IObservableProperty<IObservableCollection<Employee>> employeesProperty =
+                ObservablePropertyFactory.Instance.CreateProperty(employees);
 
-            employeesProperty.StartWith(new IObservableCollection<Employee>[] { null }).Buffer(2, 1).Subscribe(v =>
-                {
-                    string previousFirstEmployeeId = v[0] == null ? null : v[0][0].Id.Value;
-                    string firstEmployeeId = v[1] == null ? null : v[1][0].Id.Value;
-                    Console.WriteLine("Previous: " + previousFirstEmployeeId + ", Current: " + firstEmployeeId);
-                });
+            employeesProperty.StartWith(new IObservableCollection<Employee>[] { null }).Buffer(2, 1).Subscribe(
+                v =>
+                    {
+                        string previousFirstEmployeeId = v[0] == null ? null : v[0][0].Id.Value;
+                        string firstEmployeeId = v[1] == null ? null : v[1][0].Id.Value;
+                        Console.WriteLine("Previous: " + previousFirstEmployeeId + ", Current: " + firstEmployeeId);
+                    });
 
             employeesProperty.Value = employees2;
             employeesProperty.Value = null;
             employeesProperty.Value = employees;
+        }
+
+        [TestMethod]
+        public void MergeCollectionPropertyWithChanges()
+        {
+            Employee employee1 = new Employee();
+            employee1.Id.Value = "1";
+            employee1.FirstName.Value = "First";
+            employee1.LastName.Value = "Employee";
+            Employee employee2 = new Employee();
+            employee2.Id.Value = "2";
+            employee2.FirstName.Value = "Second";
+            employee2.LastName.Value = "Employee";
+            Employee employee3 = new Employee();
+            employee3.Id.Value = "3";
+            employee3.FirstName.Value = "Third";
+            employee3.LastName.Value = "Employee";
+            Employee employee4 = new Employee();
+            employee4.Id.Value = "4";
+            employee4.FirstName.Value = "Fourth";
+            employee4.LastName.Value = "Employee";
+
+            IObservableCollection<Employee> employees =
+                ObservableCollectionFactory.Instance.CreateObservableCollection(
+                    new List<Employee> { employee1, employee2 });
+
+            IObservableCollection<Employee> employees2 =
+                ObservableCollectionFactory.Instance.CreateObservableCollection(
+                    new List<Employee> { employee3, employee4 });
+
+            IObservableProperty<IObservableCollection<Employee>> employeesProperty =
+                ObservablePropertyFactory.Instance.CreateProperty(employees);
+
+            employeesProperty.MergeCollectionPropertyWithChanges(employeesProperty)
+                             .Subscribe(
+                                 v =>
+                                 Console.WriteLine(
+                                     "New IDs: "
+                                     + string.Join(",", v.CollectionChanged.NewItems.Select(e => e.Id.Value))
+                                     + ", Old IDs: "
+                                     + string.Join(",", v.CollectionChanged.OldItems.Select(e => e.Id.Value))
+                                     + ", Collection: "
+                                     + string.Join(
+                                         ",",
+                                         ((IEnumerable<Employee>)v.Collection ?? new Employee[0]).Select(
+                                             e => e.Id.Value))));
+
+            employeesProperty.Value = employees2;
+            employees2.Add(employee2);
+            employeesProperty.Value = null;
+            employees.Add(employee3);
+            employeesProperty.Value = employees;
+            employees.Remove(employee3);
+        }
+
+        [TestMethod]
+        public void MergeCollectionPropertyWithChanges2()
+        {
+            Employee employee1 = new Employee();
+            employee1.Id.Value = "1";
+            employee1.FirstName.Value = "First";
+            employee1.LastName.Value = "Employee";
+            Employee employee2 = new Employee();
+            employee2.Id.Value = "2";
+            employee2.FirstName.Value = "Second";
+            employee2.LastName.Value = "Employee";
+            Employee employee3 = new Employee();
+            employee3.Id.Value = "3";
+            employee3.FirstName.Value = "Third";
+            employee3.LastName.Value = "Employee";
+            Employee employee4 = new Employee();
+            employee4.Id.Value = "4";
+            employee4.FirstName.Value = "Fourth";
+            employee4.LastName.Value = "Employee";
+
+            IObservableCollection<Employee> employees =
+                ObservableCollectionFactory.Instance.CreateObservableCollection(
+                    new List<Employee> { employee1, employee2 });
+
+            IObservableCollection<Employee> employees2 =
+                ObservableCollectionFactory.Instance.CreateObservableCollection(
+                    new List<Employee> { employee3, employee4 });
+
+            IObservableProperty<IObservableCollection<Employee>> employeesProperty =
+                ObservablePropertyFactory.Instance.CreateProperty(employees);
+
+            employeesProperty.MergeCollectionPropertyWithChanges(employeesProperty)
+                             .Subscribe(
+                                 v =>
+                                 Console.WriteLine(
+                                     "New IDs: "
+                                     + string.Join(",", v.CollectionChanged.NewItems.Select(e => e.Id.Value))
+                                     + ", Old IDs: "
+                                     + string.Join(",", v.CollectionChanged.OldItems.Select(e => e.Id.Value))
+                                     + ", Collection: "
+                                     + string.Join(
+                                         ",",
+                                         ((IEnumerable<Employee>)v.Collection ?? new Employee[0]).Select(
+                                             e => e.Id.Value))));
+
+            employees.Add(employee3);
+            employees.Remove(employee3);
+        }
+
+        [TestMethod]
+        public void MergeCollectionPropertyWithChangesWithReadOnlyProperty()
+        {
+            Employee employee1 = new Employee();
+            employee1.Id.Value = "1";
+            employee1.FirstName.Value = "First";
+            employee1.LastName.Value = "Employee";
+            Employee employee2 = new Employee();
+            employee2.Id.Value = "2";
+            employee2.FirstName.Value = "Second";
+            employee2.LastName.Value = "Employee";
+            Employee employee3 = new Employee();
+            employee3.Id.Value = "3";
+            employee3.FirstName.Value = "Third";
+            employee3.LastName.Value = "Employee";
+            Employee employee4 = new Employee();
+            employee4.Id.Value = "4";
+            employee4.FirstName.Value = "Fourth";
+            employee4.LastName.Value = "Employee";
+
+            IObservableCollection<Employee> employees =
+                ObservableCollectionFactory.Instance.CreateObservableCollection(
+                    new List<Employee> { employee1, employee2 });
+
+            IObservableCollection<Employee> employees2 =
+                ObservableCollectionFactory.Instance.CreateObservableCollection(
+                    new List<Employee> { employee3, employee4 });
+
+            IReadOnlyProperty<IObservableCollection<Employee>> employeesProperty =
+                ObservablePropertyFactory.Instance.CreateReadOnlyProperty(employees);
+
+            employeesProperty.MergeCollectionPropertyWithChanges(employeesProperty)
+                             .Subscribe(
+                                 v =>
+                                 Console.WriteLine(
+                                     "New IDs: "
+                                     + string.Join(",", v.CollectionChanged.NewItems.Select(e => e.Id.Value))
+                                     + ", Old IDs: "
+                                     + string.Join(",", v.CollectionChanged.OldItems.Select(e => e.Id.Value))
+                                     + ", Collection: "
+                                     + string.Join(
+                                         ",",
+                                         ((IEnumerable<Employee>)v.Collection ?? new Employee[0]).Select(
+                                             e => e.Id.Value))));
+
+            employees.Add(employee3);
+            employees.Remove(employee3);
+        }
+
+        [TestMethod]
+        public void ReadOnlyProperty()
+        {
+            IReadOnlyProperty<string> a = ObservablePropertyFactory.Instance.CreateReadOnlyProperty("a");
+            IReadOnlyProperty<string> b = ObservablePropertyFactory.Instance.CreateReadOnlyProperty("b");
+            IReadOnlyProperty<string> c = ObservablePropertyFactory.Instance.CreateReadOnlyProperty("c");
+            IReadOnlyProperty<string> d = ObservablePropertyFactory.Instance.CreateReadOnlyProperty("d");
+
+            a.Subscribe(Console.WriteLine);
+            b.Subscribe(Console.WriteLine);
+            c.Subscribe(Console.WriteLine);
+            d.Subscribe(Console.WriteLine);
+            d.Subscribe(Console.WriteLine);
+            d.Subscribe(Console.WriteLine);
+            d.Subscribe(Console.WriteLine);
+        }
+
+        [TestMethod]
+        public void SwitchWithCompletedInnerSequences()
+        {
+            IObservable<int?> innerObservable1 = Observable.Return((int?)1);
+            IObservable<int?> innerObservable2 = Observable.Return((int?)2);
+            IObservable<int?> innerObservable3 = Observable.Return((int?)3);
+            IObservable<int?> innerObservable4 = Observable.Return((int?)4);
+            IObservable<int?> innerObservable5 = Observable.Return((int?)5);
+
+            IObservable<IObservable<int?>> outerObservable1 = Observable.Create<IObservable<int?>>(
+                o =>
+                    {
+                        o.OnNext(innerObservable1);
+                        o.OnNext(innerObservable2);
+                        o.OnNext(null);
+                        o.OnNext(innerObservable3);
+                        o.OnCompleted();
+                        return Disposable.Empty;
+                    });
+
+            IObservable<IObservable<int?>> outerObservable2 = Observable.Create<IObservable<int?>>(
+                o =>
+                    {
+                        o.OnNext(innerObservable4);
+                        o.OnNext(null);
+                        o.OnNext(innerObservable5);
+                        o.OnCompleted();
+                        return Disposable.Empty;
+                    });
+
+            IObservableProperty<IObservable<IObservable<int?>>> outerObservableProperty =
+                ObservablePropertyFactory.Instance.CreateProperty(outerObservable1);
+
+            outerObservableProperty.Select(o => o ?? Observable.Return<IObservable<int?>>(null))
+                                   .Switch()
+                                   .Select(o => o ?? Observable.Return<int?>(null))
+                                   .Switch()
+                                   .Subscribe(v => Console.WriteLine(v == null ? "(NULL)" : v.ToString()));
+
+            outerObservableProperty.Value = null;
+            outerObservableProperty.Value = outerObservable2;
         }
 
         private class Company

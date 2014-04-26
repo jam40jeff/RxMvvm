@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Observable.Collection
 {
     using System;
+    using System.Reactive;
     using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common.StaticReflection;
@@ -26,30 +27,6 @@ namespace MorseCode.RxMvvm.Observable.Collection
     {
         /// <summary>
         /// Merges an observable of an observable collection with the observable collection itself by creating a collection changed notification when the entire collection changes.
-        /// </summary>
-        /// <param name="observableCollectionObservable">
-        /// The observable collection observable.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the items in the observable collection.
-        /// </typeparam>
-        /// <returns>
-        /// An observable which is the result of an observable of an observable collection merged with the observable collection itself by creating a collection changed notification when the entire collection changes.
-        /// </returns>
-        public static IObservable<IObservableCollectionChanged<T>> MergeCollectionPropertyWithChanges<T>(
-            this IObservable<IReadableObservableCollection<T>> observableCollectionObservable)
-        {
-            return
-                observableCollectionObservable.StartWith(new IReadableObservableCollection<T>[] { null })
-                                              .Buffer(2, 1)
-                                              .Select(
-                                                  collections =>
-                                                  new ObservableCollectionChanged<T>(collections[0], collections[1]))
-                                              .Merge(observableCollectionObservable.Switch());
-        }
-
-        /// <summary>
-        /// Merges an observable of an observable collection with the observable collection itself by returning the observable collection itself when the items in the collection change.
         /// </summary>
         /// <param name="observableCollectionObservable">
         /// The observable collection observable.
@@ -66,8 +43,9 @@ namespace MorseCode.RxMvvm.Observable.Collection
         /// <returns>
         /// An observable which is the result of an observable of an observable collection merged with the observable collection itself by creating a collection changed notification when the entire collection changes.
         /// </returns>
-        public static IObservable<TCollection> MergeCollectionChangesWithProperty<TCollection, T>(
-            this IObservable<TCollection> observableCollectionObservable, IObservable<IReadableObservableCollection<T>> observableCollectionObservableForTypeInference)
+        public static IObservable<IMergedCollectionChanged<TCollection, T>> MergeCollectionPropertyWithChanges<TCollection, T>(
+            this IObservable<TCollection> observableCollectionObservable,
+            IObservable<IReadableObservableCollection<T>> observableCollectionObservableForTypeInference)
             where TCollection : class, IReadableObservableCollection<T>
         {
             if (!ReferenceEquals(observableCollectionObservable, observableCollectionObservableForTypeInference))
@@ -79,7 +57,22 @@ namespace MorseCode.RxMvvm.Observable.Collection
                     + " must refer to the same object.");
             }
 
-            return observableCollectionObservable.CombineLatest(observableCollectionObservable.Switch().StartWith(new IObservableCollectionChanged<T>[] { null }), (c, _) => c);
+            return
+                observableCollectionObservable.StartWith(new TCollection[] { null })
+                                              .Buffer(2, 1)
+                                              .Select(
+                                                  collections =>
+                                                  new MergedCollectionChanged<TCollection, T>(
+                                                      collections.Count < 2 ? collections[0] : collections[1],
+                                                      new ObservableCollectionChanged<T>(
+                                                      collections.Count < 2 ? null : collections[0],
+                                                      collections.Count < 2 ? collections[0] : collections[1])))
+                                              .Merge(
+                                                  observableCollectionObservable.Join(
+                                                      observableCollectionObservable.Where(c => c != null).Switch(),
+                                                      c => c == null ? Observable.Empty<TCollection>() : observableCollectionObservable.Skip(1),
+                                                      n => Observable.Empty<Unit>(),
+                                                      (c, n) => new MergedCollectionChanged<TCollection, T>(c, n)));
         }
     }
 }

@@ -29,19 +29,19 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
     {
         private readonly TContext context;
 
-        private readonly IReadableObservableProperty<TFirst> firstProperty;
+        private readonly IObservable<TFirst> firstProperty;
 
-        private readonly IReadableObservableProperty<TSecond> secondProperty;
+        private readonly IObservable<TSecond> secondProperty;
 
-        private readonly IReadableObservableProperty<TThird> thirdProperty;
+        private readonly IObservable<TThird> thirdProperty;
 
         private readonly Func<TContext, TFirst, TSecond, TThird, T> calculateValue;
 
         internal CalculatedPropertyWithContext(
             TContext context, 
-            IReadableObservableProperty<TFirst> firstProperty, 
-            IReadableObservableProperty<TSecond> secondProperty, 
-            IReadableObservableProperty<TThird> thirdProperty, 
+            IObservable<TFirst> firstProperty, 
+            IObservable<TSecond> secondProperty, 
+            IObservable<TThird> thirdProperty, 
             Func<TContext, TFirst, TSecond, TThird, T> calculateValue)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
@@ -82,8 +82,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             this.SetHelper(new CalculatedPropertyHelper(
                 (resultSubject, isCalculatingSubject) =>
                     {
-                        resultSubject.OnNext(calculate(firstProperty.Value, secondProperty.Value, thirdProperty.Value));
-
                         IObservable<Tuple<TFirst, TSecond, TThird>> o = firstProperty.CombineLatest(
                             secondProperty, thirdProperty, Tuple.Create);
                         return o.Subscribe(
@@ -120,9 +118,9 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             // ReSharper restore UnusedParameter.Local
             : this(
                 (TContext)(info.GetValue("c", typeof(TContext)) ?? default(TContext)), 
-                (IReadableObservableProperty<TFirst>)info.GetValue("p1", typeof(IReadableObservableProperty<TFirst>)), 
-                (IReadableObservableProperty<TSecond>)info.GetValue("p2", typeof(IReadableObservableProperty<TSecond>)), 
-                (IReadableObservableProperty<TThird>)info.GetValue("p3", typeof(IReadableObservableProperty<TThird>)), 
+                (IObservable<TFirst>)info.GetValue("p1", typeof(IObservable<TFirst>)), 
+                (IObservable<TSecond>)info.GetValue("p2", typeof(IObservable<TSecond>)), 
+                (IObservable<TThird>)info.GetValue("p3", typeof(IObservable<TThird>)), 
                 (Func<TContext, TFirst, TSecond, TThird, T>)info.GetValue("f", typeof(Func<TContext, TFirst, TSecond, TThird, T>)))
         {
         }
@@ -144,18 +142,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             info.AddValue("p2", this.secondProperty);
             info.AddValue("p3", this.thirdProperty);
             info.AddValue("f", this.calculateValue);
-        }
-
-        /// <summary>
-        /// Disposes of the property.
-        /// </summary>
-        protected override void Dispose()
-        {
-            base.Dispose();
-
-            this.firstProperty.Dispose();
-            this.secondProperty.Dispose();
-            this.thirdProperty.Dispose();
         }
 
         [ContractInvariantMethod]
