@@ -17,7 +17,6 @@ namespace MorseCode.RxMvvm.Reactive
     using System;
     using System.Diagnostics.Contracts;
 
-    using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
 
     /// <summary>

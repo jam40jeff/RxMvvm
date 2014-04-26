@@ -14,6 +14,11 @@
 
 namespace MorseCode.RxMvvm.Common.DiscriminatedUnion
 {
+    using System;
+    using System.Diagnostics.Contracts;
+
+    using MorseCode.RxMvvm.Common.StaticReflection;
+
     /// <summary>
     /// Discriminated union extension methods.
     /// </summary>
@@ -41,11 +46,11 @@ namespace MorseCode.RxMvvm.Common.DiscriminatedUnion
         /// The new instance of a discriminated union.
         /// </returns>
         public static IDiscriminatedUnion<TCommon, T1, T2> CreateFirst<TCommon, T1, T2>(
-            this IDiscriminatedUnion<TCommon, T1, T2> o, T1 value)
-            where T1 : TCommon
-            where T2 : TCommon
+            this IDiscriminatedUnion<TCommon, T1, T2> o, T1 value) where T1 : TCommon where T2 : TCommon
             where TCommon : class
         {
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TCommon, T1, T2>>() != null);
+
             return DiscriminatedUnion.First<TCommon, T1, T2>(value);
         }
 
@@ -71,11 +76,11 @@ namespace MorseCode.RxMvvm.Common.DiscriminatedUnion
         /// The new instance of a discriminated union.
         /// </returns>
         public static IDiscriminatedUnion<TCommon, T1, T2> CreateSecond<TCommon, T1, T2>(
-            this IDiscriminatedUnion<TCommon, T1, T2> o, T2 value)
-            where T1 : TCommon
-            where T2 : TCommon
+            this IDiscriminatedUnion<TCommon, T1, T2> o, T2 value) where T1 : TCommon where T2 : TCommon
             where TCommon : class
         {
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TCommon, T1, T2>>() != null);
+
             return DiscriminatedUnion.Second<TCommon, T1, T2>(value);
         }
     }

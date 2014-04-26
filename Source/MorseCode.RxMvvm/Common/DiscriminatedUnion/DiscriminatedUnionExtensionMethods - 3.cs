@@ -14,6 +14,11 @@
 
 namespace MorseCode.RxMvvm.Common.DiscriminatedUnion
 {
+    using System;
+    using System.Diagnostics.Contracts;
+
+    using MorseCode.RxMvvm.Common.StaticReflection;
+
     /// <summary>
     /// Discriminated union extension methods.
     /// </summary>
@@ -50,6 +55,8 @@ namespace MorseCode.RxMvvm.Common.DiscriminatedUnion
             where T3 : TCommon
             where TCommon : class
         {
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TCommon, T1, T2, T3>>() != null);
+
             return DiscriminatedUnion.First<TCommon, T1, T2, T3>(value);
         }
 
@@ -84,6 +91,8 @@ namespace MorseCode.RxMvvm.Common.DiscriminatedUnion
             where T3 : TCommon
             where TCommon : class
         {
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TCommon, T1, T2, T3>>() != null);
+
             return DiscriminatedUnion.Second<TCommon, T1, T2, T3>(value);
         }
 
@@ -118,6 +127,8 @@ namespace MorseCode.RxMvvm.Common.DiscriminatedUnion
             where T3 : TCommon
             where TCommon : class
         {
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<TCommon, T1, T2, T3>>() != null);
+
             return DiscriminatedUnion.Third<TCommon, T1, T2, T3>(value);
         }
     }
