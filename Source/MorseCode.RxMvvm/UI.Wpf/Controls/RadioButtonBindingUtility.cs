@@ -248,7 +248,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                                     }
                                 }));
 
-                IObservable<IDiscriminatedUnion<object, Tuple<TItem, IObservableProperty<TItem>>, NonComputable>> itemAndSelectedItemPropertyObservable =
+                IObservable<IDiscriminatedUnion<object, Tuple<TItem, IObservableProperty<TItem>>, NonComputable>> itemAndSelectedItemPropertyObservableForJoin =
                         this.dataContext.Select(
                             d =>
                             d == null
@@ -259,10 +259,10 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                                 : getItem(d)
                                       .CombineLatest(
                                           this.getSelectedItemProperty(d), (i, s) => i.CombineWith(s, Tuple.Create)))
-                            .Switch();
+                            .Switch().Publish().RefCount();
 
                 binding.Add(
-                    itemAndSelectedItemPropertyObservable.Join(
+                    itemAndSelectedItemPropertyObservableForJoin.Join(
                         Observable.FromEventPattern<RoutedEventHandler, RoutedEventArgs>(
                             h => (sender, args) =>
                                 {
@@ -273,9 +273,9 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                                 }, 
                             h => radioButton.Checked += h, 
                             h => radioButton.Checked -= h), 
-                        u => itemAndSelectedItemPropertyObservable.Skip(1), 
+                        u => itemAndSelectedItemPropertyObservableForJoin, 
                         e => Observable.Empty<Unit>(), 
-                        (u, e) => u).Subscribe(
+                        (u, e) => u).ObserveOnDispatcher().Subscribe(
                             u => u.Switch(
                                 t =>
                                     {

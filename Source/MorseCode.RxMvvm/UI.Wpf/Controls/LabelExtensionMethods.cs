@@ -16,7 +16,11 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
 {
     using System;
     using System.Diagnostics.Contracts;
+    using System.Reactive.Linq;
     using System.Windows.Controls;
+
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
+    using MorseCode.RxMvvm.Observable;
 
     /// <summary>
     /// Provides label extension methods for binding.
@@ -45,9 +49,9 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
         /// </returns>
         public static IBinding BindContent<T>(
-            this Label label, 
-            IObservable<T> dataContext, 
-            Func<T, IObservable<string>> getTextObservable, 
+            this Label label,
+            IObservable<T> dataContext,
+            Func<T, IObservable<string>> getTextObservable,
             IBindingFactory<T> bindingFactory) where T : class
         {
             Contract.Requires<ArgumentNullException>(label != null, "label");
@@ -56,7 +60,46 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
             Contract.Ensures(Contract.Result<IBinding>() != null);
 
-            return bindingFactory.CreateOneWayBinding(dataContext, getTextObservable, v => label.Content = v);
+            return label.BindContent(
+                dataContext,
+                d => getTextObservable(d).Select(DiscriminatedUnion.First<object, string, NonComputable>),
+                bindingFactory);
+        }
+
+        /// <summary>
+        /// Binds the <see cref="Label.Content"/> property of a <see cref="Label"/>.
+        /// </summary>
+        /// <param name="label">
+        /// The label.
+        /// </param>
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getTextObservable">
+        /// A delegate to get the text.
+        /// </param>
+        /// <param name="bindingFactory">
+        /// The binding factory.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of the data context.
+        /// </typeparam>
+        /// <returns>
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
+        /// </returns>
+        public static IBinding BindContent<T>(
+            this Label label,
+            IObservable<T> dataContext,
+            Func<T, IObservable<IDiscriminatedUnion<object, string, NonComputable>>> getTextObservable,
+            IBindingFactory<T> bindingFactory) where T : class
+        {
+            Contract.Requires<ArgumentNullException>(label != null, "label");
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getTextObservable != null, "getTextProperty");
+            Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
+
+            return bindingFactory.CreateChainedOneWayBinding(dataContext, getTextObservable, v => label.Content = v);
         }
     }
 }

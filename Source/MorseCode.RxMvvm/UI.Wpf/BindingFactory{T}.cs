@@ -18,6 +18,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
     using System.Reactive;
     using System.Reactive.Linq;
 
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Property;
@@ -54,19 +55,24 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Func<T, IObservable<TProperty>> getDataContextValue, 
             Action<TProperty> setControlValue)
         {
-            Binding binding = new Binding();
-            IObservable<TProperty> viewModelObservable =
-                dataContext.BeginChain().Add(getDataContextValue).CompleteWithDefaultIfNotComputable();
-            IDisposable subscriptionDisposable = viewModelObservable.ObserveOnDispatcher().Subscribe(setControlValue);
-            if (subscriptionDisposable == null)
-            {
-                throw new InvalidOperationException(
-                    "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
-                    + " cannot be null.");
-            }
+            return
+                CreateOneWayBinding(
+                    dataContext.BeginChain().Add(getDataContextValue).CompleteWithDefaultIfNotComputable(), 
+                    setControlValue);
+        }
 
-            binding.Add(subscriptionDisposable);
-            return binding;
+        IBinding IBindingFactory<T>.CreateChainedOneWayBinding<TProperty>(
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, TProperty, NonComputable>>> getDataContextValue, 
+            Action<TProperty> setControlValue)
+        {
+            return
+                CreateOneWayBinding(
+                    dataContext.BeginChain()
+                               .Add(getDataContextValue)
+                               .Complete()
+                               .Select(u => u.Flatten().Switch(v => v, _ => default(TProperty))), 
+                    setControlValue);
         }
 
         IBinding IBindingFactory<T>.CreateOneWayToSourceBinding<TProperty>(
@@ -75,30 +81,23 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Func<IBinding, IObservable<object>> createUiObservable, 
             Func<TProperty> getControlValue)
         {
-            Binding binding = new Binding();
-            IObservable<object> uiObservable = createUiObservable(binding);
-            IDisposable subscriptionDisposable =
-                dataContext.Select(v => v == null ? null : getDataContextProperty(v))
-                           .Select(v => uiObservable.Select(e => v))
-                           .Switch()
-                           .ObserveOnDispatcher()
-                           .Subscribe(
-                               p =>
-                                   {
-                                       if (p != null)
-                                       {
-                                           p.Value = getControlValue();
-                                       }
-                                   });
-            if (subscriptionDisposable == null)
-            {
-                throw new InvalidOperationException(
-                    "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
-                    + " cannot be null.");
-            }
+            return CreateOneWayToSourceBinding(
+                dataContext, 
+                d =>
+                Observable.Return(
+                    DiscriminatedUnion.First<object, IWritableObservableProperty<TProperty>, NonComputable>(
+                        getDataContextProperty(d))), 
+                createUiObservable, 
+                getControlValue);
+        }
 
-            binding.Add(subscriptionDisposable);
-            return binding;
+        IBinding IBindingFactory<T>.CreateChainedOneWayToSourceBinding<TProperty>(
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, IWritableObservableProperty<TProperty>, NonComputable>>> getDataContextProperty, 
+            Func<IBinding, IObservable<object>> createUiObservable, 
+            Func<TProperty> getControlValue)
+        {
+            return CreateOneWayToSourceBinding(dataContext, getDataContextProperty, createUiObservable, getControlValue);
         }
 
         IBinding IBindingFactory<T>.CreateTwoWayBinding<TProperty>(
@@ -108,46 +107,166 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Action<TProperty> setControlValue, 
             Func<TProperty> getControlValue)
         {
+            return CreateTwoWayBinding(
+                dataContext, 
+                d =>
+                Observable.Return(
+                    DiscriminatedUnion.First<object, IObservableProperty<TProperty>, NonComputable>(
+                        getDataContextProperty(d))), 
+                createUiObservable, 
+                setControlValue, 
+                getControlValue);
+        }
+
+        IBinding IBindingFactory<T>.CreateChainedTwoWayBinding<TProperty>(
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, IObservableProperty<TProperty>, NonComputable>>> getDataContextProperty, 
+            Func<IBinding, IObservable<object>> createUiObservable, 
+            Action<TProperty> setControlValue, 
+            Func<TProperty> getControlValue)
+        {
+            return CreateTwoWayBinding(
+                dataContext, getDataContextProperty, createUiObservable, setControlValue, getControlValue);
+        }
+
+        IBinding IBindingFactory<T>.CreateActionBinding(
+            IObservable<T> dataContext, 
+            Func<T, Action> getDataContextAction, 
+            Func<IBinding, IObservable<object>> createUiObservable)
+        {
+            return this.CreateActionBinding(
+                dataContext, 
+                d => Observable.Return(DiscriminatedUnion.First<object, Action, NonComputable>(getDataContextAction(d))), 
+                createUiObservable);
+        }
+
+        IBinding IBindingFactory<T>.CreateActionBinding(
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, Action, NonComputable>>> getDataContextAction, 
+            Func<IBinding, IObservable<object>> createUiObservable)
+        {
+            return this.CreateActionBinding(dataContext, getDataContextAction, createUiObservable);
+        }
+
+        private IBinding CreateOneWayBinding<TProperty>(
+            IObservable<TProperty> dataContextValueObservable, Action<TProperty> setControlValue)
+        {
+            Binding binding = new Binding();
+            IDisposable subscriptionDisposable =
+                dataContextValueObservable.ObserveOnDispatcher().Subscribe(setControlValue);
+            if (subscriptionDisposable == null)
             {
-                Binding binding = new Binding();
-                IObservable<TProperty> viewModelObservable =
-                    dataContext.BeginChain().Add(getDataContextProperty).CompleteWithDefaultIfNotComputable();
-                IDisposable subscriptionDisposable1 =
-                    viewModelObservable.ObserveOnDispatcher().Subscribe(setControlValue);
-                if (subscriptionDisposable1 == null)
-                {
-                    throw new InvalidOperationException(
-                        "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
-                        + " cannot be null.");
-                }
-
-                binding.Add(subscriptionDisposable1);
-                IObservable<object> uiObservable = createUiObservable(binding);
-                IObservable<IObservableProperty<TProperty>> propertyObservable =
-                    dataContext.Select(d => d == null ? null : getDataContextProperty(d));
-                IDisposable subscriptionDisposable2 =
-                    propertyObservable.Join(
-                        uiObservable, p => propertyObservable.Skip(1), e => Observable.Empty<Unit>(), (p, e) => p)
-                                      .ObserveOnDispatcher()
-                                      .Subscribe(
-                                          p =>
-                                              {
-                                                  if (p != null)
-                                                  {
-                                                      p.Value = getControlValue();
-                                                  }
-                                              });
-                if (subscriptionDisposable2 == null)
-                {
-                    throw new InvalidOperationException(
-                        "Result of "
-                        + StaticReflection<IObservable<IObservableProperty<TProperty>>>.GetMethodInfo(
-                            o => o.Subscribe()).Name + " cannot be null.");
-                }
-
-                binding.Add(subscriptionDisposable2);
-                return binding;
+                throw new InvalidOperationException(
+                    "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
+                    + " cannot be null.");
             }
+
+            binding.Add(subscriptionDisposable);
+            return binding;
+        }
+
+        private IBinding CreateOneWayToSourceBinding<TProperty>(
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, IWritableObservableProperty<TProperty>, NonComputable>>> getDataContextProperty, 
+            Func<IBinding, IObservable<object>> createUiObservable, 
+            Func<TProperty> getControlValue)
+        {
+            Binding binding = new Binding();
+            IObservable<object> uiObservable = createUiObservable(binding);
+            IObservable<IDiscriminatedUnion<object, IWritableObservableProperty<TProperty>, NonComputable>> dataContextPropertyObservableForJoin =
+                    dataContext.BeginChain()
+                               .Add(getDataContextProperty)
+                               .Complete()
+                               .Select(u => u.Flatten())
+                               .Publish()
+                               .RefCount();
+            IDisposable subscriptionDisposable =
+                dataContextPropertyObservableForJoin.Join(
+                    uiObservable, u => dataContextPropertyObservableForJoin, e => Observable.Empty<Unit>(), (u, e) => u)
+                                                    .ObserveOnDispatcher()
+                                                    .Subscribe(
+                                                        u => u.Switch(p => p.Value = getControlValue(), _ => { }));
+            if (subscriptionDisposable == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
+                    + " cannot be null.");
+            }
+
+            binding.Add(subscriptionDisposable);
+            return binding;
+        }
+
+        private IBinding CreateTwoWayBinding<TProperty>(
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, IObservableProperty<TProperty>, NonComputable>>> getDataContextProperty, 
+            Func<IBinding, IObservable<object>> createUiObservable, 
+            Action<TProperty> setControlValue, 
+            Func<TProperty> getControlValue)
+        {
+            Binding binding = new Binding();
+            IObservable<object> uiObservable = createUiObservable(binding);
+            IObservable<IDiscriminatedUnion<object, IObservableProperty<TProperty>, NonComputable>> dataContextPropertyObservable =
+                    dataContext.BeginChain().Add(getDataContextProperty).Complete().Select(u => u.Flatten());
+
+            IDisposable subscriptionDisposable1 =
+                dataContextPropertyObservable.ObserveOnDispatcher()
+                                             .Subscribe(
+                                                 u => setControlValue(u.Switch(p => p.Value, _ => default(TProperty))));
+            if (subscriptionDisposable1 == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
+                    + " cannot be null.");
+            }
+
+            IObservable<IDiscriminatedUnion<object, IObservableProperty<TProperty>, NonComputable>> dataContextPropertyObservableForJoin = dataContextPropertyObservable.Publish().RefCount();
+            IDisposable subscriptionDisposable2 =
+                dataContextPropertyObservableForJoin.Join(
+                    uiObservable, u => dataContextPropertyObservableForJoin, e => Observable.Empty<Unit>(), (u, e) => u)
+                                                    .ObserveOnDispatcher()
+                                                    .Subscribe(
+                                                        u => u.Switch(p => p.Value = getControlValue(), _ => { }));
+            if (subscriptionDisposable2 == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of " + StaticReflection<IObservable<TProperty>>.GetMethodInfo(o => o.Subscribe()).Name
+                    + " cannot be null.");
+            }
+
+            binding.Add(subscriptionDisposable2);
+            return binding;
+        }
+
+        private IBinding CreateActionBinding(
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, Action, NonComputable>>> getDataContextProperty, 
+            Func<IBinding, IObservable<object>> createUiObservable)
+        {
+            Binding binding = new Binding();
+            IObservable<object> uiObservable = createUiObservable(binding);
+            IObservable<IDiscriminatedUnion<object, Action, NonComputable>> dataContextActionObservableForJoin =
+                dataContext.BeginChain()
+                           .Add(getDataContextProperty)
+                           .Complete()
+                           .Select(u => u.Flatten())
+                           .Publish()
+                           .RefCount();
+            IDisposable subscriptionDisposable =
+                dataContextActionObservableForJoin.Join(
+                    uiObservable, u => dataContextActionObservableForJoin, e => Observable.Empty<Unit>(), (u, e) => u)
+                                                  .ObserveOnDispatcher()
+                                                  .Subscribe(u => u.Switch(a => a(), _ => { }));
+            if (subscriptionDisposable == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<IObservable<IDiscriminatedUnion<object, Action, NonComputable>>>.GetMethodInfo(
+                        o => o.Subscribe()).Name + " cannot be null.");
+            }
+
+            binding.Add(subscriptionDisposable);
+            return binding;
         }
     }
 }

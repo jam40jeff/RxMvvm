@@ -16,6 +16,7 @@ namespace MorseCode.RxMvvm.Reactive
 {
     using System;
     using System.Diagnostics.Contracts;
+    using System.Reactive.Linq;
 
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Common.StaticReflection;
@@ -26,10 +27,10 @@ namespace MorseCode.RxMvvm.Reactive
     public static partial class ObservableExtensionMethods
     {
         /// <summary>
-        /// Flattens a nested discriminated union to produce a single discriminated union.
+        /// Flattens a nested observable discriminated union to produce a single observable discriminated union.
         /// </summary>
         /// <param name="o">
-        /// The discriminated union instance to flatten.
+        /// The observable discriminated union instance to flatten.
         /// </param>
         /// <typeparam name="T1">
         /// The first type of the discriminated union.
@@ -38,36 +39,35 @@ namespace MorseCode.RxMvvm.Reactive
         /// The second type of the discriminated union.
         /// </typeparam>
         /// <returns>
-        /// The flattened discriminated union.
+        /// The flattened observable discriminated union.
         /// </returns>
-        public static IDiscriminatedUnion<object, T1, T2> Flatten<T1, T2>(
-            this IDiscriminatedUnion<object, IDiscriminatedUnion<object, T1, T2>, T2> o)
+        public static IObservable<IDiscriminatedUnion<object, T1, T2>> Flatten<T1, T2>(
+            this IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, T1, T2>>, T2>> o)
         {
             Contract.Requires<ArgumentNullException>(o != null, "o");
-            Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T1, T2>>() != null);
+            Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T1, T2>>>() != null);
 
-            IDiscriminatedUnion<object, T1, T2> observable =
-                o.Switch(
-                    o2 =>
-                    o2.Switch(
-                        v => DiscriminatedUnion.First<object, T1, T2>(v), DiscriminatedUnion.Second<object, T1, T2>),
-                    DiscriminatedUnion.Second<object, T1, T2>);
+            IObservable<IDiscriminatedUnion<object, T1, T2>> observable =
+                o.Select(o2 => o2.Switch(v => v, v => Observable.Return(DiscriminatedUnion.Second<object, T1, T2>(v))))
+                 .Switch();
             if (observable == null)
             {
                 throw new InvalidOperationException(
                     "Result of "
-                    + StaticReflection<IDiscriminatedUnion<object, IDiscriminatedUnion<object, T1, T2>, T2>>
-                          .GetMethodInfo(o2 => o2.Switch(null, null)).Name + " cannot be null.");
+                    + StaticReflection<IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, T1, T2>>, T2>>>.GetMethodInfo(
+                              o2 =>
+                              o2.Select(
+                                  (Func<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, T1, T2>>, T2>, IDiscriminatedUnion<object, T1, T2>>)null)).Name + " cannot be null.");
             }
 
             return observable;
         }
 
         /// <summary>
-        /// Flattens a nested discriminated union to produce a single discriminated union.
+        /// Flattens a nested observable discriminated union to produce a single observable discriminated union.
         /// </summary>
         /// <param name="o">
-        /// The discriminated union instance to flatten.
+        /// The observable discriminated union instance to flatten.
         /// </param>
         /// <typeparam name="T1">
         /// The first type of the discriminated union.
@@ -76,24 +76,99 @@ namespace MorseCode.RxMvvm.Reactive
         /// The second type of the discriminated union.
         /// </typeparam>
         /// <returns>
-        /// The flattened discriminated union.
+        /// The flattened observable discriminated union.
         /// </returns>
-        public static IDiscriminatedUnion<object, T1, T2> Flatten<T1, T2>(
-            this IDiscriminatedUnion<object, T1, IDiscriminatedUnion<object, T1, T2>> o)
+        public static IObservable<IDiscriminatedUnion<object, T1, T2>> Flatten<T1, T2>(
+            this IObservable<IDiscriminatedUnion<object, T1, IObservable<IDiscriminatedUnion<object, T1, T2>>>> o)
         {
             Contract.Requires<ArgumentNullException>(o != null, "o");
-            Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T1, T2>>() != null);
+            Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T1, T2>>>() != null);
 
-            IDiscriminatedUnion<object, T1, T2> observable = o.Switch(
-                DiscriminatedUnion.First<object, T1, T2>,
-                o2 =>
-                o2.Switch(v => DiscriminatedUnion.First<object, T1, T2>(v), DiscriminatedUnion.Second<object, T1, T2>));
+            IObservable<IDiscriminatedUnion<object, T1, T2>> observable =
+                o.Select(o2 => o2.Switch(v => Observable.Return(DiscriminatedUnion.First<object, T1, T2>(v)), v => v))
+                 .Switch();
             if (observable == null)
             {
                 throw new InvalidOperationException(
                     "Result of "
-                    + StaticReflection<IDiscriminatedUnion<object, T1, IDiscriminatedUnion<object, T1, T2>>>
-                          .GetMethodInfo(o2 => o2.Switch(null, null)).Name + " cannot be null.");
+                    + StaticReflection<IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, T1, T2>>, T2>>>.GetMethodInfo(
+                              o2 =>
+                              o2.Select(
+                                  (Func<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, T1, T2>>, T2>, IDiscriminatedUnion<object, T1, T2>>)null)).Name + " cannot be null.");
+            }
+
+            return observable;
+        }
+
+        /// <summary>
+        /// Flattens a nested observable discriminated union to produce a single observable discriminated union.
+        /// </summary>
+        /// <param name="o">
+        /// The observable discriminated union instance to flatten.
+        /// </param>
+        /// <typeparam name="T1">
+        /// The first type of the discriminated union.
+        /// </typeparam>
+        /// <typeparam name="T2">
+        /// The second type of the discriminated union.
+        /// </typeparam>
+        /// <returns>
+        /// The flattened observable discriminated union.
+        /// </returns>
+        public static IObservable<IDiscriminatedUnion<object, T1, T2>> Flatten<T1, T2>(
+            this IObservable<IDiscriminatedUnion<object, IObservable<T1>, T2>> o)
+        {
+            Contract.Requires<ArgumentNullException>(o != null, "o");
+            Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T1, T2>>>() != null);
+
+            IObservable<IDiscriminatedUnion<object, T1, T2>> observable =
+                o.Select(o2 => o2.Switch(v => v.Select(DiscriminatedUnion.First<object, T1, T2>), v => Observable.Return(DiscriminatedUnion.Second<object, T1, T2>(v))))
+                 .Switch();
+            if (observable == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, T1, T2>>, T2>>>.GetMethodInfo(
+                              o2 =>
+                              o2.Select(
+                                  (Func<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, T1, T2>>, T2>, IDiscriminatedUnion<object, T1, T2>>)null)).Name + " cannot be null.");
+            }
+
+            return observable;
+        }
+
+        /// <summary>
+        /// Flattens a nested observable discriminated union to produce a single observable discriminated union.
+        /// </summary>
+        /// <param name="o">
+        /// The observable discriminated union instance to flatten.
+        /// </param>
+        /// <typeparam name="T1">
+        /// The first type of the discriminated union.
+        /// </typeparam>
+        /// <typeparam name="T2">
+        /// The second type of the discriminated union.
+        /// </typeparam>
+        /// <returns>
+        /// The flattened observable discriminated union.
+        /// </returns>
+        public static IObservable<IDiscriminatedUnion<object, T1, T2>> Flatten<T1, T2>(
+            this IObservable<IDiscriminatedUnion<object, T1, IObservable<T2>>> o)
+        {
+            Contract.Requires<ArgumentNullException>(o != null, "o");
+            Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T1, T2>>>() != null);
+
+            IObservable<IDiscriminatedUnion<object, T1, T2>> observable =
+                o.Select(o2 => o2.Switch(v => Observable.Return(DiscriminatedUnion.First<object, T1, T2>(v)), v => v.Select(DiscriminatedUnion.Second<object, T1, T2>)))
+                 .Switch();
+            if (observable == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, T1, T2>>, T2>>>.GetMethodInfo(
+                              o2 =>
+                              o2.Select(
+                                  (Func<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, T1, T2>>, T2>, IDiscriminatedUnion<object, T1, T2>>)null)).Name + " cannot be null.");
             }
 
             return observable;

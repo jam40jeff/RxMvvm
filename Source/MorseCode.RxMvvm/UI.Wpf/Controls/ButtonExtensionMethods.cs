@@ -17,28 +17,28 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
     using System;
     using System.Diagnostics.Contracts;
     using System.Reactive.Linq;
-    using System.Windows.Controls;
+    using System.Windows;
+    using System.Windows.Controls.Primitives;
 
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Observable;
-    using MorseCode.RxMvvm.Observable.Property;
 
     /// <summary>
-    /// Provides text box extension methods for binding.
+    /// Provides button extension methods for binding.
     /// </summary>
-    public static class TextBoxExtensionMethods
+    public static class ButtonExtensionMethods
     {
         /// <summary>
-        /// Binds the <see cref="TextBox.Text"/> property of a <see cref="TextBox"/>.
+        /// Binds the <see cref="UIElement.Visibility"/> property of a <see cref="UIElement"/>.
         /// </summary>
-        /// <param name="textBox">
-        /// The text box.
+        /// <param name="button">
+        /// The button.
         /// </param>
         /// <param name="dataContext">
         /// The data context.
         /// </param>
-        /// <param name="getTextProperty">
-        /// A delegate to get the text property.
+        /// <param name="getClickAction">
+        /// A delegate to get the click action.
         /// </param>
         /// <param name="bindingFactory">
         /// The binding factory.
@@ -47,39 +47,37 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The type of the data context.
         /// </typeparam>
         /// <returns>
-        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
+        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
         /// </returns>
-        public static IBinding BindText<T>(
-            this TextBox textBox,
-            IObservable<T> dataContext,
-            Func<T, IObservableProperty<string>> getTextProperty,
+        public static IBinding BindClick<T>(
+            this ButtonBase button, 
+            IObservable<T> dataContext, 
+            Func<T, Action> getClickAction, 
             IBindingFactory<T> bindingFactory) where T : class
         {
-            Contract.Requires<ArgumentNullException>(textBox != null, "textBox");
+            Contract.Requires<ArgumentNullException>(button != null, "button");
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
-            Contract.Requires<ArgumentNullException>(getTextProperty != null, "getTextProperty");
+            Contract.Requires<ArgumentNullException>(getClickAction != null, "getClickAction");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
             Contract.Ensures(Contract.Result<IBinding>() != null);
 
-            return textBox.BindText(
-                dataContext,
-                d =>
-                Observable.Return(
-                    DiscriminatedUnion.First<object, IObservableProperty<string>, NonComputable>(getTextProperty(d))),
+            return button.BindClick(
+                dataContext, 
+                d => Observable.Return(DiscriminatedUnion.First<object, Action, NonComputable>(getClickAction(d))), 
                 bindingFactory);
         }
 
         /// <summary>
-        /// Binds the <see cref="TextBox.Text"/> property of a <see cref="TextBox"/>.
+        /// Binds the <see cref="UIElement.Visibility"/> property of a <see cref="UIElement"/>.
         /// </summary>
-        /// <param name="textBox">
-        /// The text box.
+        /// <param name="button">
+        /// The button.
         /// </param>
         /// <param name="dataContext">
         /// The data context.
         /// </param>
-        /// <param name="getTextProperty">
-        /// A delegate to get the text property.
+        /// <param name="getClickAction">
+        /// A delegate to get the click action.
         /// </param>
         /// <param name="bindingFactory">
         /// The binding factory.
@@ -88,36 +86,33 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         /// The type of the data context.
         /// </typeparam>
         /// <returns>
-        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
+        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
         /// </returns>
-        public static IBinding BindText<T>(
-            this TextBox textBox,
-            IObservable<T> dataContext,
-            Func<T, IObservable<IDiscriminatedUnion<object, IObservableProperty<string>, NonComputable>>> getTextProperty,
+        public static IBinding BindClick<T>(
+            this ButtonBase button, 
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, Action, NonComputable>>> getClickAction, 
             IBindingFactory<T> bindingFactory) where T : class
         {
-            Contract.Requires<ArgumentNullException>(textBox != null, "textBox");
+            Contract.Requires<ArgumentNullException>(button != null, "button");
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
-            Contract.Requires<ArgumentNullException>(getTextProperty != null, "getTextProperty");
+            Contract.Requires<ArgumentNullException>(getClickAction != null, "getClickAction");
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
             Contract.Ensures(Contract.Result<IBinding>() != null);
 
-            return bindingFactory.CreateChainedTwoWayBinding(
-                dataContext,
-                getTextProperty,
-                binding =>
-                Observable.FromEventPattern<TextChangedEventHandler, TextChangedEventArgs>(
+            return bindingFactory.CreateActionBinding(
+                dataContext, 
+                getClickAction, 
+                binding => Observable.FromEventPattern<RoutedEventHandler, RoutedEventArgs>(
                     h => (sender, args) =>
-                    {
-                        if (!binding.IsUpdatingControl)
                         {
-                            h(sender, args);
-                        }
-                    },
-                    h => textBox.TextChanged += h,
-                    h => textBox.TextChanged -= h),
-                v => textBox.Text = v,
-                () => textBox.Text);
+                            if (!binding.IsUpdatingControl)
+                            {
+                                h(sender, args);
+                            }
+                        }, 
+                    h => button.Click += h, 
+                    h => button.Click -= h));
         }
     }
 }

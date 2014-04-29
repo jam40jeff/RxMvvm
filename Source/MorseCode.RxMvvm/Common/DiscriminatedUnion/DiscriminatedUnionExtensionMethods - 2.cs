@@ -83,5 +83,79 @@ namespace MorseCode.RxMvvm.Common.DiscriminatedUnion
 
             return DiscriminatedUnion.Second<TCommon, T1, T2>(value);
         }
+
+        /// <summary>
+        /// Flattens a nested discriminated union to produce a single discriminated union.
+        /// </summary>
+        /// <param name="o">
+        /// The discriminated union instance to flatten.
+        /// </param>
+        /// <typeparam name="T1">
+        /// The first type of the discriminated union.
+        /// </typeparam>
+        /// <typeparam name="T2">
+        /// The second type of the discriminated union.
+        /// </typeparam>
+        /// <returns>
+        /// The flattened discriminated union.
+        /// </returns>
+        public static IDiscriminatedUnion<object, T1, T2> Flatten<T1, T2>(
+            this IDiscriminatedUnion<object, IDiscriminatedUnion<object, T1, T2>, T2> o)
+        {
+            Contract.Requires<ArgumentNullException>(o != null, "o");
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T1, T2>>() != null);
+
+            IDiscriminatedUnion<object, T1, T2> discriminatedUnion =
+                o.Switch(
+                    u =>
+                    u.Switch(
+                        v => DiscriminatedUnion.First<object, T1, T2>(v), DiscriminatedUnion.Second<object, T1, T2>),
+                    DiscriminatedUnion.Second<object, T1, T2>);
+            if (discriminatedUnion == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<IDiscriminatedUnion<object, IDiscriminatedUnion<object, T1, T2>, T2>>
+                          .GetMethodInfo(o2 => o2.Switch(null, null)).Name + " cannot be null.");
+            }
+
+            return discriminatedUnion;
+        }
+
+        /// <summary>
+        /// Flattens a nested discriminated union to produce a single discriminated union.
+        /// </summary>
+        /// <param name="o">
+        /// The discriminated union instance to flatten.
+        /// </param>
+        /// <typeparam name="T1">
+        /// The first type of the discriminated union.
+        /// </typeparam>
+        /// <typeparam name="T2">
+        /// The second type of the discriminated union.
+        /// </typeparam>
+        /// <returns>
+        /// The flattened discriminated union.
+        /// </returns>
+        public static IDiscriminatedUnion<object, T1, T2> Flatten<T1, T2>(
+            this IDiscriminatedUnion<object, T1, IDiscriminatedUnion<object, T1, T2>> o)
+        {
+            Contract.Requires<ArgumentNullException>(o != null, "o");
+            Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T1, T2>>() != null);
+
+            IDiscriminatedUnion<object, T1, T2> discriminatedUnion = o.Switch(
+                DiscriminatedUnion.First<object, T1, T2>,
+                u =>
+                u.Switch(v => DiscriminatedUnion.First<object, T1, T2>(v), DiscriminatedUnion.Second<object, T1, T2>));
+            if (discriminatedUnion == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection<IDiscriminatedUnion<object, T1, IDiscriminatedUnion<object, T1, T2>>>
+                          .GetMethodInfo(o2 => o2.Switch(null, null)).Name + " cannot be null.");
+            }
+
+            return discriminatedUnion;
+        }
     }
 }

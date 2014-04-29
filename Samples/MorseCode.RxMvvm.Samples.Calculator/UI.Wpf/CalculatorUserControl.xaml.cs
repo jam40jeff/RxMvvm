@@ -21,32 +21,17 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
     using System;
     using System.Reactive.Linq;
 
-    using MorseCode.RxMvvm.Observable.Property;
     using MorseCode.RxMvvm.Samples.Calculator.ViewModels;
     using MorseCode.RxMvvm.UI.Wpf.Controls;
 
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for CalculatorUserControl.xaml
     /// </summary>
-    public partial class MainWindow
+    public partial class CalculatorUserControl
     {
-        private readonly IObservableProperty<CalculatorViewModel> viewModelProperty;
-
-        private readonly CalculatorViewModel viewModel1;
-
-        private readonly CalculatorViewModel viewModel2;
-
-        public MainWindow()
+        public CalculatorUserControl()
         {
-            this.InitializeComponent();
-
-            this.viewModel1 = new CalculatorViewModel(false);
-            this.viewModel2 = new CalculatorViewModel(false);
-
-            this.viewModelProperty = ObservablePropertyFactory.Instance.CreateProperty(this.viewModel1);
-
-            IDataContextControl<CalculatorViewModel> c = this;
-            c.BindDataContext(Observable.Return(new CalculatorViewModel(false)), d => this.viewModelProperty);
+            InitializeComponent();
         }
 
         protected override void BindControls(IObservable<CalculatorViewModel> dataContext)
@@ -76,11 +61,6 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
                 DivideRadioButton.BindVisibility(
                     dataContext, d => d.ShowDivide.OnSuccessfulValueChanged, BindingFactory));
 
-            AddDisposable(
-                SwitchDataContextButton.BindClick(
-                    dataContext,
-                    d => () => this.viewModelProperty.Value = d == this.viewModel1 ? this.viewModel2 : this.viewModel1,
-                    BindingFactory));
             AddDisposable(SwitchOperatorsButton.BindClick(dataContext, d => d.SwitchOperators, BindingFactory));
         }
     }

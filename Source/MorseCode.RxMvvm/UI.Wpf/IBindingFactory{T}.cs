@@ -17,6 +17,8 @@ namespace MorseCode.RxMvvm.UI.Wpf
     using System;
     using System.Diagnostics.Contracts;
 
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
+    using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Property;
 
     /// <summary>
@@ -53,6 +55,29 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Action<TProperty> setControlValue);
 
         /// <summary>
+        /// Create a one-way binding.
+        /// </summary>
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getDataContextValue">
+        /// An delegate to get the value to bind.
+        /// </param>
+        /// <param name="setControlValue">
+        /// An delegate to update the control from the latest value.
+        /// </param>
+        /// <typeparam name="TProperty">
+        /// The type of the property to bind.
+        /// </typeparam>
+        /// <returns>
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
+        /// </returns>
+        IBinding CreateChainedOneWayBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IObservable<IDiscriminatedUnion<object, TProperty, NonComputable>>> getDataContextValue,
+            Action<TProperty> setControlValue);
+
+        /// <summary>
         /// Create a one-way-to-source binding.
         /// </summary>
         /// <param name="dataContext">
@@ -76,6 +101,33 @@ namespace MorseCode.RxMvvm.UI.Wpf
         IBinding CreateOneWayToSourceBinding<TProperty>(
             IObservable<T> dataContext,
             Func<T, IWritableObservableProperty<TProperty>> getDataContextProperty,
+            Func<IBinding, IObservable<object>> createUiObservable,
+            Func<TProperty> getControlValue);
+
+        /// <summary>
+        /// Create a one-way-to-source binding.
+        /// </summary>
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getDataContextProperty">
+        /// An delegate to get the property to bind.
+        /// </param>
+        /// <param name="createUiObservable">
+        /// An delegate returning an observable notifying that the UI is ready to provide a new value.  The value of this observable is ignored.
+        /// </param>
+        /// <param name="getControlValue">
+        /// An delegate returning the value of the control.
+        /// </param>
+        /// <typeparam name="TProperty">
+        /// The type of the property to bind.
+        /// </typeparam>
+        /// <returns>
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
+        /// </returns>
+        IBinding CreateChainedOneWayToSourceBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IObservable<IDiscriminatedUnion<object, IWritableObservableProperty<TProperty>, NonComputable>>> getDataContextProperty,
             Func<IBinding, IObservable<object>> createUiObservable,
             Func<TProperty> getControlValue);
 
@@ -109,5 +161,76 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Func<IBinding, IObservable<object>> createUiObservable,
             Action<TProperty> setControlValue,
             Func<TProperty> getControlValue);
+
+        /// <summary>
+        /// Create a two-way binding.
+        /// </summary>
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getDataContextProperty">
+        /// An delegate to get the property to bind.
+        /// </param>
+        /// <param name="createUiObservable">
+        /// An delegate returning an observable notifying that the UI is ready to provide a new value.  The value of this observable is ignored.
+        /// </param>
+        /// <param name="setControlValue">
+        /// An delegate to update the control from the latest value.
+        /// </param>
+        /// <param name="getControlValue">
+        /// An delegate returning the value of the control.
+        /// </param>
+        /// <typeparam name="TProperty">
+        /// The type of the property to bind.
+        /// </typeparam>
+        /// <returns>
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
+        /// </returns>
+        IBinding CreateChainedTwoWayBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IObservable<IDiscriminatedUnion<object, IObservableProperty<TProperty>, NonComputable>>> getDataContextProperty,
+            Func<IBinding, IObservable<object>> createUiObservable,
+            Action<TProperty> setControlValue,
+            Func<TProperty> getControlValue);
+
+        /// <summary>
+        /// Create an action binding.
+        /// </summary>
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getDataContextAction">
+        /// An delegate to get the action to execute.
+        /// </param>
+        /// <param name="createUiObservable">
+        /// An delegate returning an observable notifying that the UI wishes to execute the action.  The value of this observable is ignored.
+        /// </param>
+        /// <returns>
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
+        /// </returns>
+        IBinding CreateActionBinding(
+            IObservable<T> dataContext,
+            Func<T, Action> getDataContextAction,
+            Func<IBinding, IObservable<object>> createUiObservable);
+
+        /// <summary>
+        /// Create an action binding.
+        /// </summary>
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getDataContextAction">
+        /// An delegate to get the action to execute.
+        /// </param>
+        /// <param name="createUiObservable">
+        /// An delegate returning an observable notifying that the UI wishes to execute the action.  The value of this observable is ignored.
+        /// </param>
+        /// <returns>
+        /// An <see cref="IBinding"/> which will clean up the bindings when disposed.
+        /// </returns>
+        IBinding CreateActionBinding(
+            IObservable<T> dataContext,
+            Func<T, IObservable<IDiscriminatedUnion<object, Action, NonComputable>>> getDataContextAction,
+            Func<IBinding, IObservable<object>> createUiObservable);
     }
 }

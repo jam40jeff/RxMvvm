@@ -103,14 +103,19 @@
     <Compile Include="BindingFactoryContract.cs" />
     <Compile Include="BindingFactoryUtility.cs" />
     <Compile Include="BindingFactory{T}.cs" />
+    <Compile Include="Controls\ButtonExtensionMethods.cs" />
     <Compile Include="Controls\ComboBoxItemsBindings.cs" />
     <Compile Include="Controls\ComboBoxExtensionMethods.cs" />
     <Compile Include="Controls\CheckBoxExtensionMethods.cs" />
+    <Compile Include="Controls\DataContextControlContract{T}.cs" />
+    <Compile Include="Controls\IDataContextControl{T}.cs" />
     <Compile Include="Controls\RadioButtonBindingUtility.cs" />
     <Compile Include="Controls\IComboBoxItemsBindings.cs" />
     <Compile Include="Controls\LabelExtensionMethods.cs" />
     <Compile Include="Controls\TextBoxExtensionMethods.cs" />
     <Compile Include="Controls\UIElementExtensionMethods.cs" />
+    <Compile Include="Controls\UserControlBase{T}.cs" />
+    <Compile Include="Controls\WindowBase{T}.cs" />
     <Compile Include="IBinding.cs" />
     <Compile Include="IBindingFactory{T}.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -125,6 +130,10 @@
     <ProjectReference Include="..\Observable\Observable.csproj">
       <Project>{C5D9C9A0-DFF4-4403-841B-90CD1B3D03DD}</Project>
       <Name>Observable</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Reactive\Reactive.csproj">
+      <Project>{FC60B6F2-387E-40F4-B72D-1F9A6148243A}</Project>
+      <Name>Reactive</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

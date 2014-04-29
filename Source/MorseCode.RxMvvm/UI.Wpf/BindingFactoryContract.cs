@@ -17,6 +17,8 @@ namespace MorseCode.RxMvvm.UI.Wpf
     using System;
     using System.Diagnostics.Contracts;
 
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
+    using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Property;
 
     [ContractClassFor(typeof(IBindingFactory<>))]
@@ -27,6 +29,16 @@ namespace MorseCode.RxMvvm.UI.Wpf
             IObservable<T> dataContext, 
             Func<T, IObservable<TProperty>> getDataContextValue, 
             Action<TProperty> setControlValue)
+        {
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getDataContextValue != null, "getDataContextValue");
+            Contract.Requires<ArgumentNullException>(setControlValue != null, "setControlValue");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
+
+            return null;
+        }
+
+        IBinding IBindingFactory<T>.CreateChainedOneWayBinding<TProperty>(IObservable<T> dataContext, Func<T, IObservable<IDiscriminatedUnion<object, TProperty, NonComputable>>> getDataContextValue, Action<TProperty> setControlValue)
         {
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
             Contract.Requires<ArgumentNullException>(getDataContextValue != null, "getDataContextValue");
@@ -51,6 +63,18 @@ namespace MorseCode.RxMvvm.UI.Wpf
             return null;
         }
 
+        IBinding IBindingFactory<T>.CreateChainedOneWayToSourceBinding<TProperty>(
+            IObservable<T> dataContext, Func<T, IObservable<IDiscriminatedUnion<object, IWritableObservableProperty<TProperty>, NonComputable>>> getDataContextProperty, Func<IBinding, IObservable<object>> createUiObservable, Func<TProperty> getControlValue)
+        {
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getDataContextProperty != null, "getDataContextProperty");
+            Contract.Requires<ArgumentNullException>(createUiObservable != null, "createUiObservable");
+            Contract.Requires<ArgumentNullException>(getControlValue != null, "getControlValue");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
+
+            return null;
+        }
+
         IBinding IBindingFactory<T>.CreateTwoWayBinding<TProperty>(
             IObservable<T> dataContext, 
             Func<T, IObservableProperty<TProperty>> getDataContextProperty, 
@@ -63,6 +87,43 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Contract.Requires<ArgumentNullException>(createUiObservable != null, "createUiObservable");
             Contract.Requires<ArgumentNullException>(setControlValue != null, "setControlValue");
             Contract.Requires<ArgumentNullException>(getControlValue != null, "getControlValue");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
+
+            return null;
+        }
+
+        IBinding IBindingFactory<T>.CreateChainedTwoWayBinding<TProperty>(
+            IObservable<T> dataContext,
+            Func<T, IObservable<IDiscriminatedUnion<object, IObservableProperty<TProperty>, NonComputable>>> getDataContextProperty,
+            Func<IBinding, IObservable<object>> createUiObservable,
+            Action<TProperty> setControlValue,
+            Func<TProperty> getControlValue)
+        {
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getDataContextProperty != null, "getDataContextProperty");
+            Contract.Requires<ArgumentNullException>(createUiObservable != null, "createUiObservable");
+            Contract.Requires<ArgumentNullException>(setControlValue != null, "setControlValue");
+            Contract.Requires<ArgumentNullException>(getControlValue != null, "getControlValue");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
+
+            return null;
+        }
+
+        IBinding IBindingFactory<T>.CreateActionBinding(IObservable<T> dataContext, Func<T, Action> getDataContextAction, Func<IBinding, IObservable<object>> createUiObservable)
+        {
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getDataContextAction != null, "getDataContextAction");
+            Contract.Requires<ArgumentNullException>(createUiObservable != null, "createUiObservable");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
+
+            return null;
+        }
+
+        IBinding IBindingFactory<T>.CreateActionBinding(IObservable<T> dataContext, Func<T, IObservable<IDiscriminatedUnion<object, Action, NonComputable>>> getDataContextAction, Func<IBinding, IObservable<object>> createUiObservable)
+        {
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getDataContextAction != null, "getDataContextAction");
+            Contract.Requires<ArgumentNullException>(createUiObservable != null, "createUiObservable");
             Contract.Ensures(Contract.Result<IBinding>() != null);
 
             return null;

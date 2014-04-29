@@ -20,6 +20,8 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
     using System.Windows;
     using System.Windows.Controls;
 
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
+    using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Property;
 
     /// <summary>
@@ -60,8 +62,49 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
             Contract.Ensures(Contract.Result<IBinding>() != null);
 
+            return checkBox.BindIsChecked(
+                dataContext, 
+                d =>
+                Observable.Return(
+                    DiscriminatedUnion.First<object, IObservableProperty<bool>, NonComputable>(getCheckedProperty(d))), 
+                bindingFactory);
+        }
+
+        /// <summary>
+        /// Binds the <see cref="CheckBox.IsChecked"/> property of a <see cref="CheckBox"/>.
+        /// </summary>
+        /// <param name="checkBox">
+        /// The check box.
+        /// </param>
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getCheckedProperty">
+        /// A delegate to get the checked property.
+        /// </param>
+        /// <param name="bindingFactory">
+        /// The binding factory.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of the data context.
+        /// </typeparam>
+        /// <returns>
+        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// </returns>
+        public static IBinding BindIsChecked<T>(
+            this CheckBox checkBox, 
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, IObservableProperty<bool>, NonComputable>>> getCheckedProperty, 
+            IBindingFactory<T> bindingFactory) where T : class
+        {
+            Contract.Requires<ArgumentNullException>(checkBox != null, "checkBox");
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getCheckedProperty != null, "getCheckedProperty");
+            Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
+
             checkBox.IsThreeState = false;
-            return bindingFactory.CreateTwoWayBinding(
+            return bindingFactory.CreateChainedTwoWayBinding(
                 dataContext, 
                 getCheckedProperty, 
                 binding => Observable.FromEventPattern<RoutedEventHandler, RoutedEventArgs>(
@@ -111,8 +154,49 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
             Contract.Ensures(Contract.Result<IBinding>() != null);
 
+            return checkBox.BindThreeStateIsChecked(
+                dataContext, 
+                d =>
+                Observable.Return(
+                    DiscriminatedUnion.First<object, IObservableProperty<bool?>, NonComputable>(getCheckedProperty(d))), 
+                bindingFactory);
+        }
+
+        /// <summary>
+        /// Binds the <see cref="CheckBox.IsChecked"/> property of a three state <see cref="CheckBox"/>.
+        /// </summary>
+        /// <param name="checkBox">
+        /// The check box.
+        /// </param>
+        /// <param name="dataContext">
+        /// The data context.
+        /// </param>
+        /// <param name="getCheckedProperty">
+        /// A delegate to get the checked property.
+        /// </param>
+        /// <param name="bindingFactory">
+        /// The binding factory.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of the data context.
+        /// </typeparam>
+        /// <returns>
+        /// An <see cref="IDisposable"/> which will clean up the bindings when disposed.
+        /// </returns>
+        public static IBinding BindThreeStateIsChecked<T>(
+            this CheckBox checkBox, 
+            IObservable<T> dataContext, 
+            Func<T, IObservable<IDiscriminatedUnion<object, IObservableProperty<bool?>, NonComputable>>> getCheckedProperty, 
+            IBindingFactory<T> bindingFactory) where T : class
+        {
+            Contract.Requires<ArgumentNullException>(checkBox != null, "checkBox");
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+            Contract.Requires<ArgumentNullException>(getCheckedProperty != null, "getCheckedProperty");
+            Contract.Requires<ArgumentNullException>(bindingFactory != null, "bindingFactory");
+            Contract.Ensures(Contract.Result<IBinding>() != null);
+
             checkBox.IsThreeState = true;
-            return bindingFactory.CreateTwoWayBinding(
+            return bindingFactory.CreateChainedTwoWayBinding(
                 dataContext, 
                 getCheckedProperty, 
                 binding => Observable.FromEventPattern<RoutedEventHandler, RoutedEventArgs>(
