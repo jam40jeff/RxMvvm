@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.UI.Wpf
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Reactive;
     using System.Reactive.Linq;
 
@@ -42,10 +43,13 @@ namespace MorseCode.RxMvvm.UI.Wpf
         /// <summary>
         /// Gets the singleton instance of a <see cref="BindingFactory{T}"/>.
         /// </summary>
+        [ContractVerification(false)]
         public static IBindingFactory<T> Instance
         {
             get
             {
+                Contract.Ensures(Contract.Result<IBindingFactory<T>>() != null);
+
                 return InstanceLazy.Value;
             }
         }

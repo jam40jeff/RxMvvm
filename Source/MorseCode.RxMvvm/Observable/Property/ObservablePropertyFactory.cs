@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Observable.Property
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Threading.Tasks;
 
     using MorseCode.RxMvvm.Observable.Property.Internal;
@@ -34,10 +35,13 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// <summary>
         /// Gets the singleton instance of an <see cref="ObservablePropertyFactory"/>.
         /// </summary>
+        [ContractVerification(false)]
         public static IObservablePropertyFactory Instance
         {
             get
             {
+                Contract.Ensures(Contract.Result<IObservablePropertyFactory>() != null);
+
                 return InstanceLazy.Value;
             }
         }

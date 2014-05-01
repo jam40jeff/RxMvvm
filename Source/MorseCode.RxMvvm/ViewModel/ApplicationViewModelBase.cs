@@ -15,9 +15,11 @@
 namespace MorseCode.RxMvvm.ViewModel
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
+    using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable.Property;
 
     /// <summary>
@@ -37,7 +39,16 @@ namespace MorseCode.RxMvvm.ViewModel
         /// </summary>
         protected ApplicationViewModelBase()
         {
+            Contract.Ensures(this.unhandledErrorObservable != null);
+
             this.unhandledErrorObservable = this.unhandledErrorSubject.AsObservable();
+
+            if (this.unhandledErrorObservable == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of " + StaticReflection<Subject<Exception>>.GetMethodInfo(o => o.AsObservable()).Name
+                    + " cannot be null.");
+            }
         }
 
         IReadableObservableProperty<object> IApplicationViewModel.CurrentViewModel
@@ -76,5 +87,12 @@ namespace MorseCode.RxMvvm.ViewModel
         /// Initializes the application view model.
         /// </summary>
         protected abstract void Initialize();
+
+        [ContractInvariantMethod]
+        private void CodeContractsInvariants()
+        {
+            Contract.Invariant(this.unhandledErrorSubject != null);
+            Contract.Invariant(this.unhandledErrorObservable != null);
+        }
     }
 }

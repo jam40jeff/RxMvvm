@@ -16,6 +16,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
     using System.Linq;
 
     /// <summary>
@@ -33,10 +34,13 @@ namespace MorseCode.RxMvvm.Observable.Collection
         /// <summary>
         /// Gets the singleton instance of an <see cref="ObservableCollectionFactory"/>.
         /// </summary>
+        [ContractVerification(false)]
         public static IObservableCollectionFactory Instance
         {
             get
             {
+                Contract.Ensures(Contract.Result<IObservableCollectionFactory>() != null);
+
                 return InstanceLazy.Value;
             }
         }

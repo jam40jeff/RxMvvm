@@ -94,6 +94,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{083F17D2-F34C-461B-9D59-F94CD8FDE10F}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Observable\Observable.csproj">
       <Project>{C5D9C9A0-DFF4-4403-841B-90CD1B3D03DD}</Project>
       <Name>Observable</Name>

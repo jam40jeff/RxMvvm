@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Common.Serialization
 {
     using System;
+    using System.Diagnostics.Contracts;
 
     /// <summary>
     /// A factory for creating actions which may be serialized.
@@ -31,10 +32,13 @@ namespace MorseCode.RxMvvm.Common.Serialization
         /// <summary>
         /// Gets the singleton instance of an <see cref="SerializableActionFactory"/>.
         /// </summary>
+        [ContractVerification(false)]
         public static ISerializableActionFactory Instance
         {
             get
             {
+                Contract.Ensures(Contract.Result<ISerializableActionFactory>() != null);
+
                 return InstanceLazy.Value;
             }
         }
