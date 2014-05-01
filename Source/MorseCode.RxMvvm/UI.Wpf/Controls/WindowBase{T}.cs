@@ -16,11 +16,13 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
 {
     using System;
     using System.Diagnostics.Contracts;
+    using System.Reactive;
     using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using System.Windows;
 
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
+    using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable;
 
     /// <summary>
@@ -29,7 +31,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
     /// <typeparam name="T">
     /// The type of the data context.
     /// </typeparam>
-    public abstract class WindowBase<T> : Window, IDataContextControl<T>
+    public abstract class WindowBase<T> : Window, IView<T>
         where T : class
     {
         private static readonly IBindingFactory<T> BindingFactoryInternal = BindingFactory<T>.Instance;
@@ -101,14 +103,79 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             this.BindDataContextInternal(dataContext, getDataContext);
         }
 
+        /// <summary>
+        /// Binds the data context.
+        /// </summary>
+        /// <param name="dataContext">
+        /// The data context to bind to.
+        /// </param>
+        public void BindDataContext(T dataContext)
+        {
+            Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
+
+            IObservable<Unit> dataContextObservable = Observable.Create<Unit>(o =>
+                {
+                    o.OnNext(Unit.Default);
+                    return Disposable.Empty;
+                });
+
+            if (dataContextObservable == null)
+            {
+                throw new InvalidOperationException(
+                    "Result of "
+                    + StaticReflection.GetInScopeMethodInfo(() => Observable.Create((Func<IObserver<object>, IDisposable>)null)).Name + " cannot be null.");
+            }
+
+            this.BindDataContextInternal(
+                dataContextObservable,
+                u => Observable.Return(dataContext));
+        }
+
         void IDataContextControl<T>.BindDataContext<TDataContext>(
             IObservable<TDataContext> dataContext, Func<TDataContext, IObservable<T>> getDataContext)
         {
             this.BindDataContextInternal(dataContext, getDataContext);
         }
 
+        void IView.ShowReplacing(IView oldView)
+        {
+            if (oldView != null)
+            {
+                this.WindowStartupLocation = WindowStartupLocation.Manual;
+
+                this.Top = oldView.GetViewPositionTop();
+                this.Left = oldView.GetViewPositionLeft();
+                this.Width = oldView.GetViewWidth();
+                this.Height = oldView.GetViewHeight();
+            }
+
+            this.Show();
+        }
+
+        double IView.GetViewPositionTop()
+        {
+            return this.Top;
+        }
+
+        double IView.GetViewPositionLeft()
+        {
+            return this.Left;
+        }
+
+        double IView.GetViewWidth()
+        {
+            return this.Width;
+        }
+
+        double IView.GetViewHeight()
+        {
+            return this.Height;
+        }
+
         void IDisposable.Dispose()
         {
+            this.Close();
+
             this.compositeDisposable.Dispose();
 
             this.OnDispose();

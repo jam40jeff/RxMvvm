@@ -289,5 +289,10 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
                 this.selectedOperator.Value = o[0];
             }
         }
+
+        public void SwitchDataContext()
+        {
+            Navigator.Instance.NavigateToMainPage2();
+        }
     }
 }

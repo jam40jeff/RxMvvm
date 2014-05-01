@@ -19,9 +19,7 @@
 namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
 {
     using System;
-    using System.Reactive.Linq;
 
-    using MorseCode.RxMvvm.Observable.Property;
     using MorseCode.RxMvvm.Samples.Calculator.ViewModels;
     using MorseCode.RxMvvm.UI.Wpf.Controls;
 
@@ -30,22 +28,16 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
     /// </summary>
     public partial class MainWindow2
     {
-        private readonly IReadOnlyProperty<MainViewModel> viewModelProperty;
-
         public MainWindow2()
         {
             this.InitializeComponent();
-
-            this.viewModelProperty = ObservablePropertyFactory.Instance.CreateReadOnlyProperty(new MainViewModel());
-
-            IDataContextControl<MainViewModel> c = this;
-            c.BindDataContext(Observable.Return(new MainViewModel()), d => this.viewModelProperty);
         }
 
         protected override void BindControls(IObservable<MainViewModel> dataContext)
         {
             CalculatorUserControl.BindDataContext(dataContext, d => d.CurrentCalculator);
             AddDisposable(SwitchCalculatorsButton.BindClick(dataContext, d => d.SwitchCalculators, BindingFactory));
+            AddDisposable(SwitchDataContextButton.BindClick(dataContext, d => d.SwitchDataContext, BindingFactory));
         }
     }
 }

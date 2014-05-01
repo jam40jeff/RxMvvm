@@ -14,13 +14,63 @@
 
 namespace MorseCode.RxMvvm.UI.Wpf
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
+    using System.Reactive.Concurrency;
+    using System.Reactive.Disposables;
     using System.Windows;
+
+    using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.StaticReflection;
+    using MorseCode.RxMvvm.UI.Wpf.Controls;
+    using MorseCode.RxMvvm.ViewModel;
 
     /// <summary>
     /// A base class for a WPF application.
     /// </summary>
-    public abstract class RxMvvmApplicationBase : Application
+    [ContractClass(typeof(RxMvvmApplicationContract))]
+    public abstract class RxMvvmApplicationBase : Application, IDisposable
     {
+        private readonly Dictionary<Type, ApplicationView> applicationViews = new Dictionary<Type, ApplicationView>();
+
+        private readonly ViewRegistrationHelper viewRegistrationHelper;
+
+        private readonly CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+        private IView currentView;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RxMvvmApplicationBase"/> class.
+        /// </summary>
+        protected RxMvvmApplicationBase()
+        {
+            this.viewRegistrationHelper = new ViewRegistrationHelper(this);
+        }
+
+        private Dictionary<Type, ApplicationView> ApplicationViews
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<Dictionary<Type, ApplicationView>>() != null);
+
+                return this.applicationViews;
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+            this.compositeDisposable.Dispose();
+        }
+
+        /// <summary>
+        /// Creates the application view model.
+        /// </summary>
+        /// <returns>
+        /// The application view model.
+        /// </returns>
+        protected abstract IApplicationViewModel CreateApplicationViewModel();
+
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Application.Startup"/> event.
         /// </summary>
@@ -29,9 +79,218 @@ namespace MorseCode.RxMvvm.UI.Wpf
         /// </param>
         protected override void OnStartup(StartupEventArgs e)
         {
-            WpfApplicationHelper.SetupRxMvvmConfigurationForWpf();
+            RxMvvmConfiguration.SetNotifyPropertyChangedSchedulerFactory(() => DispatcherScheduler.Current);
 
             base.OnStartup(e);
+
+            this.RegisterViews(this.viewRegistrationHelper);
+
+            IApplicationViewModel viewModel = this.CreateApplicationViewModel();
+            this.compositeDisposable.Add(viewModel.CurrentViewModel.Subscribe(this.CurrentViewModelChanged));
+            viewModel.Initialize();
+        }
+
+        /// <summary>
+        /// Registers the views.
+        /// </summary>
+        /// <param name="viewRegistrationHelper">
+        /// The view registration helper.
+        /// </param>
+        protected abstract void RegisterViews(ViewRegistrationHelper viewRegistrationHelper);
+
+        private void CurrentViewModelChanged(object currentViewModel)
+        {
+            IView oldView = this.currentView;
+
+            this.currentView = null;
+
+            if (currentViewModel != null)
+            {
+                Type currentViewModelType = currentViewModel.GetType();
+                if (!this.applicationViews.ContainsKey(currentViewModelType))
+                {
+                    throw new Exception("Could not find a view with view model type " + currentViewModelType.FullName + ".");
+                }
+
+                ApplicationView applicationView = this.applicationViews[currentViewModelType];
+
+                if (applicationView == null)
+                {
+                    throw new InvalidOperationException(
+                        StaticReflection.GetInScopeMemberInfo(() => applicationView).Name
+                        + " may not contain null values.");
+                }
+
+                IView newView = applicationView.CreateView();
+
+                if (newView == null)
+                {
+                    throw new InvalidOperationException(
+                        StaticReflection<ApplicationView>.GetMethodInfo(o => o.CreateView).Name
+                        + " may not return null.");
+                }
+
+                this.currentView = newView;
+
+                // Title = _currentPage.Title;
+                applicationView.Bind(newView, currentViewModel);
+
+                newView.ShowReplacing(oldView);
+            }
+
+            if (oldView != null)
+            {
+                oldView.Dispose();
+            }
+        }
+
+        [ContractInvariantMethod]
+        private void CodeContractsInvariants()
+        {
+            Contract.Invariant(this.applicationViews != null);
+            Contract.Invariant(this.viewRegistrationHelper != null);
+            Contract.Invariant(this.compositeDisposable != null);
+        }
+
+        /// <summary>
+        /// The view registration helper.
+        /// </summary>
+        public class ViewRegistrationHelper
+        {
+            private readonly RxMvvmApplicationBase application;
+
+            internal ViewRegistrationHelper(RxMvvmApplicationBase application)
+            {
+                Contract.Requires<ArgumentNullException>(application != null);
+                Contract.Ensures(this.application != null);
+
+                this.application = application;
+            }
+
+            /// <summary>
+            /// Registers a view with the application.
+            /// </summary>
+            /// <param name="createView">
+            /// The create view.
+            /// </param>
+            /// <typeparam name="TView">
+            /// The type of the view.
+            /// </typeparam>
+            /// <returns>
+            /// The view registration helper providing second step methods.
+            /// </returns>
+            public ViewRegistrationHelperStep2<TView> RegisterView<TView>(Func<TView> createView)
+                where TView : class, IView
+            {
+                Contract.Requires<ArgumentNullException>(createView != null);
+
+                return new ViewRegistrationHelperStep2<TView>(this.application, createView);
+            }
+
+            [ContractInvariantMethod]
+            private void CodeContractsInvariants()
+            {
+                Contract.Invariant(this.application != null);
+            }
+        }
+
+        /// <summary>
+        /// A class providing view registration helper methods for the second step.
+        /// </summary>
+        /// <typeparam name="TView">
+        /// The type of the view.
+        /// </typeparam>
+        public class ViewRegistrationHelperStep2<TView>
+            where TView : class, IView
+        {
+            private readonly RxMvvmApplicationBase application;
+
+            private readonly Func<TView> createView;
+
+            internal ViewRegistrationHelperStep2(RxMvvmApplicationBase application, Func<TView> createView)
+            {
+                Contract.Requires<ArgumentNullException>(application != null);
+                Contract.Requires<ArgumentNullException>(createView != null);
+                Contract.Ensures(this.application != null);
+                Contract.Ensures(this.createView != null);
+
+                this.application = application;
+                this.createView = createView;
+            }
+
+            /// <summary>
+            /// Ties a binding to the view being added.
+            /// </summary>
+            /// <param name="bind">
+            /// A delegate which binds the view to a data context.
+            /// </param>
+            /// <typeparam name="TDataContext">
+            /// The type of the data context.
+            /// </typeparam>
+            public void WithBinding<TDataContext>(Action<TView, TDataContext> bind)
+            {
+                this.application.ApplicationViews.Add(
+                    typeof(TDataContext),
+                    new ApplicationView(this.createView, (p, d) => bind((TView)p, (TDataContext)d)));
+            }
+
+            [ContractInvariantMethod]
+            private void CodeContractsInvariants()
+            {
+                Contract.Invariant(this.application != null);
+                Contract.Invariant(this.createView != null);
+            }
+        }
+
+        private class ApplicationView
+        {
+            private readonly Func<IView> createView;
+
+            private readonly Action<IView, object> bind;
+
+            internal ApplicationView(Func<IView> createView, Action<IView, object> bind)
+            {
+                Contract.Requires<ArgumentNullException>(createView != null);
+                Contract.Requires<ArgumentNullException>(bind != null);
+                Contract.Ensures(this.createView != null);
+                Contract.Ensures(this.bind != null);
+
+                this.createView = createView;
+                this.bind = bind;
+            }
+
+            /// <summary>
+            /// Gets the create view.
+            /// </summary>
+            public Func<IView> CreateView
+            {
+                get
+                {
+                    Contract.Ensures(Contract.Result<Func<IView>>() != null);
+
+                    return this.createView;
+                }
+            }
+
+            /// <summary>
+            /// Gets the bind.
+            /// </summary>
+            public Action<IView, object> Bind
+            {
+                get
+                {
+                    Contract.Ensures(Contract.Result<Action<IView, object>>() != null);
+
+                    return this.bind;
+                }
+            }
+
+            [ContractInvariantMethod]
+            private void CodeContractsInvariants()
+            {
+                Contract.Invariant(this.createView != null);
+                Contract.Invariant(this.bind != null);
+            }
         }
     }
 }

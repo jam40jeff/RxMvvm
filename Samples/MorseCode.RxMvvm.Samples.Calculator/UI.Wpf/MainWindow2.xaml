@@ -7,7 +7,8 @@
                    xmlns:local="clr-namespace:MorseCode.RxMvvm.Samples.Calculator.UI.Wpf"
                    Title="MainWindow2" Height="350" Width="525">
     <Grid>
-        <local:CalculatorUserControl x:Name="CalculatorUserControl" Width="525" Height="250" />
-        <Button x:Name="SwitchCalculatorsButton" Content="Switch Calculators" HorizontalAlignment="Left" Margin="204,290,0,0" VerticalAlignment="Top" Width="122" RenderTransformOrigin="0.402,0.65"/>
+        <local:CalculatorUserControl x:Name="CalculatorUserControl" Width="525" Height="175" />
+        <Button x:Name="SwitchCalculatorsButton" Content="Switch Calculators" HorizontalAlignment="Left" Margin="204,252,0,0" VerticalAlignment="Top" Width="122" RenderTransformOrigin="0.402,0.65"/>
+        <Button x:Name="SwitchDataContextButton" Content="Switch Data Context" HorizontalAlignment="Left" Margin="204,277,0,0" VerticalAlignment="Top" Width="122" RenderTransformOrigin="0.402,0.65"/>
     </Grid>
 </rxmvvm:WindowBase>

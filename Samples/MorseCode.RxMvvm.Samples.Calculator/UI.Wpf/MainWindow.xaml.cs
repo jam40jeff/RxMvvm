@@ -44,9 +44,6 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
             this.viewModel2 = new CalculatorViewModel(false);
 
             this.viewModelProperty = ObservablePropertyFactory.Instance.CreateProperty(this.viewModel1);
-
-            IDataContextControl<CalculatorViewModel> c = this;
-            c.BindDataContext(Observable.Return(new CalculatorViewModel(false)), d => this.viewModelProperty);
         }
 
         protected override void BindControls(IObservable<CalculatorViewModel> dataContext)
@@ -79,7 +76,7 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
             AddDisposable(
                 SwitchDataContextButton.BindClick(
                     dataContext,
-                    d => () => this.viewModelProperty.Value = d == this.viewModel1 ? this.viewModel2 : this.viewModel1,
+                    d => d.SwitchDataContext,
                     BindingFactory));
             AddDisposable(SwitchOperatorsButton.BindClick(dataContext, d => d.SwitchOperators, BindingFactory));
         }

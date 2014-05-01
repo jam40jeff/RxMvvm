@@ -50,5 +50,10 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
                                                ? this.calculator2
                                                : this.calculator1;
         }
+
+        public void SwitchDataContext()
+        {
+            Navigator.Instance.NavigateToMainPage();
+        }
     }
 }
