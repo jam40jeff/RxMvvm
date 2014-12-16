@@ -53,7 +53,7 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
 
         public void SwitchDataContext()
         {
-            Navigator.Instance.NavigateToMainPage();
+            Navigator.Instance.NavigateToMainPage3();
         }
     }
 }

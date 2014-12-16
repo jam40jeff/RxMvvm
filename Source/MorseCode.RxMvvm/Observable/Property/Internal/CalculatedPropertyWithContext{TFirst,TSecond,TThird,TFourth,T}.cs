@@ -69,8 +69,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Func<TFirst, TSecond, TThird, TFourth, IDiscriminatedUnion<object, T, Exception>> calculate =
                 (first, second, third, fourth) =>
                 {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
                     IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                     try
                     {

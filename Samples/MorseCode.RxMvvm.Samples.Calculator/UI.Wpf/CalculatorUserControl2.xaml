@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="MorseCode.RxMvvm.Samples.Calculator.UI.Wpf.CalculatorUserControl2"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:MorseCode.RxMvvm.Samples.Calculator.ViewModels;assembly=MorseCode.RxMvvm.Samples.Calculator.ViewModels"
+             xmlns:wpf="clr-namespace:MorseCode.RxMvvm.Samples.Calculator.UI.Wpf"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:CalculatorViewModel}"
+             d:DesignHeight="300" d:DesignWidth="500">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <wpf:VisibilityConverter x:Key="VisibilityConverter" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <TextBox x:Name="Operand1TextBox" HorizontalAlignment="Left" Height="23" Margin="31,86,0,0" TextWrapping="Wrap"
+                 VerticalAlignment="Top" Width="120" Text="{Binding Operand1.Value}" />
+        <Label x:Name="OperatorLabel" HorizontalAlignment="Left" Margin="178,86,0,0" VerticalAlignment="Top"
+               Content="{Binding SelectedOperatorString.Value}" />
+        <TextBox x:Name="Operand2TextBox" HorizontalAlignment="Left" Height="23" Margin="221,86,0,0"
+                 TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Text="{Binding Operand2.Value}" />
+        <Label Content="=" HorizontalAlignment="Left" Margin="359,86,0,0" VerticalAlignment="Top" />
+        <Label x:Name="ResultLabel" HorizontalAlignment="Left" Margin="393,86,0,0" VerticalAlignment="Top"
+               Content="{Binding Result.Value}" />
+        <Label Content="Function" HorizontalAlignment="Left" Margin="23,32,0,0" VerticalAlignment="Top" />
+        <ComboBox x:Name="FunctionDropDown" HorizontalAlignment="Left" Margin="84,36,0,0" VerticalAlignment="Top"
+                  Width="120" ItemsSource="{Binding Operators.Value}" SelectedItem="{Binding SelectedOperator.Value}" />
+        <Button x:Name="SwitchOperatorsButton" Content="Switch Operators" HorizontalAlignment="Left"
+                Margin="79,131,0,0" VerticalAlignment="Top" Width="135" Click="SwitchOperatorsButtonClick" />
+        <RadioButton x:Name="AddRadioButton" Content="RadioButton" HorizontalAlignment="Left" Margin="238,22,0,0"
+                     VerticalAlignment="Top" />
+        <RadioButton x:Name="SubtractRadioButton" Content="RadioButton" HorizontalAlignment="Left" Margin="238,43,0,0"
+                     VerticalAlignment="Top" />
+        <RadioButton x:Name="MultiplyRadioButton" Content="RadioButton" HorizontalAlignment="Left" Margin="359,22,0,0"
+                     VerticalAlignment="Top" Visibility="{Binding ShowMultiply.Value, Converter={StaticResource VisibilityConverter}}" />
+        <RadioButton x:Name="DivideRadioButton" Content="RadioButton" HorizontalAlignment="Left" Margin="359,43,0,0"
+                     VerticalAlignment="Top" Visibility="{Binding ShowDivide.Value, Converter={StaticResource VisibilityConverter}}" />
+    </Grid>
+</UserControl>

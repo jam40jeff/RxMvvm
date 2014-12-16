@@ -1,0 +1,22 @@
+﻿<rxmvvm:WindowBase x:TypeArguments="viewModels:MainViewModel"
+                   x:Class="MorseCode.RxMvvm.Samples.Async.UI.Wpf.MainWindow"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   xmlns:rxmvvm="clr-namespace:MorseCode.RxMvvm.UI.Wpf.Controls;assembly=MorseCode.RxMvvm.UI.Wpf"
+                   xmlns:viewModels="clr-namespace:MorseCode.RxMvvm.Samples.Async.ViewModels;assembly=MorseCode.RxMvvm.Samples.Async.ViewModels"
+                   mc:Ignorable="d"
+                   d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
+                   Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBox Grid.Row="0" Grid.Column="0" Margin="15" Text="{Binding Text.Value,UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Grid.Row="1" Grid.Column="0" Margin="15" Text="{Binding CalculatedText.Value}" />
+        <TextBlock Grid.Row="2" Grid.Column="0" Margin="15" Text="{Binding CalculatedTime.Value}" />
+    </Grid>
+</rxmvvm:WindowBase>

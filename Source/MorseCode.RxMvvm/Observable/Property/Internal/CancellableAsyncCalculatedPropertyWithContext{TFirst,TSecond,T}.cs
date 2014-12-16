@@ -28,9 +28,13 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
     [Serializable]
     internal class CancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T> :
-        CalculatedPropertyBase<T>, 
+        CalculatedPropertyBase<T>,
         ISerializable
     {
+        #region Fields
+
+        private readonly Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue;
+
         private readonly TContext context;
 
         private readonly IObservable<TFirst> firstProperty;
@@ -39,15 +43,17 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
         private readonly TimeSpan throttleTime;
 
-        private readonly Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue;
-
         private IDisposable scheduledTask;
 
+        #endregion
+
+        #region Constructors and Destructors
+
         internal CancellableAsyncCalculatedPropertyWithContext(
-            TContext context, 
-            IObservable<TFirst> firstProperty, 
-            IObservable<TSecond> secondProperty, 
-            TimeSpan throttleTime, 
+            TContext context,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            TimeSpan throttleTime,
             Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
@@ -68,8 +74,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Func<AsyncCalculationHelper, TFirst, TSecond, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
                 async (helper, first, second) =>
                     {
-                        Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
                         IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                         try
                         {
@@ -86,48 +90,56 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                     };
 
             // TODO: pick a better scheduler
-            this.SetHelper(new CalculatedPropertyHelper(
-                (resultSubject, isCalculatingSubject) =>
-                    {
-                        CompositeDisposable d = new CompositeDisposable();
-                        IScheduler scheduler = Scheduler.Default;
+            this.SetHelper(
+                new CalculatedPropertyHelper(
+                    (resultSubject, isCalculatingSubject) =>
+                        {
+                            CompositeDisposable d = new CompositeDisposable();
+                            IScheduler scheduler = Scheduler.Default;
 
-                        IObservable<Tuple<TFirst, TSecond>> o = firstProperty.CombineLatest(
-                            secondProperty, Tuple.Create);
-                        o = throttleTime > TimeSpan.Zero ? o.Throttle(throttleTime, scheduler) : o.ObserveOn(scheduler);
-                        d.Add(
-                            o.Subscribe(
-                                v =>
-                                    {
-                                        using (this.scheduledTask)
+                            IObservable<Tuple<TFirst, TSecond>> o = firstProperty.CombineLatest(
+                                secondProperty, Tuple.Create);
+                            o = throttleTime > TimeSpan.Zero
+                                    ? o.Throttle(throttleTime, scheduler)
+                                    : o.ObserveOn(scheduler);
+                            d.Add(
+                                o.Subscribe(
+                                    v =>
                                         {
-                                        }
+                                            using (this.scheduledTask)
+                                            {
+                                            }
 
-                                        isCalculatingSubject.OnNext(true);
+                                            isCalculatingSubject.OnNext(true);
 
-                                        this.scheduledTask = scheduler.ScheduleAsync(
-                                            async (s, t) =>
-                                                {
-                                                    try
+                                            this.scheduledTask = scheduler.ScheduleAsync(
+                                                async (s, t) =>
                                                     {
-                                                        await s.Yield();
-                                                        resultSubject.OnNext(
-                                                            await
-                                                            calculate(
-                                                                new AsyncCalculationHelper(s, t), v.Item1, v.Item2));
-                                                    }
-                                                    catch (Exception e)
-                                                    {
-                                                        resultSubject.OnNext(
-                                                            DiscriminatedUnion.Second<object, T, Exception>(e));
-                                                    }
+                                                        try
+                                                        {
+                                                            await s.Yield(t);
+                                                            IDiscriminatedUnion<object, T, Exception> result =
+                                                                await
+                                                                calculate(
+                                                                    new AsyncCalculationHelper(s, t), v.Item1, v.Item2);
+                                                            await s.Yield(t);
+                                                            resultSubject.OnNext(result);
+                                                        }
+                                                        catch (OperationCanceledException)
+                                                        {
+                                                        }
+                                                        catch (Exception e)
+                                                        {
+                                                            resultSubject.OnNext(
+                                                                DiscriminatedUnion.Second<object, T, Exception>(e));
+                                                        }
 
-                                                    isCalculatingSubject.OnNext(false);
-                                                });
-                                    }));
+                                                        isCalculatingSubject.OnNext(false);
+                                                    });
+                                        }));
 
-                        return d;
-                    }));
+                            return d;
+                        }));
         }
 
         /// <summary>
@@ -144,13 +156,18 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         protected CancellableAsyncCalculatedPropertyWithContext(SerializationInfo info, StreamingContext context)
             // ReSharper restore UnusedParameter.Local
             : this(
-                (TContext)(info.GetValue("c", typeof(TContext)) ?? default(TContext)), 
-                (IObservable<TFirst>)info.GetValue("p1", typeof(IObservable<TFirst>)), 
-                (IObservable<TSecond>)info.GetValue("p2", typeof(IObservable<TSecond>)), 
-                (TimeSpan)(info.GetValue("t", typeof(TimeSpan)) ?? default(TimeSpan)), 
-                (Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>>)info.GetValue("f", typeof(Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>>)))
+                (TContext)(info.GetValue("c", typeof(TContext)) ?? default(TContext)),
+                (IObservable<TFirst>)info.GetValue("p1", typeof(IObservable<TFirst>)),
+                (IObservable<TSecond>)info.GetValue("p2", typeof(IObservable<TSecond>)),
+                (TimeSpan)(info.GetValue("t", typeof(TimeSpan)) ?? default(TimeSpan)),
+                (Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>>)
+                info.GetValue("f", typeof(Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>>)))
         {
         }
+
+        #endregion
+
+        #region Public Methods and Operators
 
         /// <summary>
         /// Gets the object data to serialize.
@@ -171,6 +188,10 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             info.AddValue("f", this.calculateValue);
         }
 
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// Disposes of the property.
         /// </summary>
@@ -190,5 +211,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Contract.Invariant(this.secondProperty != null);
             Contract.Invariant(this.calculateValue != null);
         }
+
+        #endregion
     }
 }

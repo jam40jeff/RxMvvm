@@ -53,5 +53,10 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
         {
             CurrentViewModelInternal.Value = new MainViewModel();
         }
+
+        public void NavigateToMainPage3()
+        {
+            CurrentViewModelInternal.Value = new Main3ViewModel();
+        }
     }
 }

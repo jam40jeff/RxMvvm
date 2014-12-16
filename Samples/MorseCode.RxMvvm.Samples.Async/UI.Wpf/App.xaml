@@ -1,0 +1,8 @@
+﻿<rxmvvm:RxMvvmApplicationBase x:Class="UI.Wpf.App"
+                              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                              xmlns:rxmvvm="clr-namespace:MorseCode.RxMvvm.UI.Wpf;assembly=MorseCode.RxMvvm.UI.Wpf">
+    <Application.Resources>
+
+    </Application.Resources>
+</rxmvvm:RxMvvmApplicationBase>

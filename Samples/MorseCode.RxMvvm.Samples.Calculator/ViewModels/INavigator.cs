@@ -23,5 +23,7 @@ namespace MorseCode.RxMvvm.Samples.Calculator.ViewModels
         void NavigateToMainPage();
 
         void NavigateToMainPage2();
+
+        void NavigateToMainPage3();
     }
 }

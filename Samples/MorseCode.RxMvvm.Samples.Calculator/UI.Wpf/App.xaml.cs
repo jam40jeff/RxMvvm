@@ -21,9 +21,6 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
     using MorseCode.RxMvvm.Samples.Calculator.ViewModels;
     using MorseCode.RxMvvm.ViewModel;
 
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App
     {
         protected override IApplicationViewModel CreateApplicationViewModel()
@@ -39,6 +36,10 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
 
             viewRegistrationHelper.RegisterView(() => new MainWindow2())
                                   .WithBinding<MainViewModel>(
+                                      (v, d) => v.BindDataContext(d));
+
+            viewRegistrationHelper.RegisterView(() => new MainWindow3())
+                                  .WithBinding<Main3ViewModel>(
                                       (v, d) => v.BindDataContext(d));
         }
     }

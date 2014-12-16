@@ -76,6 +76,30 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             }
         }
 
+        IObservable<bool> ICalculatedProperty<T>.OnIsCalculatingChanged
+        {
+            get
+            {
+                return this.Helper.OnIsCalculatingChanged;
+            }
+        }
+
+        bool ICalculatedProperty<T>.IsCalculating
+        {
+            get
+            {
+                return this.IsCalculating;
+            }
+        }
+
+        public bool IsCalculating
+        {
+            get
+            {
+                return this.Helper.IsCalculating;
+            }
+        }
+
         T ICalculatedProperty<T>.LatestSuccessfulValue
         {
             get
@@ -89,6 +113,14 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             get
             {
                 return this.Helper.LatestCalculationException;
+            }
+        }
+
+        public new T Value
+        {
+            get
+            {
+                return this.Helper.GetValue().Switch(v => v, e => default(T));
             }
         }
 
@@ -188,6 +220,8 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                     calculatedPropertyHelper.OnSuccessfulValueChanged.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnLatestSuccessfulValueChanged()));
                 this.subscriptionsDisposable.Add(
                     calculatedPropertyHelper.OnCalculationException.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnLatestCalculationExceptionChanged()));
+                this.subscriptionsDisposable.Add(
+                    calculatedPropertyHelper.OnIsCalculatingChanged.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnIsCalculatingChanged()));
             }
 
             this.helper = calculatedPropertyHelper;
@@ -207,6 +241,14 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         protected virtual void OnLatestCalculationExceptionChanged()
         {
             this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.LatestCalculationExceptionPropertyName));
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.LatestCalculationException"/> property.
+        /// </summary>
+        protected virtual void OnIsCalculatingChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.IsCalculatingChangedPropertyName));
         }
 
         private IObservable<T> GetValueOrDefault(IObservable<IDiscriminatedUnion<object, T, Exception>> o)
@@ -241,6 +283,8 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             private readonly BehaviorSubject<IDiscriminatedUnion<object, T, Exception>> valueOrExceptionSubject;
 
             private readonly BehaviorSubject<bool> isCalculatingSubject;
+            
+            private readonly IObservable<bool> isCalculatingObservable;
 
             private readonly BehaviorSubject<T> valueSubject;
 
@@ -264,6 +308,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                 Contract.Requires<ArgumentNullException>(registerCalculation != null, "registerCalculation");
                 Contract.Ensures(this.valueOrExceptionSubject != null);
                 Contract.Ensures(this.isCalculatingSubject != null);
+                Contract.Ensures(this.isCalculatingObservable != null);
                 Contract.Ensures(this.valueSubject != null);
                 Contract.Ensures(this.exceptionSubject != null);
                 Contract.Ensures(this.setObservable != null);
@@ -278,6 +323,8 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                 this.valueSubject = new BehaviorSubject<T>(default(T));
                 this.exceptionSubject = new BehaviorSubject<Exception>(null);
                 this.isCalculatingSubject = new BehaviorSubject<bool>(false);
+
+                this.isCalculatingObservable = this.isCalculatingSubject.DistinctUntilChanged();
 
                 this.subscriptionsDisposable.Add(
                     this.valueOrExceptionSubject.Subscribe(
@@ -386,6 +433,22 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                 }
             }
 
+            internal IObservable<bool> OnIsCalculatingChanged
+            {
+                get
+                {
+                    return this.isCalculatingObservable;
+                }
+            }
+
+            internal bool IsCalculating
+            {
+                get
+                {
+                    return this.isCalculatingSubject.Value;
+                }
+            }
+
             void IDisposable.Dispose()
             {
                 this.valueOrExceptionSubject.Dispose();
@@ -422,6 +485,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             {
                 Contract.Invariant(this.valueOrExceptionSubject != null);
                 Contract.Invariant(this.isCalculatingSubject != null);
+                Contract.Invariant(this.isCalculatingObservable != null);
                 Contract.Invariant(this.valueSubject != null);
                 Contract.Invariant(this.exceptionSubject != null);
                 Contract.Invariant(this.setObservable != null);

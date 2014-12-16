@@ -54,8 +54,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Func<AsyncCalculationHelper, TFirst, Task<IDiscriminatedUnion<object, T, Exception>>> calculate =
                 async (helper, first) =>
                 {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
                     IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                     try
                     {
@@ -95,9 +93,13 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                                     {
                                         try
                                         {
-                                            await s.Yield();
-                                            resultSubject.OnNext(
-                                                await calculate(new AsyncCalculationHelper(s, t), v));
+                                            await s.Yield(t);
+                                            IDiscriminatedUnion<object, T, Exception> result = await calculate(new AsyncCalculationHelper(s, t), v);
+                                            await s.Yield(t);
+                                            resultSubject.OnNext(result);
+                                        }
+                                        catch (OperationCanceledException)
+                                        {
                                         }
                                         catch (Exception e)
                                         {

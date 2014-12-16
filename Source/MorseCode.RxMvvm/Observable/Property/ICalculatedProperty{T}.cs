@@ -55,6 +55,16 @@ namespace MorseCode.RxMvvm.Observable.Property
         IObservable<Exception> OnCalculationException { get; }
 
         /// <summary>
+        /// Gets an observable which notifies when the IsCalculating state changes.
+        /// </summary>
+        IObservable<bool> OnIsCalculatingChanged { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether or not the value of the property is currently being calculated.
+        /// </summary>
+        bool IsCalculating { get; }
+
+        /// <summary>
         /// Gets the latest value from a successful calculation.
         /// </summary>
         T LatestSuccessfulValue { get; }

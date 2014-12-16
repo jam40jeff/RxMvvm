@@ -21,34 +21,18 @@ namespace MorseCode.RxMvvm.Samples.Calculator.UI.Wpf
     using System;
     using System.Reactive.Linq;
 
-    using MorseCode.RxMvvm.Observable.Property;
     using MorseCode.RxMvvm.Samples.Calculator.ViewModels;
     using MorseCode.RxMvvm.UI.Wpf.Controls;
 
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow
     {
-        private readonly IObservableProperty<CalculatorViewModel> viewModelProperty;
-
-        private readonly CalculatorViewModel viewModel1;
-
-        private readonly CalculatorViewModel viewModel2;
-
         public MainWindow()
         {
             this.InitializeComponent();
-
-            this.viewModel1 = new CalculatorViewModel(false);
-            this.viewModel2 = new CalculatorViewModel(false);
-
-            this.viewModelProperty = ObservablePropertyFactory.Instance.CreateProperty(this.viewModel1);
         }
 
         protected override void BindControls(IObservable<CalculatorViewModel> dataContext)
         {
-            //FunctionDropDown.BindItemsForStructWithNoSelection(dataContext, d => d.Operators, o => o.ToString(), "[Select an Item]", d => d.SelectedOperator, BindingFactory);
             AddDisposable(
                 FunctionDropDown.BindItemsForStruct(
                     dataContext, d => d.Operators, o => o.ToString(), d => d.SelectedOperator));

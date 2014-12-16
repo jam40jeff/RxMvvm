@@ -23,6 +23,8 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         internal static readonly string LatestCalculationExceptionPropertyName;
 
+        internal static readonly string IsCalculatingChangedPropertyName;
+
         /// <summary>
         /// Initializes static members of the <see cref="CalculatedPropertyUtility"/> class.
         /// </summary>
@@ -32,6 +34,8 @@ namespace MorseCode.RxMvvm.Observable.Property
                 StaticReflection<ICalculatedProperty<object>>.GetMemberInfo(o => o.LatestSuccessfulValue).Name;
             LatestCalculationExceptionPropertyName =
                 StaticReflection<ICalculatedProperty<object>>.GetMemberInfo(o => o.LatestCalculationException).Name;
+            IsCalculatingChangedPropertyName =
+                StaticReflection<ICalculatedProperty<object>>.GetMemberInfo(o => o.IsCalculating).Name;
         }
     }
 }

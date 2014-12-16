@@ -108,6 +108,24 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
+        IObservable<bool> ICalculatedProperty<T>.OnIsCalculatingChanged
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<IObservable<bool>>() != null);
+
+                return null;
+            }
+        }
+
+        bool ICalculatedProperty<T>.IsCalculating
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         T ICalculatedProperty<T>.LatestSuccessfulValue
         {
             get

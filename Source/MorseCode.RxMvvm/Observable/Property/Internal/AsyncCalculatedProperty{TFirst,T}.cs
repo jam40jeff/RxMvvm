@@ -21,7 +21,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
     using System.Reactive.Linq;
     using System.Runtime.Serialization;
     using System.Security.Permissions;
-    using System.Threading.Tasks;
 
     using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
@@ -54,8 +53,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Func<TFirst, IDiscriminatedUnion<object, T, Exception>> calculate =
                 first =>
                 {
-                    Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
                     IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                     try
                     {
@@ -93,13 +90,17 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                                     {
                                         try
                                         {
-                                            resultSubject.OnNext(
-                                                await Task.FromResult(calculate(v)));
+                                            await s.Yield(t);
+                                            IDiscriminatedUnion<object, T, Exception> result = calculate(v);
+                                            await s.Yield(t);
+                                            resultSubject.OnNext(result);
+                                        }
+                                        catch (OperationCanceledException)
+                                        {
                                         }
                                         catch (Exception e)
                                         {
-                                            resultSubject.OnNext(
-                                                DiscriminatedUnion.Second<object, T, Exception>(e));
+                                            resultSubject.OnNext(DiscriminatedUnion.Second<object, T, Exception>(e));
                                         }
 
                                         isCalculatingSubject.OnNext(false);

@@ -87,11 +87,24 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             set
             {
-                this.SetValue(value);
+                this.Value = value;
             }
         }
 
         T IObservableProperty<T>.Value
+        {
+            get
+            {
+                return this.Value;
+            }
+
+            set
+            {
+                this.Value = value;
+            }
+        }
+
+        public new T Value
         {
             get
             {

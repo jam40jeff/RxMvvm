@@ -73,8 +73,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<IDiscriminatedUnion<object, T, Exception>>> calculate = async (helper, first, second, third) =>
                     {
-                        Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
-
                         IDiscriminatedUnion<object, T, Exception> discriminatedUnion;
                         try
                         {
@@ -116,13 +114,18 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                                                     try
                                                     {
                                                         await s.Yield();
-                                                        resultSubject.OnNext(
+                                                        IDiscriminatedUnion<object, T, Exception> result =
                                                             await
                                                             calculate(
-                                                                new AsyncCalculationHelper(s, t), 
-                                                                v.Item1, 
-                                                                v.Item2, 
-                                                                v.Item3));
+                                                                new AsyncCalculationHelper(s, t),
+                                                                v.Item1,
+                                                                v.Item2,
+                                                                v.Item3);
+                                                        await s.Yield();
+                                                        resultSubject.OnNext(result);
+                                                    }
+                                                    catch (OperationCanceledException)
+                                                    {
                                                     }
                                                     catch (Exception e)
                                                     {

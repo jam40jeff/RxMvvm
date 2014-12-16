@@ -55,6 +55,14 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             get
             {
+                return this.Value;
+            }
+        }
+
+        public T Value
+        {
+            get
+            {
                 return this.GetValue();
             }
         }
