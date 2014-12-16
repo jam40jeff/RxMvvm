@@ -157,7 +157,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, T>(
-            IObservable<TFirst> firstProperty, TimeSpan throttleTime, Func<TFirst, T> calculateValue)
+            IObservable<TFirst> firstProperty, TimeSpan throttleTime, Func<TFirst, T> calculateValue, bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
@@ -169,8 +169,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, T>(
             IObservable<TFirst> firstProperty, 
             IObservable<TSecond> secondProperty, 
-            TimeSpan throttleTime, 
-            Func<TFirst, TSecond, T> calculateValue)
+            TimeSpan throttleTime,
+            Func<TFirst, TSecond, T> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -184,8 +185,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TFirst> firstProperty, 
             IObservable<TSecond> secondProperty, 
             IObservable<TThird> thirdProperty, 
-            TimeSpan throttleTime, 
-            Func<TFirst, TSecond, TThird, T> calculateValue)
+            TimeSpan throttleTime,
+            Func<TFirst, TSecond, TThird, T> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -201,8 +203,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TSecond> secondProperty, 
             IObservable<TThird> thirdProperty, 
             IObservable<TFourth> fourthProperty, 
-            TimeSpan throttleTime, 
-            Func<TFirst, TSecond, TThird, TFourth, T> calculateValue)
+            TimeSpan throttleTime,
+            Func<TFirst, TSecond, TThird, TFourth, T> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -217,8 +220,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
             TContext context, 
             IObservable<TFirst> firstProperty, 
-            TimeSpan throttleTime, 
-            Func<TContext, TFirst, T> calculateValue)
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, T> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
@@ -231,8 +235,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             TContext context, 
             IObservable<TFirst> firstProperty, 
             IObservable<TSecond> secondProperty, 
-            TimeSpan throttleTime, 
-            Func<TContext, TFirst, TSecond, T> calculateValue)
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, TSecond, T> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -247,8 +252,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TFirst> firstProperty, 
             IObservable<TSecond> secondProperty, 
             IObservable<TThird> thirdProperty, 
-            TimeSpan throttleTime, 
-            Func<TContext, TFirst, TSecond, TThird, T> calculateValue)
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, TSecond, TThird, T> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -265,8 +271,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TSecond> secondProperty, 
             IObservable<TThird> thirdProperty, 
             IObservable<TFourth> fourthProperty, 
-            TimeSpan throttleTime, 
-            Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue)
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -280,8 +287,9 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, T>(
             IObservable<TFirst> firstProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TFirst, Task<T>> calculateValue)
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TFirst, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
@@ -293,8 +301,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, T>(
             IObservable<TFirst> firstProperty, 
             IObservable<TSecond> secondProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TFirst, TSecond, Task<T>> calculateValue)
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TFirst, TSecond, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -308,8 +317,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TFirst> firstProperty, 
             IObservable<TSecond> secondProperty, 
             IObservable<TThird> thirdProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<T>> calculateValue)
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -325,8 +335,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TSecond> secondProperty, 
             IObservable<TThird> thirdProperty, 
             IObservable<TFourth> fourthProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue)
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -341,8 +352,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
             TContext context, 
             IObservable<TFirst> firstProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TContext, TFirst, Task<T>> calculateValue)
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TContext, TFirst, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(calculateValue != null, "calculateValue");
@@ -355,8 +367,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             TContext context, 
             IObservable<TFirst> firstProperty, 
             IObservable<TSecond> secondProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue)
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -371,8 +384,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TFirst> firstProperty, 
             IObservable<TSecond> secondProperty, 
             IObservable<TThird> thirdProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue)
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -389,8 +403,9 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TSecond> secondProperty, 
             IObservable<TThird> thirdProperty, 
             IObservable<TFourth> fourthProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue)
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");

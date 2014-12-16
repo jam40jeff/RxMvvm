@@ -25,12 +25,22 @@ namespace MorseCode.RxMvvm.Observable.Property
     /// </summary>
     public class ObservablePropertyFactory : IObservablePropertyFactory
     {
+        #region Static Fields
+
         private static readonly Lazy<ObservablePropertyFactory> InstanceLazy =
             new Lazy<ObservablePropertyFactory>(() => new ObservablePropertyFactory());
+
+        #endregion
+
+        #region Constructors and Destructors
 
         private ObservablePropertyFactory()
         {
         }
+
+        #endregion
+
+        #region Public Properties
 
         /// <summary>
         /// Gets the singleton instance of an <see cref="ObservablePropertyFactory"/>.
@@ -46,19 +56,103 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        IReadOnlyProperty<T> IObservablePropertyFactory.CreateReadOnlyProperty<T>(T value)
+        #endregion
+
+        #region Explicit Interface Methods
+
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, T>(
+            IObservable<TFirst> firstProperty,
+            TimeSpan throttleTime,
+            Func<TFirst, T> calculateValue,
+            bool isLongRunningCalculation)
         {
-            return new ReadOnlyProperty<T>(new Lazy<T>(() => value));
+            return new AsyncCalculatedProperty<TFirst, T>(firstProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
-        IReadOnlyProperty<T> IObservablePropertyFactory.CreateReadOnlyProperty<T>(Lazy<T> value)
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, T>(
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            TimeSpan throttleTime,
+            Func<TFirst, TSecond, T> calculateValue,
+            bool isLongRunningCalculation)
         {
-            return new ReadOnlyProperty<T>(value);
+            return new AsyncCalculatedProperty<TFirst, TSecond, T>(
+                firstProperty, secondProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
-        IObservableProperty<T> IObservablePropertyFactory.CreateProperty<T>(T initialValue)
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            TimeSpan throttleTime,
+            Func<TFirst, TSecond, TThird, T> calculateValue,
+            bool isLongRunningCalculation)
         {
-            return new ObservableProperty<T>(initialValue);
+            return new AsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
+                firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue, isLongRunningCalculation);
+        }
+
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
+            TimeSpan throttleTime,
+            Func<TFirst, TSecond, TThird, TFourth, T> calculateValue,
+            bool isLongRunningCalculation)
+        {
+            return new AsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
+                firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue, isLongRunningCalculation);
+        }
+
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
+            TContext context,
+            IObservable<TFirst> firstProperty,
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, T> calculateValue,
+            bool isLongRunningCalculation)
+        {
+            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
+                context, firstProperty, throttleTime, calculateValue, isLongRunningCalculation);
+        }
+
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
+            TContext context,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, TSecond, T> calculateValue,
+            bool isLongRunningCalculation)
+        {
+            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
+                context, firstProperty, secondProperty, throttleTime, calculateValue, isLongRunningCalculation);
+        }
+
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
+            TContext context,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, TSecond, TThird, T> calculateValue,
+            bool isLongRunningCalculation)
+        {
+            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
+                context, firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue, isLongRunningCalculation);
+        }
+
+        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
+            TContext context,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue,
+            bool isLongRunningCalculation)
+        {
+            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
+                context, firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, T>(
@@ -69,7 +163,7 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, TSecond, T>(
             IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty, 
+            IObservable<TSecond> secondProperty,
             Func<TFirst, TSecond, T> calculateValue)
         {
             return new CalculatedProperty<TFirst, TSecond, T>(firstProperty, secondProperty, calculateValue);
@@ -78,7 +172,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedProperty<TFirst, TSecond, TThird, T>(
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty, 
+            IObservable<TThird> thirdProperty,
             Func<TFirst, TSecond, TThird, T> calculateValue)
         {
             return new CalculatedProperty<TFirst, TSecond, TThird, T>(
@@ -89,7 +183,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
             IObservable<TThird> thirdProperty,
-            IObservable<TFourth> fourthProperty, 
+            IObservable<TFourth> fourthProperty,
             Func<TFirst, TSecond, TThird, TFourth, T> calculateValue)
         {
             return new CalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
@@ -97,9 +191,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedPropertyWithContext<TContext, TFirst, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty, 
-            Func<TContext, TFirst, T> calculateValue)
+            TContext context, IObservable<TFirst> firstProperty, Func<TContext, TFirst, T> calculateValue)
         {
             return new CalculatedPropertyWithContext<TContext, TFirst, T>(context, firstProperty, calculateValue);
         }
@@ -107,7 +199,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
             TContext context,
             IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty, 
+            IObservable<TSecond> secondProperty,
             Func<TContext, TFirst, TSecond, T> calculateValue)
         {
             return new CalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
@@ -118,7 +210,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             TContext context,
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty, 
+            IObservable<TThird> thirdProperty,
             Func<TContext, TFirst, TSecond, TThird, T> calculateValue)
         {
             return new CalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
@@ -130,170 +222,92 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
             IObservable<TThird> thirdProperty,
-            IObservable<TFourth> fourthProperty, 
+            IObservable<TFourth> fourthProperty,
             Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue)
         {
             return new CalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
                 context, firstProperty, secondProperty, thirdProperty, fourthProperty, calculateValue);
         }
 
-        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, T>(
-            IObservable<TFirst> firstProperty, TimeSpan throttleTime, Func<TFirst, T> calculateValue)
-        {
-            return new AsyncCalculatedProperty<TFirst, T>(firstProperty, throttleTime, calculateValue);
-        }
-
-        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, T>(
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty, 
-            TimeSpan throttleTime, 
-            Func<TFirst, TSecond, T> calculateValue)
-        {
-            return new AsyncCalculatedProperty<TFirst, TSecond, T>(
-                firstProperty, secondProperty, throttleTime, calculateValue);
-        }
-
-        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty, 
-            TimeSpan throttleTime, 
-            Func<TFirst, TSecond, TThird, T> calculateValue)
-        {
-            return new AsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
-                firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue);
-        }
-
-        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty,
-            IObservable<TFourth> fourthProperty, 
-            TimeSpan throttleTime, 
-            Func<TFirst, TSecond, TThird, TFourth, T> calculateValue)
-        {
-            return new AsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-                firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue);
-        }
-
-        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty, 
-            TimeSpan throttleTime, 
-            Func<TContext, TFirst, T> calculateValue)
-        {
-            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
-                context, firstProperty, throttleTime, calculateValue);
-        }
-
-        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty, 
-            TimeSpan throttleTime, 
-            Func<TContext, TFirst, TSecond, T> calculateValue)
-        {
-            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
-                context, firstProperty, secondProperty, throttleTime, calculateValue);
-        }
-
-        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty, 
-            TimeSpan throttleTime, 
-            Func<TContext, TFirst, TSecond, TThird, T> calculateValue)
-        {
-            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
-                context, firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue);
-        }
-
-        ICalculatedProperty<T> IObservablePropertyFactory.CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty,
-            IObservable<TFourth> fourthProperty, 
-            TimeSpan throttleTime, 
-            Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue)
-        {
-            return new AsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
-                context, firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue);
-        }
-
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, T>(
-            IObservable<TFirst> firstProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TFirst, Task<T>> calculateValue)
+            IObservable<TFirst> firstProperty,
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TFirst, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
-            return new CancellableAsyncCalculatedProperty<TFirst, T>(firstProperty, throttleTime, calculateValue);
+            return new CancellableAsyncCalculatedProperty<TFirst, T>(firstProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, T>(
             IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TFirst, TSecond, Task<T>> calculateValue)
+            IObservable<TSecond> secondProperty,
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TFirst, TSecond, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             return new CancellableAsyncCalculatedProperty<TFirst, TSecond, T>(
-                firstProperty, secondProperty, throttleTime, calculateValue);
+                firstProperty, secondProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<T>> calculateValue)
+            IObservable<TThird> thirdProperty,
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             return new CancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
-                firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue);
+                firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
             IObservable<TThird> thirdProperty,
-            IObservable<TFourth> fourthProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue)
+            IObservable<TFourth> fourthProperty,
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             return new CancellableAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-                firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue);
+                firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
             TContext context,
-            IObservable<TFirst> firstProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TContext, TFirst, Task<T>> calculateValue)
+            IObservable<TFirst> firstProperty,
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TContext, TFirst, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             return new CancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
-                context, firstProperty, throttleTime, calculateValue);
+                context, firstProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
             TContext context,
             IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue)
+            IObservable<TSecond> secondProperty,
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             return new CancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
-                context, firstProperty, secondProperty, throttleTime, calculateValue);
+                context, firstProperty, secondProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
             TContext context,
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue)
+            IObservable<TThird> thirdProperty,
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             return new CancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
-                context, firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue);
+                context, firstProperty, secondProperty, thirdProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
 
         ICalculatedProperty<T> IObservablePropertyFactory.CreateCancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
@@ -301,13 +315,31 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
             IObservable<TThird> thirdProperty,
-            IObservable<TFourth> fourthProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue)
+            IObservable<TFourth> fourthProperty,
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             return
                 new CancellableAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
-                    context, firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue);
+                    context, firstProperty, secondProperty, thirdProperty, fourthProperty, throttleTime, calculateValue, isLongRunningCalculation);
         }
+
+        IObservableProperty<T> IObservablePropertyFactory.CreateProperty<T>(T initialValue)
+        {
+            return new ObservableProperty<T>(initialValue);
+        }
+
+        IReadOnlyProperty<T> IObservablePropertyFactory.CreateReadOnlyProperty<T>(T value)
+        {
+            return new ReadOnlyProperty<T>(new Lazy<T>(() => value));
+        }
+
+        IReadOnlyProperty<T> IObservablePropertyFactory.CreateReadOnlyProperty<T>(Lazy<T> value)
+        {
+            return new ReadOnlyProperty<T>(value);
+        }
+
+        #endregion
     }
 }

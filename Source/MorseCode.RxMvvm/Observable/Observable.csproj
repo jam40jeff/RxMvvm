@@ -154,6 +154,7 @@
     <Compile Include="Property\Internal\CancellableAsyncCalculatedPropertyWithContext{TFirst,TSecond,T}.cs" />
     <Compile Include="Property\Internal\CancellableAsyncCalculatedPropertyWithContext{TFirst,T}.cs" />
     <Compile Include="Property\Internal\ObservableProperty{T}.cs" />
+    <Compile Include="Property\Internal\ReadableObservablePropertyBaseContract.cs" />
     <Compile Include="Property\Internal\ReadableObservablePropertyBase{T}.cs" />
     <Compile Include="Property\Internal\ReadableObservablePropertyUtility.cs" />
     <Compile Include="Property\Internal\ReadOnlyProperty{T}.cs" />

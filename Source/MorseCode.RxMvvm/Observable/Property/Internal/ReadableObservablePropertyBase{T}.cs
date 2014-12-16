@@ -16,8 +16,10 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 {
     using System;
     using System.ComponentModel;
+    using System.Diagnostics.Contracts;
 
     [Serializable]
+    [ContractClass(typeof(ReadableObservablePropertyBaseContract<>))]
     internal abstract class ReadableObservablePropertyBase<T> : IReadableObservableProperty<T>
     {
         event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged

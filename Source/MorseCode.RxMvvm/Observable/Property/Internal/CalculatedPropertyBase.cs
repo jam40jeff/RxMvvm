@@ -326,6 +326,14 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
                 this.isCalculatingObservable = this.isCalculatingSubject.DistinctUntilChanged();
 
+                if (this.isCalculatingObservable == null)
+                {
+                    throw new InvalidOperationException(
+                        "Result of "
+                        + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name
+                        + " cannot be null.");
+                }
+
                 this.subscriptionsDisposable.Add(
                     this.valueOrExceptionSubject.Subscribe(
                         v => v.Switch(this.valueSubject.OnNext, this.exceptionSubject.OnNext)));
@@ -344,14 +352,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                 }
 
                 this.setObservable = this.setOrExceptionObservable.TakeFirst();
-
-                if (this.setObservable == null)
-                {
-                    throw new InvalidOperationException(
-                        "Result of "
-                        + StaticReflection<BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(
-                            o => o.TakeFirst()).Name + " cannot be null.");
-                }
 
                 this.changeObservable = this.setObservable.DistinctUntilChanged();
 

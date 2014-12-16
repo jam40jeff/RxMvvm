@@ -43,6 +43,8 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
         private readonly Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue;
 
+        private readonly bool isLongRunningCalculation;
+
         private IDisposable scheduledTask;
 
         internal CancellableAsyncCalculatedPropertyWithContext(
@@ -50,8 +52,9 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             IObservable<TFirst> firstProperty, 
             IObservable<TSecond> secondProperty, 
             IObservable<TThird> thirdProperty, 
-            TimeSpan throttleTime, 
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue)
+            TimeSpan throttleTime,
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue,
+            bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(firstProperty != null, "firstProperty");
             Contract.Requires<ArgumentNullException>(secondProperty != null, "secondProperty");
@@ -70,6 +73,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             this.thirdProperty = thirdProperty;
             this.throttleTime = throttleTime;
             this.calculateValue = calculateValue;
+            this.isLongRunningCalculation = isLongRunningCalculation;
 
             Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<IDiscriminatedUnion<object, T, Exception>>> calculate = async (helper, first, second, third) =>
                     {
@@ -78,7 +82,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                         {
                             discriminatedUnion =
                                 DiscriminatedUnion.First<object, T, Exception>(
-                                    await calculateValue(helper, context, first, second, third));
+                                    await calculateValue(helper, context, first, second, third).ConfigureAwait(true));
                         }
                         catch (Exception e)
                         {
@@ -88,12 +92,13 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                         return discriminatedUnion;
                     };
 
-            // TODO: pick a better scheduler
             this.SetHelper(new CalculatedPropertyHelper(
                 (resultSubject, isCalculatingSubject) =>
                     {
                         CompositeDisposable d = new CompositeDisposable();
-                        IScheduler scheduler = Scheduler.Default;
+                        IScheduler scheduler = isLongRunningCalculation
+                                               ? RxMvvmConfiguration.GetLongRunningCalculationScheduler()
+                                               : RxMvvmConfiguration.GetCalculationScheduler();
 
                         IObservable<Tuple<TFirst, TSecond, TThird>> o = firstProperty.CombineLatest(
                             secondProperty, thirdProperty, Tuple.Create);
@@ -113,15 +118,15 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                                                 {
                                                     try
                                                     {
-                                                        await s.Yield();
+                                                        await s.Yield().ConfigureAwait(true);
                                                         IDiscriminatedUnion<object, T, Exception> result =
                                                             await
                                                             calculate(
                                                                 new AsyncCalculationHelper(s, t),
                                                                 v.Item1,
                                                                 v.Item2,
-                                                                v.Item3);
-                                                        await s.Yield();
+                                                                v.Item3).ConfigureAwait(true);
+                                                        await s.Yield().ConfigureAwait(true);
                                                         resultSubject.OnNext(result);
                                                     }
                                                     catch (OperationCanceledException)
@@ -159,8 +164,9 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                 (IObservable<TFirst>)info.GetValue("p1", typeof(IObservable<TFirst>)), 
                 (IObservable<TSecond>)info.GetValue("p2", typeof(IObservable<TSecond>)), 
                 (IObservable<TThird>)info.GetValue("p3", typeof(IObservable<TThird>)), 
-                (TimeSpan)(info.GetValue("t", typeof(TimeSpan)) ?? default(TimeSpan)), 
-                (Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>>)info.GetValue("f", typeof(Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>>)))
+                (TimeSpan)(info.GetValue("t", typeof(TimeSpan)) ?? default(TimeSpan)),
+                (Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>>)info.GetValue("f", typeof(Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>>)),
+                (bool)info.GetValue("l", typeof(bool)))
         {
         }
 
@@ -182,6 +188,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             info.AddValue("p3", this.thirdProperty);
             info.AddValue("t", this.throttleTime);
             info.AddValue("f", this.calculateValue);
+            info.AddValue("l", this.isLongRunningCalculation);
         }
 
         /// <summary>

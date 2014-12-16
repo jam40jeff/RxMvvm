@@ -24,47 +24,359 @@ namespace MorseCode.RxMvvm.Observable.Property
     [ContractClass(typeof(ObservablePropertyFactoryContract))]
     public interface IObservablePropertyFactory
     {
-        /// <summary>
-        /// Creates a read-only property.
-        /// </summary>
-        /// <param name="value">
-        /// The value for the property.
-        /// </param>
-        /// <typeparam name="T">
-        /// The type of the property.
-        /// </typeparam>
-        /// <returns>
-        /// The read-only property as <see cref="IReadOnlyProperty{T}"/>.
-        /// </returns>
-        IReadOnlyProperty<T> CreateReadOnlyProperty<T>(T value);
+        #region Public Methods and Operators
 
         /// <summary>
-        /// Creates a read-only property whose value is lazily evaluated.
+        /// Creates an asynchronously calculated property.
         /// </summary>
-        /// <param name="value">
-        /// The lazily evaluated value for the property.
+        /// <param name="firstProperty">
+        /// The first property involved in the calculation.
         /// </param>
+        /// <param name="throttleTime">
+        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
+        /// </param>
+        /// <param name="calculateValue">
+        /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
+        /// </param>
+        /// <typeparam name="TFirst">
+        /// The type of the first property involved in the calculation.
+        /// </typeparam>
         /// <typeparam name="T">
-        /// The type of the property.
+        /// The type of the calculation result.
         /// </typeparam>
         /// <returns>
-        /// The read-only property as <see cref="IReadOnlyProperty{T}"/>.
+        /// The calculated property.
         /// </returns>
-        IReadOnlyProperty<T> CreateReadOnlyProperty<T>(Lazy<T> value);
+        ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, T>(
+            IObservable<TFirst> firstProperty,
+            TimeSpan throttleTime,
+            Func<TFirst, T> calculateValue,
+            bool isLongRunningCalculation = false);
 
         /// <summary>
-        /// Creates an observable read-write property.
+        /// Creates an asynchronously calculated property.
         /// </summary>
-        /// <param name="initialValue">
-        /// The initial value for the property.
+        /// <param name="firstProperty">
+        /// The first property involved in the calculation.
         /// </param>
+        /// <param name="secondProperty">
+        /// The second property involved in the calculation.
+        /// </param>
+        /// <param name="throttleTime">
+        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
+        /// </param>
+        /// <param name="calculateValue">
+        /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
+        /// </param>
+        /// <typeparam name="TFirst">
+        /// The type of the first property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TSecond">
+        /// The type of the second property involved in the calculation.
+        /// </typeparam>
         /// <typeparam name="T">
-        /// The type of the property.
+        /// The type of the calculation result.
         /// </typeparam>
         /// <returns>
-        /// The observable read-write property as <see cref="IObservableProperty{T}"/>.
+        /// The calculated property.
         /// </returns>
-        IObservableProperty<T> CreateProperty<T>(T initialValue);
+        ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, T>(
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            TimeSpan throttleTime,
+            Func<TFirst, TSecond, T> calculateValue,
+            bool isLongRunningCalculation = false);
+
+        /// <summary>
+        /// Creates an asynchronously calculated property.
+        /// </summary>
+        /// <param name="firstProperty">
+        /// The first property involved in the calculation.
+        /// </param>
+        /// <param name="secondProperty">
+        /// The second property involved in the calculation.
+        /// </param>
+        /// <param name="thirdProperty">
+        /// The third property involved in the calculation.
+        /// </param>
+        /// <param name="throttleTime">
+        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
+        /// </param>
+        /// <param name="calculateValue">
+        /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
+        /// </param>
+        /// <typeparam name="TFirst">
+        /// The type of the first property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TSecond">
+        /// The type of the second property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TThird">
+        /// The type of the third property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="T">
+        /// The type of the calculation result.
+        /// </typeparam>
+        /// <returns>
+        /// The calculated property.
+        /// </returns>
+        ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            TimeSpan throttleTime,
+            Func<TFirst, TSecond, TThird, T> calculateValue,
+            bool isLongRunningCalculation = false);
+
+        /// <summary>
+        /// Creates an asynchronously calculated property.
+        /// </summary>
+        /// <param name="firstProperty">
+        /// The first property involved in the calculation.
+        /// </param>
+        /// <param name="secondProperty">
+        /// The second property involved in the calculation.
+        /// </param>
+        /// <param name="thirdProperty">
+        /// The third property involved in the calculation.
+        /// </param>
+        /// <param name="fourthProperty">
+        /// The fourth property involved in the calculation.
+        /// </param>
+        /// <param name="throttleTime">
+        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
+        /// </param>
+        /// <param name="calculateValue">
+        /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
+        /// </param>
+        /// <typeparam name="TFirst">
+        /// The type of the first property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TSecond">
+        /// The type of the second property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TThird">
+        /// The type of the third property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TFourth">
+        /// The type of the fourth property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="T">
+        /// The type of the calculation result.
+        /// </typeparam>
+        /// <returns>
+        /// The calculated property.
+        /// </returns>
+        ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
+            TimeSpan throttleTime,
+            Func<TFirst, TSecond, TThird, TFourth, T> calculateValue,
+            bool isLongRunningCalculation = false);
+
+        /// <summary>
+        /// Creates an asynchronously calculated property.
+        /// </summary>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <param name="firstProperty">
+        /// The first property involved in the calculation.
+        /// </param>
+        /// <param name="throttleTime">
+        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
+        /// </param>
+        /// <param name="calculateValue">
+        /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
+        /// </param>
+        /// <typeparam name="TContext">
+        /// The type of the context.
+        /// </typeparam>
+        /// <typeparam name="TFirst">
+        /// The type of the first property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="T">
+        /// The type of the calculation result.
+        /// </typeparam>
+        /// <returns>
+        /// The calculated property.
+        /// </returns>
+        ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
+            TContext context,
+            IObservable<TFirst> firstProperty,
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, T> calculateValue,
+            bool isLongRunningCalculation = false);
+
+        /// <summary>
+        /// Creates an asynchronously calculated property.
+        /// </summary>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <param name="firstProperty">
+        /// The first property involved in the calculation.
+        /// </param>
+        /// <param name="secondProperty">
+        /// The second property involved in the calculation.
+        /// </param>
+        /// <param name="throttleTime">
+        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
+        /// </param>
+        /// <param name="calculateValue">
+        /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
+        /// </param>
+        /// <typeparam name="TContext">
+        /// The type of the context.
+        /// </typeparam>
+        /// <typeparam name="TFirst">
+        /// The type of the first property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TSecond">
+        /// The type of the second property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="T">
+        /// The type of the calculation result.
+        /// </typeparam>
+        /// <returns>
+        /// The calculated property.
+        /// </returns>
+        ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
+            TContext context,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, TSecond, T> calculateValue,
+            bool isLongRunningCalculation = false);
+
+        /// <summary>
+        /// Creates an asynchronously calculated property.
+        /// </summary>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <param name="firstProperty">
+        /// The first property involved in the calculation.
+        /// </param>
+        /// <param name="secondProperty">
+        /// The second property involved in the calculation.
+        /// </param>
+        /// <param name="thirdProperty">
+        /// The third property involved in the calculation.
+        /// </param>
+        /// <param name="throttleTime">
+        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
+        /// </param>
+        /// <param name="calculateValue">
+        /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
+        /// </param>
+        /// <typeparam name="TContext">
+        /// The type of the context.
+        /// </typeparam>
+        /// <typeparam name="TFirst">
+        /// The type of the first property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TSecond">
+        /// The type of the second property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TThird">
+        /// The type of the third property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="T">
+        /// The type of the calculation result.
+        /// </typeparam>
+        /// <returns>
+        /// The calculated property.
+        /// </returns>
+        ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
+            TContext context,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, TSecond, TThird, T> calculateValue,
+            bool isLongRunningCalculation = false);
+
+        /// <summary>
+        /// Creates an asynchronously calculated property.
+        /// </summary>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <param name="firstProperty">
+        /// The first property involved in the calculation.
+        /// </param>
+        /// <param name="secondProperty">
+        /// The second property involved in the calculation.
+        /// </param>
+        /// <param name="thirdProperty">
+        /// The third property involved in the calculation.
+        /// </param>
+        /// <param name="fourthProperty">
+        /// The fourth property involved in the calculation.
+        /// </param>
+        /// <param name="throttleTime">
+        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
+        /// </param>
+        /// <param name="calculateValue">
+        /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
+        /// </param>
+        /// <typeparam name="TContext">
+        /// The type of the context.
+        /// </typeparam>
+        /// <typeparam name="TFirst">
+        /// The type of the first property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TSecond">
+        /// The type of the second property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TThird">
+        /// The type of the third property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="TFourth">
+        /// The type of the fourth property involved in the calculation.
+        /// </typeparam>
+        /// <typeparam name="T">
+        /// The type of the calculation result.
+        /// </typeparam>
+        /// <returns>
+        /// The calculated property.
+        /// </returns>
+        ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
+            TContext context,
+            IObservable<TFirst> firstProperty,
+            IObservable<TSecond> secondProperty,
+            IObservable<TThird> thirdProperty,
+            IObservable<TFourth> fourthProperty,
+            TimeSpan throttleTime,
+            Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue,
+            bool isLongRunningCalculation = false);
 
         /// <summary>
         /// Creates a calculated property.
@@ -220,9 +532,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The calculated property.
         /// </returns>
         ICalculatedProperty<T> CreateCalculatedPropertyWithContext<TContext, TFirst, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty,
-            Func<TContext, TFirst, T> calculateValue);
+            TContext context, IObservable<TFirst> firstProperty, Func<TContext, TFirst, T> calculateValue);
 
         /// <summary>
         /// Creates a calculated property.
@@ -354,324 +664,6 @@ namespace MorseCode.RxMvvm.Observable.Property
             Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue);
 
         /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, T>(
-            IObservable<TFirst> firstProperty, TimeSpan throttleTime, Func<TFirst, T> calculateValue);
-
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, T>(
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            TimeSpan throttleTime,
-            Func<TFirst, TSecond, T> calculateValue);
-
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, T>(
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty,
-            TimeSpan throttleTime,
-            Func<TFirst, TSecond, TThird, T> calculateValue);
-
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="fourthProperty">
-        /// The fourth property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TFourth">
-        /// The type of the fourth property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        ICalculatedProperty<T> CreateAsyncCalculatedProperty<TFirst, TSecond, TThird, TFourth, T>(
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty,
-            IObservable<TFourth> fourthProperty,
-            TimeSpan throttleTime,
-            Func<TFirst, TSecond, TThird, TFourth, T> calculateValue);
-
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="context">
-        /// The context.
-        /// </param>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TContext">
-        /// The type of the context.
-        /// </typeparam>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty,
-            TimeSpan throttleTime,
-            Func<TContext, TFirst, T> calculateValue);
-
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="context">
-        /// The context.
-        /// </param>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TContext">
-        /// The type of the context.
-        /// </typeparam>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            TimeSpan throttleTime,
-            Func<TContext, TFirst, TSecond, T> calculateValue);
-
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="context">
-        /// The context.
-        /// </param>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TContext">
-        /// The type of the context.
-        /// </typeparam>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty,
-            TimeSpan throttleTime,
-            Func<TContext, TFirst, TSecond, TThird, T> calculateValue);
-
-        /// <summary>
-        /// Creates an asynchronously calculated property.
-        /// </summary>
-        /// <param name="context">
-        /// The context.
-        /// </param>
-        /// <param name="firstProperty">
-        /// The first property involved in the calculation.
-        /// </param>
-        /// <param name="secondProperty">
-        /// The second property involved in the calculation.
-        /// </param>
-        /// <param name="thirdProperty">
-        /// The third property involved in the calculation.
-        /// </param>
-        /// <param name="fourthProperty">
-        /// The fourth property involved in the calculation.
-        /// </param>
-        /// <param name="throttleTime">
-        /// The amount of time to throttle between calculations.  Set to <see cref="TimeSpan.Zero"/> to suppress throttling.
-        /// </param>
-        /// <param name="calculateValue">
-        /// The method to calculate the value.
-        /// </param>
-        /// <typeparam name="TContext">
-        /// The type of the context.
-        /// </typeparam>
-        /// <typeparam name="TFirst">
-        /// The type of the first property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TSecond">
-        /// The type of the second property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TThird">
-        /// The type of the third property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="TFourth">
-        /// The type of the fourth property involved in the calculation.
-        /// </typeparam>
-        /// <typeparam name="T">
-        /// The type of the calculation result.
-        /// </typeparam>
-        /// <returns>
-        /// The calculated property.
-        /// </returns>
-        ICalculatedProperty<T> CreateAsyncCalculatedPropertyWithContext<TContext, TFirst, TSecond, TThird, TFourth, T>(
-            TContext context,
-            IObservable<TFirst> firstProperty,
-            IObservable<TSecond> secondProperty,
-            IObservable<TThird> thirdProperty,
-            IObservable<TFourth> fourthProperty,
-            TimeSpan throttleTime,
-            Func<TContext, TFirst, TSecond, TThird, TFourth, T> calculateValue);
-
-        /// <summary>
         /// Creates a cancellable asynchronously calculated property.
         /// </summary>
         /// <param name="firstProperty">
@@ -682,6 +674,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </param>
         /// <param name="calculateValue">
         /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
         /// </param>
         /// <typeparam name="TFirst">
         /// The type of the first property involved in the calculation.
@@ -695,7 +690,8 @@ namespace MorseCode.RxMvvm.Observable.Property
         ICalculatedProperty<T> CreateCancellableAsyncCalculatedProperty<TFirst, T>(
             IObservable<TFirst> firstProperty,
             TimeSpan throttleTime,
-            Func<AsyncCalculationHelper, TFirst, Task<T>> calculateValue);
+            Func<AsyncCalculationHelper, TFirst, Task<T>> calculateValue,
+            bool isLongRunningCalculation = false);
 
         /// <summary>
         /// Creates a cancellable asynchronously calculated property.
@@ -711,6 +707,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </param>
         /// <param name="calculateValue">
         /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
         /// </param>
         /// <typeparam name="TFirst">
         /// The type of the first property involved in the calculation.
@@ -728,7 +727,8 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
             TimeSpan throttleTime,
-            Func<AsyncCalculationHelper, TFirst, TSecond, Task<T>> calculateValue);
+            Func<AsyncCalculationHelper, TFirst, TSecond, Task<T>> calculateValue,
+            bool isLongRunningCalculation = false);
 
         /// <summary>
         /// Creates a cancellable asynchronously calculated property.
@@ -747,6 +747,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </param>
         /// <param name="calculateValue">
         /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
         /// </param>
         /// <typeparam name="TFirst">
         /// The type of the first property involved in the calculation.
@@ -768,7 +771,8 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TSecond> secondProperty,
             IObservable<TThird> thirdProperty,
             TimeSpan throttleTime,
-            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<T>> calculateValue);
+            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, Task<T>> calculateValue,
+            bool isLongRunningCalculation = false);
 
         /// <summary>
         /// Creates a cancellable asynchronously calculated property.
@@ -790,6 +794,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </param>
         /// <param name="calculateValue">
         /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
         /// </param>
         /// <typeparam name="TFirst">
         /// The type of the first property involved in the calculation.
@@ -815,7 +822,8 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TThird> thirdProperty,
             IObservable<TFourth> fourthProperty,
             TimeSpan throttleTime,
-            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue);
+            Func<AsyncCalculationHelper, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue,
+            bool isLongRunningCalculation = false);
 
         /// <summary>
         /// Creates a cancellable asynchronously calculated property.
@@ -831,6 +839,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </param>
         /// <param name="calculateValue">
         /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
         /// </param>
         /// <typeparam name="TContext">
         /// The type of the context.
@@ -848,7 +859,8 @@ namespace MorseCode.RxMvvm.Observable.Property
             TContext context,
             IObservable<TFirst> firstProperty,
             TimeSpan throttleTime,
-            Func<AsyncCalculationHelper, TContext, TFirst, Task<T>> calculateValue);
+            Func<AsyncCalculationHelper, TContext, TFirst, Task<T>> calculateValue,
+            bool isLongRunningCalculation = false);
 
         /// <summary>
         /// Creates a cancellable asynchronously calculated property.
@@ -867,6 +879,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </param>
         /// <param name="calculateValue">
         /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
         /// </param>
         /// <typeparam name="TContext">
         /// The type of the context.
@@ -888,7 +903,8 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TFirst> firstProperty,
             IObservable<TSecond> secondProperty,
             TimeSpan throttleTime,
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue);
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, Task<T>> calculateValue,
+            bool isLongRunningCalculation = false);
 
         /// <summary>
         /// Creates a cancellable asynchronously calculated property.
@@ -910,6 +926,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </param>
         /// <param name="calculateValue">
         /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
         /// </param>
         /// <typeparam name="TContext">
         /// The type of the context.
@@ -935,7 +954,8 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TSecond> secondProperty,
             IObservable<TThird> thirdProperty,
             TimeSpan throttleTime,
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue);
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, Task<T>> calculateValue,
+            bool isLongRunningCalculation = false);
 
         /// <summary>
         /// Creates a cancellable asynchronously calculated property.
@@ -960,6 +980,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// </param>
         /// <param name="calculateValue">
         /// The method to calculate the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
         /// </param>
         /// <typeparam name="TContext">
         /// The type of the context.
@@ -989,6 +1012,51 @@ namespace MorseCode.RxMvvm.Observable.Property
             IObservable<TThird> thirdProperty,
             IObservable<TFourth> fourthProperty,
             TimeSpan throttleTime,
-            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue);
+            Func<AsyncCalculationHelper, TContext, TFirst, TSecond, TThird, TFourth, Task<T>> calculateValue,
+            bool isLongRunningCalculation = false);
+
+        /// <summary>
+        /// Creates an observable read-write property.
+        /// </summary>
+        /// <param name="initialValue">
+        /// The initial value for the property.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of the property.
+        /// </typeparam>
+        /// <returns>
+        /// The observable read-write property as <see cref="IObservableProperty{T}"/>.
+        /// </returns>
+        IObservableProperty<T> CreateProperty<T>(T initialValue);
+
+        /// <summary>
+        /// Creates a read-only property.
+        /// </summary>
+        /// <param name="value">
+        /// The value for the property.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of the property.
+        /// </typeparam>
+        /// <returns>
+        /// The read-only property as <see cref="IReadOnlyProperty{T}"/>.
+        /// </returns>
+        IReadOnlyProperty<T> CreateReadOnlyProperty<T>(T value);
+
+        /// <summary>
+        /// Creates a read-only property whose value is lazily evaluated.
+        /// </summary>
+        /// <param name="value">
+        /// The lazily evaluated value for the property.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of the property.
+        /// </typeparam>
+        /// <returns>
+        /// The read-only property as <see cref="IReadOnlyProperty{T}"/>.
+        /// </returns>
+        IReadOnlyProperty<T> CreateReadOnlyProperty<T>(Lazy<T> value);
+
+        #endregion
     }
 }
