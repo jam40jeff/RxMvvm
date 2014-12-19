@@ -20,8 +20,8 @@ namespace MorseCode.RxMvvm.Observable.Property
 
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
 
-    [ContractClassFor(typeof(ICalculatedProperty<>))]
-    internal abstract class CalculatedPropertyContract<T> : ICalculatedProperty<T>
+    [ContractClassFor(typeof(ILazyReadOnlyProperty<>))]
+    internal abstract class LazyReadOnlyPropertyContract<T> : ILazyReadOnlyProperty<T>
     {
         #region Explicit Interface Events
 
@@ -40,15 +40,7 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         #region Explicit Interface Properties
 
-        bool ICalculatedProperty<T>.IsCalculating
-        {
-            get
-            {
-                return false;
-            }
-        }
-
-        Exception ICalculatedProperty<T>.LatestCalculationException
+        Exception ILazyReadOnlyProperty<T>.CalculationException
         {
             get
             {
@@ -56,15 +48,23 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        T ICalculatedProperty<T>.LatestSuccessfulValue
+        bool ILazyReadOnlyProperty<T>.IsCalculated
         {
             get
             {
-                return default(T);
+                return false;
             }
         }
 
-        IObservable<Exception> ICalculatedProperty<T>.OnCalculationException
+        bool ILazyReadOnlyProperty<T>.IsCalculating
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        IObservable<Exception> ILazyReadOnlyProperty<T>.OnCalculationException
         {
             get
             {
@@ -83,7 +83,17 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        IObservable<bool> ICalculatedProperty<T>.OnIsCalculatingChanged
+        IObservable<bool> ILazyReadOnlyProperty<T>.OnIsCalculatedChanged
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<IObservable<bool>>() != null);
+
+                return null;
+            }
+        }
+
+        IObservable<bool> ILazyReadOnlyProperty<T>.OnIsCalculatingChanged
         {
             get
             {
@@ -102,7 +112,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        IObservable<T> ICalculatedProperty<T>.OnSuccessfulValueChanged
+        IObservable<T> ILazyReadOnlyProperty<T>.OnValueOrDefaultChanged
         {
             get
             {
@@ -112,7 +122,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        IObservable<T> ICalculatedProperty<T>.OnSuccessfulValueSet
+        IObservable<T> ILazyReadOnlyProperty<T>.OnValueOrDefaultSet
         {
             get
             {
@@ -122,27 +132,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        IObservable<T> ICalculatedProperty<T>.OnValueOrDefaultChanged
-        {
-            get
-            {
-                Contract.Ensures(Contract.Result<IObservable<T>>() != null);
-
-                return null;
-            }
-        }
-
-        IObservable<T> ICalculatedProperty<T>.OnValueOrDefaultSet
-        {
-            get
-            {
-                Contract.Ensures(Contract.Result<IObservable<T>>() != null);
-
-                return null;
-            }
-        }
-
-        T ICalculatedProperty<T>.Value
+        T ILazyReadOnlyProperty<T>.Value
         {
             get
             {
@@ -159,7 +149,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             }
         }
 
-        IDiscriminatedUnion<object, T, Exception> ICalculatedProperty<T>.ValueOrException
+        IDiscriminatedUnion<object, T, Exception> ILazyReadOnlyProperty<T>.ValueOrException
         {
             get
             {
@@ -177,9 +167,13 @@ namespace MorseCode.RxMvvm.Observable.Property
         {
         }
 
-        T ICalculatedProperty<T>.GetSuccessfulValueOrThrowException()
+        T ILazyReadOnlyProperty<T>.GetSuccessfulValueOrThrowException()
         {
             return default(T);
+        }
+
+        void ILazyReadOnlyProperty<T>.EagerLoad()
+        {
         }
 
         IDisposable IObservable<IDiscriminatedUnion<object, T, Exception>>.Subscribe(

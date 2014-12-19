@@ -16,6 +16,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics.Contracts;
     using System.Reactive.Concurrency;
     using System.Reactive.Disposables;
@@ -32,13 +33,19 @@ namespace MorseCode.RxMvvm.UI.Wpf
     [ContractClass(typeof(RxMvvmApplicationContract))]
     public abstract class RxMvvmApplicationBase : Application, IDisposable
     {
-        private readonly Dictionary<Type, ApplicationView> applicationViews = new Dictionary<Type, ApplicationView>();
+        #region Fields
 
-        private readonly ViewRegistrationHelper viewRegistrationHelper;
+        private readonly Dictionary<Type, ApplicationView> applicationViews = new Dictionary<Type, ApplicationView>();
 
         private readonly CompositeDisposable compositeDisposable = new CompositeDisposable();
 
+        private readonly ViewRegistrationHelper viewRegistrationHelper;
+
         private IView currentView;
+
+        #endregion
+
+        #region Constructors and Destructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RxMvvmApplicationBase"/> class.
@@ -47,6 +54,10 @@ namespace MorseCode.RxMvvm.UI.Wpf
         {
             this.viewRegistrationHelper = new ViewRegistrationHelper(this);
         }
+
+        #endregion
+
+        #region Properties
 
         private Dictionary<Type, ApplicationView> ApplicationViews
         {
@@ -58,10 +69,18 @@ namespace MorseCode.RxMvvm.UI.Wpf
             }
         }
 
+        #endregion
+
+        #region Explicit Interface Methods
+
         void IDisposable.Dispose()
         {
             this.compositeDisposable.Dispose();
         }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Creates the application view model.
@@ -79,7 +98,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
         /// </param>
         protected override void OnStartup(StartupEventArgs e)
         {
-            RxMvvmConfiguration.SetNotifyPropertyChangedSchedulerFactory(() => DispatcherScheduler.Current);
+            RxMvvmApplicationUtility.SetupRxMvvmConfiguration(this);
 
             base.OnStartup(e);
 
@@ -98,6 +117,14 @@ namespace MorseCode.RxMvvm.UI.Wpf
         /// </param>
         protected abstract void RegisterViews(ViewRegistrationHelper viewRegistrationHelper);
 
+        [ContractInvariantMethod]
+        private void CodeContractsInvariants()
+        {
+            Contract.Invariant(this.applicationViews != null);
+            Contract.Invariant(this.viewRegistrationHelper != null);
+            Contract.Invariant(this.compositeDisposable != null);
+        }
+
         private void CurrentViewModelChanged(object currentViewModel)
         {
             IView oldView = this.currentView;
@@ -109,7 +136,8 @@ namespace MorseCode.RxMvvm.UI.Wpf
                 Type currentViewModelType = currentViewModel.GetType();
                 if (!this.applicationViews.ContainsKey(currentViewModelType))
                 {
-                    throw new Exception("Could not find a view with view model type " + currentViewModelType.FullName + ".");
+                    throw new Exception(
+                        "Could not find a view with view model type " + currentViewModelType.FullName + ".");
                 }
 
                 ApplicationView applicationView = this.applicationViews[currentViewModelType];
@@ -144,20 +172,20 @@ namespace MorseCode.RxMvvm.UI.Wpf
             }
         }
 
-        [ContractInvariantMethod]
-        private void CodeContractsInvariants()
-        {
-            Contract.Invariant(this.applicationViews != null);
-            Contract.Invariant(this.viewRegistrationHelper != null);
-            Contract.Invariant(this.compositeDisposable != null);
-        }
+        #endregion
 
         /// <summary>
         /// The view registration helper.
         /// </summary>
         public class ViewRegistrationHelper
         {
+            #region Fields
+
             private readonly RxMvvmApplicationBase application;
+
+            #endregion
+
+            #region Constructors and Destructors
 
             internal ViewRegistrationHelper(RxMvvmApplicationBase application)
             {
@@ -166,6 +194,10 @@ namespace MorseCode.RxMvvm.UI.Wpf
 
                 this.application = application;
             }
+
+            #endregion
+
+            #region Public Methods and Operators
 
             /// <summary>
             /// Registers a view with the application.
@@ -187,11 +219,17 @@ namespace MorseCode.RxMvvm.UI.Wpf
                 return new ViewRegistrationHelperStep2<TView>(this.application, createView);
             }
 
+            #endregion
+
+            #region Methods
+
             [ContractInvariantMethod]
             private void CodeContractsInvariants()
             {
                 Contract.Invariant(this.application != null);
             }
+
+            #endregion
         }
 
         /// <summary>
@@ -203,9 +241,15 @@ namespace MorseCode.RxMvvm.UI.Wpf
         public class ViewRegistrationHelperStep2<TView>
             where TView : class, IView
         {
+            #region Fields
+
             private readonly RxMvvmApplicationBase application;
 
             private readonly Func<TView> createView;
+
+            #endregion
+
+            #region Constructors and Destructors
 
             internal ViewRegistrationHelperStep2(RxMvvmApplicationBase application, Func<TView> createView)
             {
@@ -217,6 +261,10 @@ namespace MorseCode.RxMvvm.UI.Wpf
                 this.application = application;
                 this.createView = createView;
             }
+
+            #endregion
+
+            #region Public Methods and Operators
 
             /// <summary>
             /// Ties a binding to the view being added.
@@ -234,19 +282,31 @@ namespace MorseCode.RxMvvm.UI.Wpf
                     new ApplicationView(this.createView, (p, d) => bind((TView)p, (TDataContext)d)));
             }
 
+            #endregion
+
+            #region Methods
+
             [ContractInvariantMethod]
             private void CodeContractsInvariants()
             {
                 Contract.Invariant(this.application != null);
                 Contract.Invariant(this.createView != null);
             }
+
+            #endregion
         }
 
         private class ApplicationView
         {
-            private readonly Func<IView> createView;
+            #region Fields
 
             private readonly Action<IView, object> bind;
+
+            private readonly Func<IView> createView;
+
+            #endregion
+
+            #region Constructors and Destructors
 
             internal ApplicationView(Func<IView> createView, Action<IView, object> bind)
             {
@@ -257,6 +317,23 @@ namespace MorseCode.RxMvvm.UI.Wpf
 
                 this.createView = createView;
                 this.bind = bind;
+            }
+
+            #endregion
+
+            #region Public Properties
+
+            /// <summary>
+            /// Gets the bind.
+            /// </summary>
+            public Action<IView, object> Bind
+            {
+                get
+                {
+                    Contract.Ensures(Contract.Result<Action<IView, object>>() != null);
+
+                    return this.bind;
+                }
             }
 
             /// <summary>
@@ -272,18 +349,9 @@ namespace MorseCode.RxMvvm.UI.Wpf
                 }
             }
 
-            /// <summary>
-            /// Gets the bind.
-            /// </summary>
-            public Action<IView, object> Bind
-            {
-                get
-                {
-                    Contract.Ensures(Contract.Result<Action<IView, object>>() != null);
+            #endregion
 
-                    return this.bind;
-                }
-            }
+            #region Methods
 
             [ContractInvariantMethod]
             private void CodeContractsInvariants()
@@ -291,6 +359,8 @@ namespace MorseCode.RxMvvm.UI.Wpf
                 Contract.Invariant(this.createView != null);
                 Contract.Invariant(this.bind != null);
             }
+
+            #endregion
         }
     }
 }

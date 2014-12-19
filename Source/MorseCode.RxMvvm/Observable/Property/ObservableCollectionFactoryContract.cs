@@ -28,10 +28,10 @@ namespace MorseCode.RxMvvm.Observable.Property
             return null;
         }
 
-        IReadOnlyProperty<T> IObservablePropertyFactory.CreateReadOnlyProperty<T>(Lazy<T> value)
+        ILazyReadOnlyProperty<T> IObservablePropertyFactory.CreateLazyReadOnlyProperty<T>(Func<T> valueFactory, bool isLongRunningCalculation)
         {
-            Contract.Requires<ArgumentNullException>(value != null, "value");
-            Contract.Ensures(Contract.Result<IReadOnlyProperty<T>>() != null);
+            Contract.Requires<ArgumentNullException>(valueFactory != null, "valueFactory");
+            Contract.Ensures(Contract.Result<ILazyReadOnlyProperty<T>>() != null);
 
             return null;
         }

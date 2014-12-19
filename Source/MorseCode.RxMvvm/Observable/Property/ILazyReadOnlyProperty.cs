@@ -20,24 +20,14 @@ namespace MorseCode.RxMvvm.Observable.Property
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
 
     /// <summary>
-    /// Interface representing a property that is automatically calculated when its dependencies change.
+    /// Interface representing a read-only property whose value is lazily evaluated.
     /// </summary>
     /// <typeparam name="T">
     /// The type of the property.
     /// </typeparam>
-    [ContractClass(typeof(CalculatedPropertyContract<>))]
-    public interface ICalculatedProperty<out T> : IReadableObservableProperty<IDiscriminatedUnion<object, T, Exception>>
+    [ContractClass(typeof(LazyReadOnlyPropertyContract<>))]
+    public interface ILazyReadOnlyProperty<out T> : IReadableObservableProperty<IDiscriminatedUnion<object, T, Exception>>
     {
-        /// <summary>
-        /// Gets an observable which notifies when a successful calculation results in a value change.
-        /// </summary>
-        IObservable<T> OnSuccessfulValueChanged { get; }
-
-        /// <summary>
-        /// Gets an observable which notifies on a successful calculation.
-        /// </summary>
-        IObservable<T> OnSuccessfulValueSet { get; }
-
         /// <summary>
         /// Gets an observable which notifies when a successful calculation or an error (which returns <value>default(<typeparamref name="T"/>)</value>) results in a value change.
         /// </summary>
@@ -54,9 +44,19 @@ namespace MorseCode.RxMvvm.Observable.Property
         IObservable<Exception> OnCalculationException { get; }
 
         /// <summary>
+        /// Gets an observable which notifies when the IsCalculated state changes.
+        /// </summary>
+        IObservable<bool> OnIsCalculatedChanged { get; }
+
+        /// <summary>
         /// Gets an observable which notifies when the IsCalculating state changes.
         /// </summary>
         IObservable<bool> OnIsCalculatingChanged { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether or not the value of the property has been calculated.
+        /// </summary>
+        bool IsCalculated { get; }
 
         /// <summary>
         /// Gets a value indicating whether or not the value of the property is currently being calculated.
@@ -64,14 +64,9 @@ namespace MorseCode.RxMvvm.Observable.Property
         bool IsCalculating { get; }
 
         /// <summary>
-        /// Gets the latest value from a successful calculation.
-        /// </summary>
-        T LatestSuccessfulValue { get; }
-
-        /// <summary>
         /// Gets the latest calculation exception.
         /// </summary>
-        Exception LatestCalculationException { get; }
+        Exception CalculationException { get; }
 
         /// <summary>
         /// Gets the value or <value>default(<typeparamref name="T"/>)</value> if the latest calculation resulted in an error.
@@ -93,5 +88,10 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// The latest calculation exception.
         /// </exception>
         T GetSuccessfulValueOrThrowException();
+
+        /// <summary>
+        /// Forces the value of the property to be eagerly loaded.
+        /// </summary>
+        void EagerLoad();
     }
 }

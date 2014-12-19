@@ -56,7 +56,17 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             get
             {
-                return this.GetValueOrDefault(this.helper.OnChanged);
+                IObservable<T> result = this.GetValueOrDefault(this.helper.OnChanged).DistinctUntilChanged();
+
+                if (result == null)
+                {
+                    throw new InvalidOperationException(
+                        "Result of "
+                        + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name
+                        + " cannot be null.");
+                }
+
+                return result;
             }
         }
 
@@ -104,6 +114,14 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             get
             {
+                return this.LatestSuccessfulValue;
+            }
+        }
+
+        public T LatestSuccessfulValue
+        {
+            get
+            {
                 return this.Helper.LatestSuccessfulValue;
             }
         }
@@ -112,7 +130,23 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             get
             {
+                return this.LatestCalculationException;
+            }
+        }
+
+        public Exception LatestCalculationException
+        {
+            get
+            {
                 return this.Helper.LatestCalculationException;
+            }
+        }
+
+        T ICalculatedProperty<T>.Value
+        {
+            get
+            {
+                return this.Value;
             }
         }
 
@@ -121,6 +155,22 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             get
             {
                 return this.Helper.GetValue().Switch(v => v, e => default(T));
+            }
+        }
+
+        IDiscriminatedUnion<object, T, Exception> ICalculatedProperty<T>.ValueOrException
+        {
+            get
+            {
+                return this.ValueOrException;
+            }
+        }
+
+        public IDiscriminatedUnion<object, T, Exception> ValueOrException
+        {
+            get
+            {
+                return this.Helper.GetValue();
             }
         }
 
@@ -215,7 +265,9 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             if (notifyPropertyChangedScheduler != null)
             {
                 this.subscriptionsDisposable.Add(
-                    calculatedPropertyHelper.OnChanged.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnValueChanged()));
+                    calculatedPropertyHelper.OnChanged.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnValueOrExceptionChanged()));
+                this.subscriptionsDisposable.Add(
+                    this.GetValueOrDefault(calculatedPropertyHelper.OnChanged).Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnValueChanged()));
                 this.subscriptionsDisposable.Add(
                     calculatedPropertyHelper.OnSuccessfulValueChanged.Skip(1).ObserveOn(notifyPropertyChangedScheduler).Subscribe(v => this.OnLatestSuccessfulValueChanged()));
                 this.subscriptionsDisposable.Add(
@@ -225,6 +277,14 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             }
 
             this.helper = calculatedPropertyHelper;
+        }
+
+        /// <summary>
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.ValueOrException"/> property.
+        /// </summary>
+        protected virtual void OnValueOrExceptionChanged()
+        {
+            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.ValueOrExceptionPropertyName));
         }
 
         /// <summary>
@@ -244,11 +304,11 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         }
 
         /// <summary>
-        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.LatestCalculationException"/> property.
+        /// Raises the <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the <see cref="ICalculatedProperty{T}.IsCalculating"/> property.
         /// </summary>
         protected virtual void OnIsCalculatingChanged()
         {
-            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.IsCalculatingChangedPropertyName));
+            this.OnPropertyChanged(new PropertyChangedEventArgs(CalculatedPropertyUtility.IsCalculatingPropertyName));
         }
 
         private IObservable<T> GetValueOrDefault(IObservable<IDiscriminatedUnion<object, T, Exception>> o)
@@ -283,7 +343,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             private readonly BehaviorSubject<IDiscriminatedUnion<object, T, Exception>> valueOrExceptionSubject;
 
             private readonly BehaviorSubject<bool> isCalculatingSubject;
-            
+
             private readonly IObservable<bool> isCalculatingObservable;
 
             private readonly BehaviorSubject<T> valueSubject;

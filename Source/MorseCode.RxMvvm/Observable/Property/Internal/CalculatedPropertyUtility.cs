@@ -12,29 +12,32 @@
 // limitations under the License.
 #endregion
 
-namespace MorseCode.RxMvvm.Observable.Property
+namespace MorseCode.RxMvvm.Observable.Property.Internal
 {
-    using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Common.StaticReflection;
 
     internal static class CalculatedPropertyUtility
     {
+        internal static readonly string ValueOrExceptionPropertyName;
+
         internal static readonly string LatestSuccessfulValuePropertyName;
 
         internal static readonly string LatestCalculationExceptionPropertyName;
 
-        internal static readonly string IsCalculatingChangedPropertyName;
+        internal static readonly string IsCalculatingPropertyName;
 
         /// <summary>
         /// Initializes static members of the <see cref="CalculatedPropertyUtility"/> class.
         /// </summary>
         static CalculatedPropertyUtility()
         {
+            ValueOrExceptionPropertyName =
+                StaticReflection<ICalculatedProperty<object>>.GetMemberInfo(o => o.ValueOrException).Name;
             LatestSuccessfulValuePropertyName =
                 StaticReflection<ICalculatedProperty<object>>.GetMemberInfo(o => o.LatestSuccessfulValue).Name;
             LatestCalculationExceptionPropertyName =
                 StaticReflection<ICalculatedProperty<object>>.GetMemberInfo(o => o.LatestCalculationException).Name;
-            IsCalculatingChangedPropertyName =
+            IsCalculatingPropertyName =
                 StaticReflection<ICalculatedProperty<object>>.GetMemberInfo(o => o.IsCalculating).Name;
         }
     }

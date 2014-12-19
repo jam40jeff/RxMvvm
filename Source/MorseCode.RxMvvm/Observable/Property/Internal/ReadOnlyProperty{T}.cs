@@ -26,28 +26,26 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
     [Serializable]
     internal class ReadOnlyProperty<T> : ReadableObservablePropertyBase<T>, IReadOnlyProperty<T>, ISerializable
     {
-        private readonly Lazy<T> value;
+        private readonly T value;
 
         private readonly IObservable<T> observable;
 
-        internal ReadOnlyProperty(Lazy<T> value)
+        internal ReadOnlyProperty(T value)
         {
-            Contract.Requires<ArgumentNullException>(value != null, "value");
-            Contract.Ensures(this.value != null);
             Contract.Ensures(this.observable != null);
 
             this.value = value;
             this.observable = Observable.Create<T>(
                 o =>
-                    {
-                        o.OnNext(value.Value);
-                        return Disposable.Empty;
-                    });
+                {
+                    o.OnNext(value);
+                    return Disposable.Empty;
+                });
 
             if (this.observable == null)
             {
                 throw new InvalidOperationException(
-                    "Result of " + StaticReflection.GetInScopeMethodInfo(() => Observable.Return<object>(null)).Name
+                    "Result of " + StaticReflection.GetInScopeMethodInfo(() => Observable.Create((Func<IObserver<object>, IDisposable>)null)).Name
                     + " cannot be null.");
             }
         }
@@ -66,11 +64,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         protected ReadOnlyProperty(SerializationInfo info, StreamingContext context)
             // ReSharper restore UnusedParameter.Local
             : this((T)(info.GetValue("v", typeof(T)) ?? default(T)))
-        {
-        }
-
-        private ReadOnlyProperty(T value)
-            : this(new Lazy<T>(() => value))
         {
         }
 
@@ -108,7 +101,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("v", this.value.Value);
+            info.AddValue("v", this.value);
         }
 
         /// <summary>
@@ -119,13 +112,12 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         /// </returns>
         protected override T GetValue()
         {
-            return this.value.Value;
+            return this.value;
         }
 
         [ContractInvariantMethod]
         private void CodeContractsInvariants()
         {
-            Contract.Invariant(this.value != null);
             Contract.Invariant(this.observable != null);
         }
     }

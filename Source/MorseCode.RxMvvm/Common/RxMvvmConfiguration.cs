@@ -24,9 +24,13 @@ namespace MorseCode.RxMvvm.Common
     /// </summary>
     public static class RxMvvmConfiguration
     {
+        private static readonly Func<bool> DefaultIsInDesignMode;
+
         private static readonly Func<IScheduler> DefaultGetCalculationScheduler;
 
         private static readonly Func<IScheduler> DefaultGetLongRunningCalculationScheduler;
+
+        private static Func<bool> isInDesignMode;
 
         private static Func<IScheduler> getNotifyPropertyChangedScheduler;
 
@@ -39,9 +43,11 @@ namespace MorseCode.RxMvvm.Common
         /// </summary>
         static RxMvvmConfiguration()
         {
+            Contract.Ensures(DefaultIsInDesignMode != null);
             Contract.Ensures(DefaultGetCalculationScheduler != null);
             Contract.Ensures(DefaultGetLongRunningCalculationScheduler != null);
 
+            DefaultIsInDesignMode = () => false;
             DefaultGetCalculationScheduler = () => Scheduler.Default;
             DefaultGetLongRunningCalculationScheduler = () => NewThreadScheduler.Default;
         }
@@ -75,6 +81,33 @@ namespace MorseCode.RxMvvm.Common
         }
 
         /// <summary>
+        /// Gets whether or not the code is running as part of a designer.
+        /// </summary>
+        /// <returns>
+        /// Whether or not the code is running as part of a designer.
+        /// </returns>
+        public static bool IsInDesignMode()
+        {
+            if (isInDesignMode == null)
+            {
+                return DefaultIsInDesignMode();
+            }
+
+            return isInDesignMode();
+        }
+
+        /// <summary>
+        /// Sets a function returning whether or not the code is running as part of a designer.
+        /// </summary>
+        /// <param name="f">
+        /// A function returning whether or not the code is running as part of a designer.
+        /// </param>
+        public static void SetIsInDesignModeFunc(Func<bool> f)
+        {
+            isInDesignMode = f;
+        }
+
+        /// <summary>
         /// Gets an <see cref="IScheduler"/> to use to fire <see cref="INotifyPropertyChanged"/> notifications.
         /// If <value>null</value> is returned, <see cref="INotifyPropertyChanged"/> notifications should not be fired.
         /// </summary>
@@ -93,7 +126,7 @@ namespace MorseCode.RxMvvm.Common
 
         /// <summary>
         /// Sets a function returning an <see cref="IScheduler"/> to use to fire <see cref="INotifyPropertyChanged"/> notifications.
-        /// The set notify property changed scheduler factory.
+        /// If <value>null</value> is returned from the <paramref name="f"/> or if <paramref name="f"/> is <value>null</value>, <see cref="INotifyPropertyChanged"/> notifications should not be fired.
         /// </summary>
         /// <param name="f">
         /// A function returning an <see cref="IScheduler"/> to use to fire <see cref="INotifyPropertyChanged"/> notifications.
@@ -192,6 +225,7 @@ namespace MorseCode.RxMvvm.Common
         [ContractInvariantMethod]
         private static void CodeContractsInvariants()
         {
+            Contract.Invariant(DefaultIsInDesignMode != null);
             Contract.Invariant(DefaultGetCalculationScheduler != null);
             Contract.Invariant(DefaultGetLongRunningCalculationScheduler != null);
         }

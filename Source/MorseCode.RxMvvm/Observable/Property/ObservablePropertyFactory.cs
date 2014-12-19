@@ -332,12 +332,12 @@ namespace MorseCode.RxMvvm.Observable.Property
 
         IReadOnlyProperty<T> IObservablePropertyFactory.CreateReadOnlyProperty<T>(T value)
         {
-            return new ReadOnlyProperty<T>(new Lazy<T>(() => value));
+            return new ReadOnlyProperty<T>(value);
         }
 
-        IReadOnlyProperty<T> IObservablePropertyFactory.CreateReadOnlyProperty<T>(Lazy<T> value)
+        ILazyReadOnlyProperty<T> IObservablePropertyFactory.CreateLazyReadOnlyProperty<T>(Func<T> valueFactory, bool isLongRunningCalculation)
         {
-            return new ReadOnlyProperty<T>(value);
+            return new LazyReadOnlyProperty<T>(valueFactory, isLongRunningCalculation);
         }
 
         #endregion

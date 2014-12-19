@@ -1046,16 +1046,19 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// <summary>
         /// Creates a read-only property whose value is lazily evaluated.
         /// </summary>
-        /// <param name="value">
-        /// The lazily evaluated value for the property.
+        /// <param name="valueFactory">
+        /// The function which produces the value.
+        /// </param>
+        /// <param name="isLongRunningCalculation">
+        /// Whether or not the calculation is expected to take longer than 50 milliseconds to complete.
         /// </param>
         /// <typeparam name="T">
         /// The type of the property.
         /// </typeparam>
         /// <returns>
-        /// The read-only property as <see cref="IReadOnlyProperty{T}"/>.
+        /// The lazy read-only property as <see cref="ILazyReadOnlyProperty{T}"/>.
         /// </returns>
-        IReadOnlyProperty<T> CreateReadOnlyProperty<T>(Lazy<T> value);
+        ILazyReadOnlyProperty<T> CreateLazyReadOnlyProperty<T>(Func<T> valueFactory, bool isLongRunningCalculation = false);
 
         #endregion
     }

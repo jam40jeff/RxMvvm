@@ -126,8 +126,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Property\AsyncCalculationHelper.cs" />
     <Compile Include="Property\CalculatedPropertyContract{T}.cs" />
-    <Compile Include="Property\CalculatedPropertyUtility.cs" />
+    <Compile Include="Property\Internal\CalculatedPropertyUtility.cs" />
     <Compile Include="ChainedObservable.cs" />
+    <Compile Include="Property\ILazyReadOnlyProperty.cs" />
     <Compile Include="Property\Internal\AsyncCalculatedProperty{TFirst,TSecond,TThird,TFourth,T}.cs" />
     <Compile Include="Property\Internal\AsyncCalculatedProperty{TFirst,TSecond,TThird,T}.cs" />
     <Compile Include="Property\Internal\AsyncCalculatedProperty{TFirst,TSecond,T}.cs" />
@@ -153,12 +154,15 @@
     <Compile Include="Property\Internal\CancellableAsyncCalculatedPropertyWithContext{TFirst,TSecond,TThird,T}.cs" />
     <Compile Include="Property\Internal\CancellableAsyncCalculatedPropertyWithContext{TFirst,TSecond,T}.cs" />
     <Compile Include="Property\Internal\CancellableAsyncCalculatedPropertyWithContext{TFirst,T}.cs" />
+    <Compile Include="Property\Internal\LazyReadOnlyPropertyUtility.cs" />
+    <Compile Include="Property\Internal\LazyReadOnlyProperty{T}.cs" />
     <Compile Include="Property\Internal\ObservableProperty{T}.cs" />
     <Compile Include="Property\Internal\ReadableObservablePropertyBaseContract.cs" />
     <Compile Include="Property\Internal\ReadableObservablePropertyBase{T}.cs" />
     <Compile Include="Property\Internal\ReadableObservablePropertyUtility.cs" />
     <Compile Include="Property\Internal\ReadOnlyProperty{T}.cs" />
     <Compile Include="Property\IObservablePropertyFactory.cs" />
+    <Compile Include="Property\LazyReadOnlyPropertyContract.cs" />
     <Compile Include="Property\ObservableCollectionFactoryContract.cs" />
     <Compile Include="Property\ReadOnlyPropertyContract{T}.cs" />
     <Compile Include="Property\IReadOnlyProperty.cs" />
