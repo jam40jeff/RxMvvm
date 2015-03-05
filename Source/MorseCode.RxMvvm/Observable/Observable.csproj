@@ -163,7 +163,7 @@
     <Compile Include="Property\Internal\ReadOnlyProperty{T}.cs" />
     <Compile Include="Property\IObservablePropertyFactory.cs" />
     <Compile Include="Property\LazyReadOnlyPropertyContract.cs" />
-    <Compile Include="Property\ObservableCollectionFactoryContract.cs" />
+    <Compile Include="Property\ObservablePropertyFactoryContract.cs" />
     <Compile Include="Property\ReadOnlyPropertyContract{T}.cs" />
     <Compile Include="Property\IReadOnlyProperty.cs" />
     <Compile Include="Property\WritableObservablePropertyContract{T}.cs" />
