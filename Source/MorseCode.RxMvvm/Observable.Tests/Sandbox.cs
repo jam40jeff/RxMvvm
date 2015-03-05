@@ -645,10 +645,10 @@ namespace MorseCode.RxMvvm.Observable.Tests
 
             ILazyReadOnlyProperty<bool> lazyReadOnlyProperty =
                 ObservablePropertyFactory.Instance.CreateLazyReadOnlyProperty(
-                    () =>
+                    async () =>
                     {
                         Console.WriteLine("Calculating value.");
-                        Thread.Sleep(500);
+                        await Task.Delay(500).ConfigureAwait(false);
                         try
                         {
                             bool value = getValue();

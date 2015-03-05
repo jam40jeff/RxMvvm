@@ -1058,7 +1058,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// <returns>
         /// The lazy read-only property as <see cref="ILazyReadOnlyProperty{T}"/>.
         /// </returns>
-        ILazyReadOnlyProperty<T> CreateLazyReadOnlyProperty<T>(Func<T> valueFactory, bool isLongRunningCalculation = false);
+        ILazyReadOnlyProperty<T> CreateLazyReadOnlyProperty<T>(Func<Task<T>> valueFactory, bool isLongRunningCalculation = false);
 
         #endregion
     }

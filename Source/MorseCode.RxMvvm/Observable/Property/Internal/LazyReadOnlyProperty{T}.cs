@@ -18,12 +18,12 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
     using System.ComponentModel;
     using System.Diagnostics.Contracts;
     using System.Reactive.Concurrency;
-    using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
     using System.Runtime.Serialization;
     using System.Security.Permissions;
     using System.Threading;
+    using System.Threading.Tasks;
 
     using MorseCode.RxMvvm.Common;
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
@@ -31,29 +31,21 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
     using MorseCode.RxMvvm.Reactive;
 
     [Serializable]
-    internal class LazyReadOnlyProperty<T> : ReadableObservablePropertyBase<IDiscriminatedUnion<object, T, Exception>>,
-                                             ILazyReadOnlyProperty<T>,
-                                             ISerializable
+    internal class LazyReadOnlyProperty<T> : ReadableObservablePropertyBase<IDiscriminatedUnion<object, T, Exception>>, ILazyReadOnlyProperty<T>, ISerializable
     {
         #region Fields
-
-        private readonly object calculationLock = new object();
 
         private readonly IObservable<T> changeObservable;
 
         private readonly IObservable<IDiscriminatedUnion<object, T, Exception>> changeOrExceptionObservable;
 
-        private readonly object eagerLoadLock = new object();
-
         private readonly IObservable<Exception> exceptionObservable;
 
-        private readonly object isCalculatedLock = new object();
+        private readonly object hasLoadBeenCalledLock = new object();
 
         private readonly IObservable<bool> isCalculatedObservable;
 
         private readonly BehaviorSubject<bool> isCalculatedSubject;
-
-        private readonly object isCalculatingLock = new object();
 
         private readonly IObservable<bool> isCalculatingObservable;
 
@@ -63,25 +55,21 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
         private readonly IObservable<T> setObservable;
 
-        private readonly Lazy<T> value;
+        private readonly Lazy<Task<T>> value;
 
-        private readonly Func<T> valueFactory;
+        private readonly Func<Task<T>> valueFactory;
 
         private readonly IObservable<IDiscriminatedUnion<object, T, Exception>> valueObservable;
 
-        private IDisposable eagerLoadDisposable;
+        private readonly BehaviorSubject<IDiscriminatedUnion<object, T, Exception>> valueSubject;
 
-        private bool isCalculated;
-
-        private bool isCalculating;
-
-        private IDiscriminatedUnion<object, T, Exception> latestValue;
+        private bool hasLoadBeenCalled;
 
         #endregion
 
         #region Constructors and Destructors
 
-        internal LazyReadOnlyProperty(Func<T> valueFactory, bool isLongRunningCalculation)
+        internal LazyReadOnlyProperty(Func<Task<T>> valueFactory, bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(valueFactory != null, "valueFactory");
             Contract.Ensures(this.value != null);
@@ -95,7 +83,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Contract.Ensures(this.isCalculatingSubject != null);
             Contract.Ensures(this.setObservable != null);
             Contract.Ensures(this.valueObservable != null);
-            Contract.Ensures(this.latestValue != null);
+            Contract.Ensures(this.valueSubject != null);
 
             this.valueFactory = valueFactory;
             this.isLongRunningCalculation = isLongRunningCalculation;
@@ -103,158 +91,29 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             this.isCalculatedSubject = new BehaviorSubject<bool>(false);
             this.isCalculatingSubject = new BehaviorSubject<bool>(false);
 
-            this.latestValue = DiscriminatedUnion.First<object, T, Exception>(default(T));
+            this.valueSubject = new BehaviorSubject<IDiscriminatedUnion<object, T, Exception>>(DiscriminatedUnion.First<object, T, Exception>(default(T)));
 
-            this.value = new Lazy<T>(valueFactory);
-            this.valueObservable = Observable.Create<IDiscriminatedUnion<object, T, Exception>>(
-                o =>
-                    {
-                        if (!this.value.IsValueCreated)
-                        {
-                            IScheduler scheduler = isLongRunningCalculation
-                                                       ? RxMvvmConfiguration.GetLongRunningCalculationScheduler()
-                                                       : RxMvvmConfiguration.GetCalculationScheduler();
-                            scheduler.Schedule(
-                                () =>
-                                    {
-                                        IScheduler notifyPropertyChangedScheduler =
-                                            RxMvvmConfiguration.GetNotifyPropertyChangedScheduler();
+            this.value = new Lazy<Task<T>>(valueFactory);
 
-                                        bool needsCalculating;
-                                        lock (this.isCalculatingLock)
-                                        {
-                                            if (this.isCalculating)
-                                            {
-                                                needsCalculating = false;
-                                            }
-                                            else
-                                            {
-                                                needsCalculating = true;
-                                                this.isCalculating = true;
-                                            }
-                                        }
-
-                                        if (!needsCalculating)
-                                        {
-                                            lock (this.isCalculatedLock)
-                                            {
-                                                if (!this.isCalculated)
-                                                {
-                                                    o.OnNext(this.latestValue);
-                                                }
-                                            }
-                                        }
-
-                                        lock (this.calculationLock)
-                                        {
-                                            if (needsCalculating)
-                                            {
-                                                this.isCalculatingSubject.OnNext(true);
-                                                if (notifyPropertyChangedScheduler != null)
-                                                {
-                                                    notifyPropertyChangedScheduler.Schedule(this.OnIsCalculatingChanged);
-                                                }
-
-                                                o.OnNext(this.latestValue);
-
-                                                try
-                                                {
-                                                    IDiscriminatedUnion<object, T, Exception> v =
-                                                        DiscriminatedUnion.First<object, T, Exception>(this.value.Value);
-
-                                                    lock (this.isCalculatedLock)
-                                                    {
-                                                        this.latestValue = v;
-                                                        this.isCalculated = true;
-                                                    }
-
-                                                    o.OnNext(this.latestValue);
-                                                    if (notifyPropertyChangedScheduler != null)
-                                                    {
-                                                        if (!ReferenceEquals(this.latestValue.First, null)
-                                                            && !this.latestValue.First.Equals(default(T)))
-                                                        {
-                                                            notifyPropertyChangedScheduler.Schedule(
-                                                                this.OnValueOrExceptionChanged);
-                                                            notifyPropertyChangedScheduler.Schedule(this.OnValueChanged);
-                                                        }
-                                                    }
-                                                }
-                                                catch (Exception e)
-                                                {
-                                                    IDiscriminatedUnion<object, T, Exception> v =
-                                                        DiscriminatedUnion.Second<object, T, Exception>(e);
-
-                                                    lock (this.isCalculatedLock)
-                                                    {
-                                                        this.latestValue = v;
-                                                        this.isCalculated = true;
-                                                    }
-
-                                                    o.OnNext(this.latestValue);
-                                                    if (notifyPropertyChangedScheduler != null)
-                                                    {
-                                                        notifyPropertyChangedScheduler.Schedule(
-                                                            this.OnValueOrExceptionChanged);
-                                                        notifyPropertyChangedScheduler.Schedule(
-                                                            this.OnCalculationExceptionChanged);
-                                                    }
-                                                }
-
-                                                this.isCalculatedSubject.OnNext(true);
-                                                if (notifyPropertyChangedScheduler != null)
-                                                {
-                                                    notifyPropertyChangedScheduler.Schedule(this.OnIsCalculatedChanged);
-                                                }
-
-                                                this.isCalculatingSubject.OnNext(false);
-                                                if (notifyPropertyChangedScheduler != null)
-                                                {
-                                                    notifyPropertyChangedScheduler.Schedule(this.OnIsCalculatingChanged);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                o.OnNext(this.latestValue);
-                                            }
-                                        }
-                                    });
-                        }
-                        else
-                        {
-                            lock (this.isCalculatedLock)
-                            {
-                                o.OnNext(this.latestValue);
-                            }
-                        }
-
-                        return Disposable.Empty;
-                    });
+            this.valueObservable = this.valueSubject.Do(_ => this.Load());
 
             if (this.valueObservable == null)
             {
-                throw new InvalidOperationException(
-                    "Result of "
-                    + StaticReflection.GetInScopeMethodInfo(
-                        () => Observable.Create((Func<IObserver<object>, IDisposable>)null)).Name + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection.GetInScopeMethodInfo(() => Observable.Do(null, (Action<object>)null)).Name + " cannot be null.");
             }
 
             this.isCalculatedObservable = this.isCalculatedSubject.DistinctUntilChanged();
 
             if (this.isCalculatedObservable == null)
             {
-                throw new InvalidOperationException(
-                    "Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name
-                    + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name + " cannot be null.");
             }
 
             this.isCalculatingObservable = this.isCalculatingSubject.DistinctUntilChanged();
 
             if (this.isCalculatingObservable == null)
             {
-                throw new InvalidOperationException(
-                    "Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name
-                    + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name + " cannot be null.");
             }
 
             this.setObservable = this.valueObservable.TakeFirst();
@@ -263,22 +122,15 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
             if (this.changeObservable == null)
             {
-                throw new InvalidOperationException(
-                    "Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name
-                    + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name + " cannot be null.");
             }
 
             this.exceptionObservable = this.valueObservable.TakeSecond();
-            this.changeOrExceptionObservable =
-                this.changeObservable.Select(DiscriminatedUnion.First<object, T, Exception>)
-                    .Merge(this.exceptionObservable.Select(DiscriminatedUnion.Second<object, T, Exception>));
+            this.changeOrExceptionObservable = this.changeObservable.Select(DiscriminatedUnion.First<object, T, Exception>).Merge(this.exceptionObservable.Select(DiscriminatedUnion.Second<object, T, Exception>));
 
             if (this.changeOrExceptionObservable == null)
             {
-                throw new InvalidOperationException(
-                    "Result of "
-                    + StaticReflection<IObservable<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(
-                        o => o.Merge(null)).Name + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<IDiscriminatedUnion<object, T, Exception>>>.GetMethodInfo(o => o.Merge(null)).Name + " cannot be null.");
             }
         }
 
@@ -293,11 +145,8 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         /// </param>
         [ContractVerification(false)]
         // ReSharper disable UnusedParameter.Local
-        protected LazyReadOnlyProperty(SerializationInfo info, StreamingContext context)
-            // ReSharper restore UnusedParameter.Local
-            : this(
-                (Func<T>)(info.GetValue("v", typeof(Func<T>)) ?? default(T)),
-                (bool)(info.GetValue("l", typeof(bool)) ?? default(T)))
+        protected LazyReadOnlyProperty(SerializationInfo info, StreamingContext context) // ReSharper restore UnusedParameter.Local
+            : this((Func<Task<T>>)(info.GetValue("v", typeof(Func<Task<T>>)) ?? default(T)), (bool)(info.GetValue("l", typeof(bool)) ?? default(T)))
         {
         }
 
@@ -333,18 +182,6 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             get
             {
-                if (!this.value.IsValueCreated)
-                {
-                    this.EagerLoad();
-                    if (RxMvvmConfiguration.IsInDesignMode())
-                    {
-                        while (!this.IsCalculated)
-                        {
-                            Thread.Sleep(20);
-                        }
-                    }
-                }
-
                 return this.GetValue().Switch(v => v, e => default(T));
             }
         }
@@ -417,10 +254,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
                 if (result == null)
                 {
-                    throw new InvalidOperationException(
-                        "Result of "
-                        + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name
-                        + " cannot be null.");
+                    throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o => o.DistinctUntilChanged()).Name + " cannot be null.");
                 }
 
                 return result;
@@ -503,7 +337,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
         void ILazyReadOnlyProperty<T>.EagerLoad()
         {
-            this.EagerLoad();
+            this.Load();
         }
 
         T ILazyReadOnlyProperty<T>.GetSuccessfulValueOrThrowException()
@@ -524,10 +358,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             base.Dispose();
 
-            using (this.eagerLoadDisposable)
-            {
-            }
-
+            this.valueSubject.Dispose();
             this.isCalculatedSubject.Dispose();
             this.isCalculatingSubject.Dispose();
         }
@@ -542,15 +373,24 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         {
             Contract.Ensures(Contract.Result<IDiscriminatedUnion<object, T, Exception>>() != null);
 
-            lock (this.isCalculatedLock)
+            if (!this.value.IsValueCreated)
             {
-                if (this.latestValue == null)
+                this.Load();
+                if (RxMvvmConfiguration.IsInDesignMode())
                 {
-                    throw new InvalidOperationException("Latest value or exception discriminated union cannot be null.");
+                    while (!this.IsCalculated)
+                    {
+                        Thread.Sleep(20);
+                    }
                 }
-
-                return this.latestValue;
             }
+
+            if (this.valueSubject.Value == null)
+            {
+                throw new InvalidOperationException("Latest value or exception discriminated union cannot be null.");
+            }
+
+            return this.valueSubject.Value;
         }
 
         /// <summary>
@@ -558,8 +398,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         /// </summary>
         protected virtual void OnCalculationExceptionChanged()
         {
-            this.OnPropertyChanged(
-                new PropertyChangedEventArgs(LazyReadOnlyPropertyUtility.CalculationExceptionPropertyName));
+            this.OnPropertyChanged(new PropertyChangedEventArgs(LazyReadOnlyPropertyUtility.CalculationExceptionPropertyName));
         }
 
         /// <summary>
@@ -583,8 +422,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
         /// </summary>
         protected virtual void OnValueOrExceptionChanged()
         {
-            this.OnPropertyChanged(
-                new PropertyChangedEventArgs(LazyReadOnlyPropertyUtility.ValueOrExceptionPropertyName));
+            this.OnPropertyChanged(new PropertyChangedEventArgs(LazyReadOnlyPropertyUtility.ValueOrExceptionPropertyName));
         }
 
         [ContractInvariantMethod]
@@ -601,20 +439,7 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Contract.Invariant(this.isCalculatingSubject != null);
             Contract.Invariant(this.setObservable != null);
             Contract.Invariant(this.valueObservable != null);
-        }
-
-        private void EagerLoad()
-        {
-            if (!this.value.IsValueCreated)
-            {
-                lock (this.eagerLoadLock)
-                {
-                    if (this.eagerLoadDisposable == null)
-                    {
-                        this.eagerLoadDisposable = this.valueObservable.Subscribe(v => { });
-                    }
-                }
-            }
+            Contract.Invariant(this.valueSubject != null);
         }
 
         private IObservable<T> GetValueOrDefault(IObservable<IDiscriminatedUnion<object, T, Exception>> o)
@@ -626,13 +451,80 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 
             if (result == null)
             {
-                throw new InvalidOperationException(
-                    "Result of "
-                    + StaticReflection<IObservable<T>>.GetMethodInfo(o2 => o2.Select<T, object>(o3 => null)).Name
-                    + " cannot be null.");
+                throw new InvalidOperationException("Result of " + StaticReflection<IObservable<T>>.GetMethodInfo(o2 => o2.Select<T, object>(o3 => null)).Name + " cannot be null.");
             }
 
             return result;
+        }
+
+        private void Load()
+        {
+            if (!this.value.IsValueCreated)
+            {
+                lock (this.hasLoadBeenCalledLock)
+                {
+                    if (this.hasLoadBeenCalled)
+                    {
+                        return;
+                    }
+
+                    this.hasLoadBeenCalled = true;
+                }
+
+                IScheduler scheduler = this.isLongRunningCalculation ? RxMvvmConfiguration.GetLongRunningCalculationScheduler() : RxMvvmConfiguration.GetCalculationScheduler();
+                scheduler.Schedule(async () =>
+                    {
+                        IScheduler notifyPropertyChangedScheduler = RxMvvmConfiguration.GetNotifyPropertyChangedScheduler();
+
+                        this.isCalculatingSubject.OnNext(true);
+                        if (notifyPropertyChangedScheduler != null)
+                        {
+                            notifyPropertyChangedScheduler.Schedule(this.OnIsCalculatingChanged);
+                        }
+
+                        IDiscriminatedUnion<object, T, Exception> v;
+                        try
+                        {
+                            v = DiscriminatedUnion.First<object, T, Exception>(await this.value.Value.ConfigureAwait(false));
+                        }
+                        catch (Exception e)
+                        {
+                            v = DiscriminatedUnion.Second<object, T, Exception>(e);
+                        }
+
+                        this.valueSubject.OnNext(v);
+
+                        if (notifyPropertyChangedScheduler != null)
+                        {
+                            v.Switch(
+                                o =>
+                                {
+                                    if (!ReferenceEquals(o, null) && !o.Equals(default(T)))
+                                    {
+                                        notifyPropertyChangedScheduler.Schedule(this.OnValueOrExceptionChanged);
+                                        notifyPropertyChangedScheduler.Schedule(this.OnValueChanged);
+                                    }
+                                },
+                                e =>
+                                {
+                                    notifyPropertyChangedScheduler.Schedule(this.OnValueOrExceptionChanged);
+                                    notifyPropertyChangedScheduler.Schedule(this.OnCalculationExceptionChanged);
+                                });
+                        }
+
+                        this.isCalculatedSubject.OnNext(true);
+                        if (notifyPropertyChangedScheduler != null)
+                        {
+                            notifyPropertyChangedScheduler.Schedule(this.OnIsCalculatedChanged);
+                        }
+
+                        this.isCalculatingSubject.OnNext(false);
+                        if (notifyPropertyChangedScheduler != null)
+                        {
+                            notifyPropertyChangedScheduler.Schedule(this.OnIsCalculatingChanged);
+                        }
+                    });
+            }
         }
 
         #endregion

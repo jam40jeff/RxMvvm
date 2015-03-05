@@ -28,7 +28,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             return null;
         }
 
-        ILazyReadOnlyProperty<T> IObservablePropertyFactory.CreateLazyReadOnlyProperty<T>(Func<T> valueFactory, bool isLongRunningCalculation)
+        ILazyReadOnlyProperty<T> IObservablePropertyFactory.CreateLazyReadOnlyProperty<T>(Func<Task<T>> valueFactory, bool isLongRunningCalculation)
         {
             Contract.Requires<ArgumentNullException>(valueFactory != null, "valueFactory");
             Contract.Ensures(Contract.Result<ILazyReadOnlyProperty<T>>() != null);

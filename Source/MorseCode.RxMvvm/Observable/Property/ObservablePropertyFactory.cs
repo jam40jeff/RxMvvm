@@ -335,7 +335,7 @@ namespace MorseCode.RxMvvm.Observable.Property
             return new ReadOnlyProperty<T>(value);
         }
 
-        ILazyReadOnlyProperty<T> IObservablePropertyFactory.CreateLazyReadOnlyProperty<T>(Func<T> valueFactory, bool isLongRunningCalculation)
+        ILazyReadOnlyProperty<T> IObservablePropertyFactory.CreateLazyReadOnlyProperty<T>(Func<Task<T>> valueFactory, bool isLongRunningCalculation)
         {
             return new LazyReadOnlyProperty<T>(valueFactory, isLongRunningCalculation);
         }
