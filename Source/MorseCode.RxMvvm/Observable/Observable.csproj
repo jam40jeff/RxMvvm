@@ -112,7 +112,6 @@
     <Compile Include="Collection\ObservableCollectionExtensionMethods.cs" />
     <Compile Include="Collection\ObservableCollectionFactoryContract.cs" />
     <Compile Include="Collection\ReadOnlyObservableCollection{T}.cs" />
-    <Compile Include="Collection\TObserved.cs" />
     <Compile Include="Collection\WritableObservableCollectionContract{T}.cs" />
     <Compile Include="Collection\ReadableObservableCollectionContract{T}.cs" />
     <Compile Include="Collection\IObservableCollectionChanged{T}.cs" />
