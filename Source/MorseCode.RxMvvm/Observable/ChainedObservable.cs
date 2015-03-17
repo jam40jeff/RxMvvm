@@ -20,6 +20,7 @@ namespace MorseCode.RxMvvm.Observable
 
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Common.StaticReflection;
+    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// A static class providing extension methods for creating chained observables.  Chained observables automatically re-subscribe the rest of the chain when any of the intermediate property values change.
@@ -445,13 +446,13 @@ namespace MorseCode.RxMvvm.Observable
                     {
                         if (ReferenceEquals(v, null))
                         {
-                            return Observable.Return(getNonComputableInnerValue());
+                            return ObservableRxMvvm.Always(getNonComputableInnerValue());
                         }
 
                         IObservable<TNew> o2 = getObservable(v);
-                        return o2 == null ? Observable.Return(getNonComputableInnerValue()) : o2.Select(getInnerValue);
+                        return o2 == null ? ObservableRxMvvm.Always(getNonComputableInnerValue()) : o2.Select(getInnerValue);
                     },
-                    v => Observable.Return(getNonComputableInnerValue()));
+                    v => ObservableRxMvvm.Always(getNonComputableInnerValue()));
             }
 
             [ContractInvariantMethod]

@@ -22,6 +22,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
 
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Observable;
+    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// Provides button extension methods for binding.
@@ -62,8 +63,8 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             Contract.Ensures(Contract.Result<IBinding>() != null);
 
             return button.BindClick(
-                dataContext, 
-                d => Observable.Return(DiscriminatedUnion.First<object, Action, NonComputable>(getClickAction(d))), 
+                dataContext,
+                d => ObservableRxMvvm.Always(DiscriminatedUnion.First<object, Action, NonComputable>(getClickAction(d))), 
                 bindingFactory);
         }
 

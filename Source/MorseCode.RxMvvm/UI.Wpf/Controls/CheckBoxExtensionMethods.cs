@@ -23,6 +23,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Property;
+    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// Provides check box extension methods for binding.
@@ -65,7 +66,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             return checkBox.BindIsChecked(
                 dataContext, 
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IObservableProperty<bool>, NonComputable>(getCheckedProperty(d))), 
                 bindingFactory);
         }
@@ -157,7 +158,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             return checkBox.BindThreeStateIsChecked(
                 dataContext, 
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IObservableProperty<bool?>, NonComputable>(getCheckedProperty(d))), 
                 bindingFactory);
         }

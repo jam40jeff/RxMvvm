@@ -22,6 +22,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Property;
+    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// Provides text box extension methods for binding.
@@ -64,7 +65,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             return textBox.BindText(
                 dataContext,
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IObservableProperty<string>, NonComputable>(getTextProperty(d))),
                 bindingFactory);
         }

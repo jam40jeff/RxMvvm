@@ -24,6 +24,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable;
+    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// A base class for a window.
@@ -113,22 +114,18 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
         {
             Contract.Requires<ArgumentNullException>(dataContext != null, "dataContext");
 
-            IObservable<Unit> dataContextObservable = Observable.Create<Unit>(o =>
-                {
-                    o.OnNext(Unit.Default);
-                    return Disposable.Empty;
-                });
+            IObservable<Unit> dataContextObservable = ObservableRxMvvm.Always(Unit.Default);
 
             if (dataContextObservable == null)
             {
                 throw new InvalidOperationException(
                     "Result of "
-                    + StaticReflection.GetInScopeMethodInfo(() => Observable.Create((Func<IObserver<object>, IDisposable>)null)).Name + " cannot be null.");
+                    + StaticReflection.GetInScopeMethodInfo(() => ObservableRxMvvm.Always<object>(null)).Name + " cannot be null.");
             }
 
             this.BindDataContextInternal(
                 dataContextObservable,
-                u => Observable.Return(dataContext));
+                u => ObservableRxMvvm.Always(dataContext));
         }
 
         void IDataContextControl<T>.BindDataContext<TDataContext>(

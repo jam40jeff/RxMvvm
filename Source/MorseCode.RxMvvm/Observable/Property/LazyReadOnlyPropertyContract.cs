@@ -167,7 +167,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         {
         }
 
-        T ILazyReadOnlyProperty<T>.GetSuccessfulValueOrThrowException()
+        T ILazyReadOnlyProperty<T>.GetValueOrThrowException()
         {
             return default(T);
         }

@@ -23,6 +23,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
     using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Property;
+    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// A factory for creating WPF bindings.
@@ -88,7 +89,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
             return CreateOneWayToSourceBinding(
                 dataContext, 
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IWritableObservableProperty<TProperty>, NonComputable>(
                         getDataContextProperty(d))), 
                 createUiObservable, 
@@ -114,7 +115,7 @@ namespace MorseCode.RxMvvm.UI.Wpf
             return CreateTwoWayBinding(
                 dataContext, 
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IObservableProperty<TProperty>, NonComputable>(
                         getDataContextProperty(d))), 
                 createUiObservable, 
@@ -139,8 +140,8 @@ namespace MorseCode.RxMvvm.UI.Wpf
             Func<IBinding, IObservable<object>> createUiObservable)
         {
             return this.CreateActionBinding(
-                dataContext, 
-                d => Observable.Return(DiscriminatedUnion.First<object, Action, NonComputable>(getDataContextAction(d))), 
+                dataContext,
+                d => ObservableRxMvvm.Always(DiscriminatedUnion.First<object, Action, NonComputable>(getDataContextAction(d))), 
                 createUiObservable);
         }
 

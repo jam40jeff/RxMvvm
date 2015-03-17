@@ -177,7 +177,7 @@ namespace MorseCode.RxMvvm.Observable.Property
         {
         }
 
-        T ICalculatedProperty<T>.GetSuccessfulValueOrThrowException()
+        T ICalculatedProperty<T>.GetValueOrThrowException()
         {
             return default(T);
         }

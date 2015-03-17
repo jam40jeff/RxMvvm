@@ -340,14 +340,14 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             this.Load();
         }
 
-        T ILazyReadOnlyProperty<T>.GetSuccessfulValueOrThrowException()
+        T ILazyReadOnlyProperty<T>.GetValueOrThrowException()
         {
             if (this.GetValue() == null)
             {
                 throw new InvalidOperationException("Latest value or exception discriminated union cannot be null.");
             }
 
-            return this.GetValue().Switch(v => v, e => { throw e; });
+            return this.GetValue().GetValueOrThrowException();
         }
 
         #endregion

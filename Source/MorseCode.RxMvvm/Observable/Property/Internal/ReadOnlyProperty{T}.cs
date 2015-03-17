@@ -16,12 +16,12 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.Reactive.Disposables;
     using System.Reactive.Linq;
     using System.Runtime.Serialization;
     using System.Security.Permissions;
 
     using MorseCode.RxMvvm.Common.StaticReflection;
+    using MorseCode.RxMvvm.Reactive;
 
     [Serializable]
     internal class ReadOnlyProperty<T> : ReadableObservablePropertyBase<T>, IReadOnlyProperty<T>, ISerializable
@@ -35,17 +35,12 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             Contract.Ensures(this.observable != null);
 
             this.value = value;
-            this.observable = Observable.Create<T>(
-                o =>
-                {
-                    o.OnNext(value);
-                    return Disposable.Empty;
-                });
+            this.observable = ObservableRxMvvm.Always(value);
 
             if (this.observable == null)
             {
                 throw new InvalidOperationException(
-                    "Result of " + StaticReflection.GetInScopeMethodInfo(() => Observable.Create((Func<IObserver<object>, IDisposable>)null)).Name
+                    "Result of " + StaticReflection.GetInScopeMethodInfo(() => ObservableRxMvvm.Always<object>(null)).Name
                     + " cannot be null.");
             }
         }

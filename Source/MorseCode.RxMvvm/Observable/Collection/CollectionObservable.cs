@@ -17,13 +17,51 @@ namespace MorseCode.RxMvvm.Observable.Collection
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+    using System.Linq;
     using System.Reactive.Disposables;
+    using System.Reactive.Linq;
+
+    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// A static class providing extension methods for subscribing to items in observable collections.  Subscriptions are automatically created and disposed of as items are added and removed from the observable collection.
     /// </summary>
     public static class CollectionObservable
     {
+        #region Public Methods and Operators
+
+        /// <summary>
+        /// Merges observables of items in a collection.
+        /// </summary>
+        /// <param name="collection">The collection for which to observe items.</param>
+        /// <param name="getInnerObservable">A function to get the item observable from the item.</param>
+        /// <typeparam name="T">The type of the items in the collection.</typeparam>
+        /// <typeparam name="TObserved">The type of the inner observable.</typeparam>
+        /// <returns>An observable which provides both the inner observed object and the item in the collection which caused the change.</returns>
+        /// <remarks>
+        /// This method will only observe the items in <paramref name="collection"/> at the time this method was called.
+        /// </remarks>
+        public static IObservable<IItemWithObservedValue<T, TObserved>> MergeCurrentCollectionItems<T, TObserved>(this IEnumerable<T> collection, Func<T, IObservable<TObserved>> getInnerObservable)
+        {
+            return (collection ?? new T[0]).Aggregate(Observable.Never<ItemWithObservedValue<T, TObserved>>(), (o, i) => o.Merge(getInnerObservable(i).Select(v => new ItemWithObservedValue<T, TObserved>(i, v))));
+        }
+
+        /// <summary>
+        /// Merges observables of items in an observable collection.
+        /// </summary>
+        /// <param name="collection">The observable collection for which to observe items.</param>
+        /// <param name="getInnerObservable">A function to get the item observable from the item.</param>
+        /// <typeparam name="T">The type of the items in the collection.</typeparam>
+        /// <typeparam name="TObserved">The type of the inner observable.</typeparam>
+        /// <returns>An observable which provides both the inner observed object and the item in the collection which caused the change.</returns>
+        /// <remarks>
+        /// This method will always observe the latest items in <paramref name="collection"/>.
+        /// </remarks>
+        public static IObservable<IItemWithObservedValue<T, TObserved>> MergeObservableCollection<T, TObserved>(this IReadableObservableCollection<T> collection, Func<T, IObservable<TObserved>> getInnerObservable)
+        {
+            return ObservableRxMvvm.Always(collection.MergeCurrentCollectionItems(getInnerObservable)).Concat(Observable.Select(collection ?? ObservableCollectionFactory.Instance.CreateReadOnlyObservableCollection(new T[0]), _ => collection.MergeCurrentCollectionItems(getInnerObservable))).Switch();
+        }
+
         /// <summary>
         /// Subscribes to items in observable collections.  Subscriptions are automatically created and disposed of as items are added and removed from the observable collection.
         /// </summary>
@@ -39,8 +77,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
         /// <returns>
         /// The <see cref="IDisposable"/> for removing all item subscriptions.
         /// </returns>
-        public static IDisposable SubscribeItems<T>(
-            this IReadableObservableCollection<T> observableCollection, Func<T, IDisposable> subscribe)
+        public static IDisposable SubscribeItems<T>(this IReadableObservableCollection<T> observableCollection, Func<T, IDisposable> subscribe)
         {
             Contract.Requires<ArgumentNullException>(observableCollection != null, "observableCollection");
             Contract.Requires<ArgumentNullException>(subscribe != null, "subscribe");
@@ -53,27 +90,25 @@ namespace MorseCode.RxMvvm.Observable.Collection
             lock (l)
             {
                 Dictionary<T, IDisposable> disposablesByItem = new Dictionary<T, IDisposable>();
-                disposable.Add(
-                    observableCollection.Subscribe(
-                        c =>
+                disposable.Add(observableCollection.Subscribe(c =>
+                    {
+                        lock (l)
                         {
-                            lock (l)
+                            foreach (T newItem in c.NewItems)
                             {
-                                foreach (T newItem in c.NewItems)
-                                {
-                                    IDisposable d = subscribe(newItem);
-                                    disposablesByItem.Add(newItem, d);
-                                    disposable.Add(d);
-                                }
-
-                                foreach (T oldItem in c.OldItems)
-                                {
-                                    IDisposable d = disposablesByItem[oldItem];
-                                    disposablesByItem.Remove(oldItem);
-                                    disposable.Remove(d);
-                                }
+                                IDisposable d = subscribe(newItem);
+                                disposablesByItem.Add(newItem, d);
+                                disposable.Add(d);
                             }
-                        }));
+
+                            foreach (T oldItem in c.OldItems)
+                            {
+                                IDisposable d = disposablesByItem[oldItem];
+                                disposablesByItem.Remove(oldItem);
+                                disposable.Remove(d);
+                            }
+                        }
+                    }));
 
                 foreach (T item in observableCollection)
                 {
@@ -90,5 +125,7 @@ namespace MorseCode.RxMvvm.Observable.Collection
 
             return disposable;
         }
+
+        #endregion
     }
 }

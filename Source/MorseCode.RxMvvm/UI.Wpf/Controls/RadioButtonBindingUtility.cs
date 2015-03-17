@@ -26,6 +26,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Observable;
     using MorseCode.RxMvvm.Observable.Property;
+    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// Provides methods for binding radio buttons.
@@ -71,7 +72,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
             return BindGroup(
                 dataContext, 
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IObservableProperty<TItem>, NonComputable>(
                         getSelectedItemProperty(d))), 
                 getItemText, 
@@ -215,7 +216,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                     this.dataContext.Select(
                         d =>
                         d == null
-                            ? Observable.Return(
+                            ? ObservableRxMvvm.Always(
                                 DiscriminatedUnion.Second<object, Tuple<TItem, TItem>, NonComputable>(
                                     NonComputable.Value))
                             : getItem(d)
@@ -226,7 +227,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                                               u.Switch(
                                                   o => o.Select(DiscriminatedUnion.First<object, TItem, NonComputable>), 
                                                   n =>
-                                                  Observable.Return(
+                                                  ObservableRxMvvm.Always(
                                                       DiscriminatedUnion.Second<object, TItem, NonComputable>(n))))
                                           .Switch(), 
                                       (i, s) => i.CombineWith(s, Tuple.Create)))
@@ -252,7 +253,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                         this.dataContext.Select(
                             d =>
                             d == null
-                                ? Observable.Return(
+                                ? ObservableRxMvvm.Always(
                                     DiscriminatedUnion
                                       .Second<object, Tuple<TItem, IObservableProperty<TItem>>, NonComputable>(
                                           NonComputable.Value))

@@ -86,7 +86,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                 false, 
                 null, 
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IObservableProperty<TItem>, NonComputable>(
                         getSelectedItemProperty(d))), 
                 v => v, 
@@ -203,7 +203,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                 false, 
                 null, 
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IObservableProperty<TItem>, NonComputable>(
                         getSelectedItemProperty(d))), 
                 v => v, 
@@ -328,7 +328,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                 true, 
                 noSelectionText, 
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IObservableProperty<TItem>, NonComputable>(
                         getSelectedItemProperty(d))), 
                 v => v, 
@@ -515,7 +515,7 @@ namespace MorseCode.RxMvvm.UI.Wpf.Controls
                 true, 
                 noSelectionText, 
                 d =>
-                Observable.Return(
+                ObservableRxMvvm.Always(
                     DiscriminatedUnion.First<object, IObservableProperty<TItem?>, NonComputable>(
                         getSelectedItemProperty(d))), 
                 v => v, 

@@ -102,6 +102,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Observable - Always.cs" />
     <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Flatten - 3.cs" />
     <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Select - 3.cs" />
     <Compile Include="ObservableExtensionMethods - DiscriminatedUnion - Select - 2.cs" />

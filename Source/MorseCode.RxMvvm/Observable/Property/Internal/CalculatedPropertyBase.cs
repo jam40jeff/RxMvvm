@@ -214,9 +214,9 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
             }
         }
 
-        T ICalculatedProperty<T>.GetSuccessfulValueOrThrowException()
+        T ICalculatedProperty<T>.GetValueOrThrowException()
         {
-            return this.Helper.GetSuccessfulValueOrThrowException();
+            return this.Helper.GetValueOrThrowException();
         }
 
         /// <summary>
@@ -518,14 +518,14 @@ namespace MorseCode.RxMvvm.Observable.Property.Internal
                 this.subscriptionsDisposable.Dispose();
             }
 
-            internal T GetSuccessfulValueOrThrowException()
+            internal T GetValueOrThrowException()
             {
                 if (this.valueOrExceptionSubject.Value == null)
                 {
                     throw new InvalidOperationException("Latest value or exception discriminated union cannot be null.");
                 }
 
-                return this.valueOrExceptionSubject.Value.Switch(v => v, e => { throw e; });
+                return this.valueOrExceptionSubject.Value.GetValueOrThrowException();
             }
 
             internal IDiscriminatedUnion<object, T, Exception> GetValue()

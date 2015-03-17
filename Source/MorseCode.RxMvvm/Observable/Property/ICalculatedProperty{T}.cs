@@ -92,6 +92,6 @@ namespace MorseCode.RxMvvm.Observable.Property
         /// <exception cref="Exception">
         /// The latest calculation exception.
         /// </exception>
-        T GetSuccessfulValueOrThrowException();
+        T GetValueOrThrowException();
     }
 }
