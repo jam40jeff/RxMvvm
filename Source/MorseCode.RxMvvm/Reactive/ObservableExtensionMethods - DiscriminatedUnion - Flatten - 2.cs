@@ -48,7 +48,7 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T1, T2>>>() != null);
 
             IObservable<IDiscriminatedUnion<object, T1, T2>> observable =
-                o.Select(o2 => o2.Switch(v => v, v => ObservableRxMvvm.Always(DiscriminatedUnion.Second<object, T1, T2>(v))))
+                o.Select(o2 => o2.Switch(v => v, v => Observable.Return(DiscriminatedUnion.Second<object, T1, T2>(v))))
                  .Switch();
             if (observable == null)
             {
@@ -85,7 +85,7 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T1, T2>>>() != null);
 
             IObservable<IDiscriminatedUnion<object, T1, T2>> observable =
-                o.Select(o2 => o2.Switch(v => ObservableRxMvvm.Always(DiscriminatedUnion.First<object, T1, T2>(v)), v => v))
+                o.Select(o2 => o2.Switch(v => Observable.Return(DiscriminatedUnion.First<object, T1, T2>(v)), v => v))
                  .Switch();
             if (observable == null)
             {
@@ -122,7 +122,7 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T1, T2>>>() != null);
 
             IObservable<IDiscriminatedUnion<object, T1, T2>> observable =
-                o.Select(o2 => o2.Switch(v => v.Select(DiscriminatedUnion.First<object, T1, T2>), v => ObservableRxMvvm.Always(DiscriminatedUnion.Second<object, T1, T2>(v))))
+                o.Select(o2 => o2.Switch(v => v.Select(DiscriminatedUnion.First<object, T1, T2>), v => Observable.Return(DiscriminatedUnion.Second<object, T1, T2>(v))))
                  .Switch();
             if (observable == null)
             {
@@ -159,7 +159,7 @@ namespace MorseCode.RxMvvm.Reactive
             Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T1, T2>>>() != null);
 
             IObservable<IDiscriminatedUnion<object, T1, T2>> observable =
-                o.Select(o2 => o2.Switch(v => ObservableRxMvvm.Always(DiscriminatedUnion.First<object, T1, T2>(v)), v => v.Select(DiscriminatedUnion.Second<object, T1, T2>)))
+                o.Select(o2 => o2.Switch(v => Observable.Return(DiscriminatedUnion.First<object, T1, T2>(v)), v => v.Select(DiscriminatedUnion.Second<object, T1, T2>)))
                  .Switch();
             if (observable == null)
             {

@@ -32,6 +32,7 @@ namespace MorseCode.RxMvvm.Observable.Tests
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using MorseCode.RxMvvm.Common;
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Common.Serialization;
     using MorseCode.RxMvvm.Common.StaticReflection;
     using MorseCode.RxMvvm.Observable.Collection;
@@ -49,6 +50,293 @@ namespace MorseCode.RxMvvm.Observable.Tests
         #endregion
 
         #region Public Methods and Operators
+
+        [TestMethod]
+        public async Task SwitchAndCompletion()
+        {
+            IObservable<string> observableWithCompletion = Observable.Create<string>(async o =>
+                {
+                    await Task.Delay(100);
+                    o.OnNext("1");
+                    await Task.Delay(100);
+                    o.OnNext("2");
+                    o.OnCompleted();
+                    return Disposable.Empty;
+                });
+            IObservable<string> observableWithNoCompletion = Observable.Create<string>(async o =>
+            {
+                await Task.Delay(100);
+                o.OnNext("1");
+                await Task.Delay(100);
+                o.OnNext("2");
+                return Disposable.Empty;
+            });
+            IObservable<IObservable<string>> ooCC = Observable.Create<IObservable<string>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(observableWithCompletion);
+                await Task.Delay(150);
+                o.OnNext(observableWithCompletion);
+                await Task.Delay(250);
+                o.OnNext(observableWithCompletion);
+                await Task.Delay(350);
+                o.OnCompleted();
+                return Disposable.Empty;
+            });
+            IObservable<IObservable<string>> ooNC = Observable.Create<IObservable<string>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(observableWithCompletion);
+                await Task.Delay(150);
+                o.OnNext(observableWithCompletion);
+                await Task.Delay(250);
+                o.OnNext(observableWithCompletion);
+                return Disposable.Empty;
+            });
+            IObservable<IObservable<string>> ooCN = Observable.Create<IObservable<string>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(observableWithNoCompletion);
+                await Task.Delay(150);
+                o.OnNext(observableWithNoCompletion);
+                await Task.Delay(250);
+                o.OnNext(observableWithNoCompletion);
+                await Task.Delay(350);
+                o.OnCompleted();
+                return Disposable.Empty;
+            });
+            IObservable<IObservable<string>> ooNN = Observable.Create<IObservable<string>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(observableWithNoCompletion);
+                await Task.Delay(150);
+                o.OnNext(observableWithNoCompletion);
+                await Task.Delay(250);
+                o.OnNext(observableWithNoCompletion);
+                return Disposable.Empty;
+            });
+
+            Stopwatch sw = new Stopwatch();
+
+            Action<string> ooCCwrite = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OOCC: " + s);
+            Action ooCCwriteC = () => ooCCwrite("Completed");
+            Action<string> ooNCwrite = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OONC: " + s);
+            Action ooNCwriteC = () => ooNCwrite("Completed");
+            Action<string> ooCNwrite = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OOCN: " + s);
+            Action ooCNwriteC = () => ooCNwrite("Completed");
+            Action<string> ooNNwrite = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OONN: " + s);
+            Action ooNNwriteC = () => ooNNwrite("Completed");
+
+            sw.Start();
+            ooCC.Switch().Subscribe(ooCCwrite, ooCCwriteC);
+            await Task.Delay(2000);
+            sw.Stop();
+            sw.Reset();
+
+            sw.Start();
+            ooNC.Switch().Subscribe(ooNCwrite, ooNCwriteC);
+            await Task.Delay(2000);
+            sw.Stop();
+            sw.Reset();
+
+            sw.Start();
+            ooCN.Switch().Subscribe(ooCNwrite, ooCNwriteC);
+            await Task.Delay(2000);
+            sw.Stop();
+            sw.Reset();
+
+            sw.Start();
+            ooNN.Switch().Subscribe(ooNNwrite, ooNNwriteC);
+            await Task.Delay(2000);
+            sw.Stop();
+        }
+
+        [TestMethod]
+        public async Task FlattenAndCompletion()
+        {
+            IObservable<IDiscriminatedUnion<object, string, int>> observableWithCompletion = Observable.Create<IDiscriminatedUnion<object, string, int>>(async o =>
+                {
+                    await Task.Delay(100);
+                    o.OnNext(DiscriminatedUnion.First<object, string, int>("a"));
+                    await Task.Delay(100);
+                    o.OnNext(DiscriminatedUnion.Second<object, string, int>(2));
+                    await Task.Delay(1000);
+                    o.OnCompleted();
+                    return Disposable.Empty;
+                });
+            IObservable<IDiscriminatedUnion<object, string, int>> observableWithNoCompletion = Observable.Create<IDiscriminatedUnion<object, string, int>>(async o =>
+            {
+                await Task.Delay(100);
+                o.OnNext(DiscriminatedUnion.First<object, string, int>("a"));
+                await Task.Delay(100);
+                o.OnNext(DiscriminatedUnion.Second<object, string, int>(2));
+                return Disposable.Empty;
+            });
+            IObservable<IDiscriminatedUnion<object, string, int>> observableWithCompletion2 = Observable.Create<IDiscriminatedUnion<object, string, int>>(async o =>
+                {
+                    await Task.Delay(100);
+                    o.OnNext(DiscriminatedUnion.Second<object, string, int>(2));
+                    await Task.Delay(100);
+                    o.OnNext(DiscriminatedUnion.First<object, string, int>("a"));
+                    await Task.Delay(1000);
+                    o.OnCompleted();
+                    return Disposable.Empty;
+                });
+            IObservable<IDiscriminatedUnion<object, string, int>> observableWithNoCompletion2 = Observable.Create<IDiscriminatedUnion<object, string, int>>(async o =>
+            {
+                await Task.Delay(100);
+                o.OnNext(DiscriminatedUnion.Second<object, string, int>(2));
+                await Task.Delay(100);
+                o.OnNext(DiscriminatedUnion.First<object, string, int>("a"));
+                return Disposable.Empty;
+            });
+
+            IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>> ooCC = Observable.Create<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(DiscriminatedUnion.First<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(observableWithCompletion));
+                await Task.Delay(150);
+                o.OnNext(DiscriminatedUnion.Second<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(2));
+                await Task.Delay(250);
+                o.OnCompleted();
+                return Disposable.Empty;
+            });
+
+            IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>> ooNC = Observable.Create<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(DiscriminatedUnion.First<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(observableWithCompletion));
+                await Task.Delay(150);
+                o.OnNext(DiscriminatedUnion.Second<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(2));
+                return Disposable.Empty;
+            });
+
+            IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>> ooCC2 = Observable.Create<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(DiscriminatedUnion.First<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(observableWithCompletion2));
+                await Task.Delay(150);
+                o.OnNext(DiscriminatedUnion.Second<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(2));
+                await Task.Delay(250);
+                o.OnCompleted();
+                return Disposable.Empty;
+            });
+
+            IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>> ooNC2 = Observable.Create<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(DiscriminatedUnion.First<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(observableWithCompletion2));
+                await Task.Delay(150);
+                o.OnNext(DiscriminatedUnion.Second<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(2));
+                return Disposable.Empty;
+            });
+
+            IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>> ooCN = Observable.Create<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(DiscriminatedUnion.First<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(observableWithNoCompletion));
+                await Task.Delay(150);
+                o.OnNext(DiscriminatedUnion.Second<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(2));
+                await Task.Delay(250);
+                o.OnCompleted();
+                return Disposable.Empty;
+            });
+
+            IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>> ooNN = Observable.Create<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(DiscriminatedUnion.First<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(observableWithNoCompletion));
+                await Task.Delay(150);
+                o.OnNext(DiscriminatedUnion.Second<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(2));
+                return Disposable.Empty;
+            });
+
+            IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>> ooCN2 = Observable.Create<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(DiscriminatedUnion.First<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(observableWithNoCompletion2));
+                await Task.Delay(150);
+                o.OnNext(DiscriminatedUnion.Second<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(2));
+                await Task.Delay(250);
+                o.OnCompleted();
+                return Disposable.Empty;
+            });
+
+            IObservable<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>> ooNN2 = Observable.Create<IDiscriminatedUnion<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>>(async o =>
+            {
+                await Task.Delay(50);
+                o.OnNext(DiscriminatedUnion.First<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(observableWithNoCompletion2));
+                await Task.Delay(150);
+                o.OnNext(DiscriminatedUnion.Second<object, IObservable<IDiscriminatedUnion<object, string, int>>, int>(2));
+                return Disposable.Empty;
+            });
+
+            Stopwatch sw = new Stopwatch();
+
+            Func<IDiscriminatedUnion<object, string, int>, string> toString = d => d.Switch(f => "First: " + f, s => "Second: " + s);
+            Action<string> ooCCwrite = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OOCC: " + s);
+            Action ooCCwriteC = () => ooCCwrite("Completed");
+            Action<string> ooNCwrite = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OONC: " + s);
+            Action ooNCwriteC = () => ooNCwrite("Completed");
+            Action<string> ooCC2write = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OOCC2: " + s);
+            Action ooCC2writeC = () => ooCC2write("Completed");
+            Action<string> ooNC2write = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OONC2: " + s);
+            Action ooNC2writeC = () => ooNC2write("Completed");
+            Action<string> ooCNwrite = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OOCN: " + s);
+            Action ooCNwriteC = () => ooCNwrite("Completed");
+            Action<string> ooNNwrite = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OONN: " + s);
+            Action ooNNwriteC = () => ooNNwrite("Completed");
+            Action<string> ooCN2write = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OOCN2: " + s);
+            Action ooCN2writeC = () => ooCN2write("Completed");
+            Action<string> ooNN2write = s => Console.WriteLine(sw.ElapsedMilliseconds + " - OONN2: " + s);
+            Action ooNN2writeC = () => ooNN2write("Completed");
+
+            sw.Start();
+            ooCC.Flatten().Subscribe(d => ooCCwrite(toString(d)), ooCCwriteC);
+            await Task.Delay(2000);
+            sw.Stop();
+            sw.Reset();
+
+            sw.Start();
+            ooNC.Flatten().Subscribe(d => ooNCwrite(toString(d)), ooNCwriteC);
+            await Task.Delay(2000);
+            sw.Stop();
+            sw.Reset();
+
+            sw.Start();
+            ooCC2.Flatten().Subscribe(d => ooCC2write(toString(d)), ooCC2writeC);
+            await Task.Delay(2000);
+            sw.Stop();
+            sw.Reset();
+
+            sw.Start();
+            ooNC2.Flatten().Subscribe(d => ooNC2write(toString(d)), ooNC2writeC);
+            await Task.Delay(2000);
+            sw.Stop();
+            sw.Reset();
+
+            sw.Start();
+            ooCN.Flatten().Subscribe(d => ooCNwrite(toString(d)), ooCNwriteC);
+            await Task.Delay(2000);
+            sw.Stop();
+            sw.Reset();
+
+            sw.Start();
+            ooNN.Flatten().Subscribe(d => ooNNwrite(toString(d)), ooNNwriteC);
+            await Task.Delay(2000);
+            sw.Stop();
+
+            sw.Start();
+            ooCN2.Flatten().Subscribe(d => ooCN2write(toString(d)), ooCN2writeC);
+            await Task.Delay(2000);
+            sw.Stop();
+            sw.Reset();
+
+            sw.Start();
+            ooNN2.Flatten().Subscribe(d => ooNN2write(toString(d)), ooNN2writeC);
+            await Task.Delay(2000);
+            sw.Stop();
+        }
 
         [TestMethod]
         public void AsyncObservableThreadsWithBetterThrottleOnComputeAndIsCalculating()
