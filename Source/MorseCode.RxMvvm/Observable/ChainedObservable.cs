@@ -20,7 +20,6 @@ namespace MorseCode.RxMvvm.Observable
 
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
     using MorseCode.RxMvvm.Common.StaticReflection;
-    using MorseCode.RxMvvm.Reactive;
 
     /// <summary>
     /// A static class providing extension methods for creating chained observables.
@@ -67,7 +66,7 @@ namespace MorseCode.RxMvvm.Observable
         /// is <see cref="Exception"/>) for
         /// building the chained observable.
         /// </returns>
-        public static IChainedObservableHelperBase<IDiscriminatedUnion<object, TNew, Exception>> AddByFlatteningAndPropagatingException<T, TNew>(this IChainedObservableHelperBase<IDiscriminatedUnion<object, IDiscriminatedUnion<object, T, Exception>, Exception>> helper, Func<T, IObservable<TNew>> getObservable)
+        public static IChainedObservableHelper<IDiscriminatedUnion<object, TNew, Exception>> AddByFlatteningAndPropagatingException<T, TNew>(this IChainedObservableHelperBase<IDiscriminatedUnion<object, IDiscriminatedUnion<object, T, Exception>, Exception>> helper, Func<T, IObservable<TNew>> getObservable)
         {
             Contract.Requires<ArgumentNullException>(helper != null, "helper");
             Contract.Requires<ArgumentNullException>(getObservable != null, "getObservable");
@@ -113,7 +112,7 @@ namespace MorseCode.RxMvvm.Observable
         /// is <see cref="Exception"/>) for
         /// building the chained observable.
         /// </returns>
-        public static IChainedObservableHelperBase<IDiscriminatedUnion<object, TNew, Exception>> AddByPropagatingException<T, TNew>(this IChainedObservableHelperBase<IDiscriminatedUnion<object, T, Exception>> helper, Func<T, IObservable<TNew>> getObservable)
+        public static IChainedObservableHelper<IDiscriminatedUnion<object, TNew, Exception>> AddByPropagatingException<T, TNew>(this IChainedObservableHelperBase<IDiscriminatedUnion<object, T, Exception>> helper, Func<T, IObservable<TNew>> getObservable)
         {
             Contract.Requires<ArgumentNullException>(helper != null, "helper");
             Contract.Requires<ArgumentNullException>(getObservable != null, "getObservable");
