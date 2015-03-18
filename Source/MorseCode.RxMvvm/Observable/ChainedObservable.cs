@@ -521,13 +521,13 @@ namespace MorseCode.RxMvvm.Observable
                     {
                         if (ReferenceEquals(v, null))
                         {
-                            return ObservableRxMvvm.Always(getNonComputableInnerValue());
+                            return Observable.Return(getNonComputableInnerValue());
                         }
 
                         IObservable<TNew> o2 = getObservable(v);
-                        return o2 == null ? ObservableRxMvvm.Always(getNonComputableInnerValue()) : o2.Select(getInnerValue);
+                        return o2 == null ? Observable.Return(getNonComputableInnerValue()) : o2.Select(getInnerValue);
                     },
-                    v => ObservableRxMvvm.Always(getNonComputableInnerValue()));
+                    v => Observable.Return(getNonComputableInnerValue()));
             }
 
             #endregion
