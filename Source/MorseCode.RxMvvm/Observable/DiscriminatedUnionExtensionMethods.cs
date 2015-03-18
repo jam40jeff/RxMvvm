@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Observable
 {
     using System;
+    using System.Diagnostics.Contracts;
 
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
 
@@ -34,6 +35,8 @@ namespace MorseCode.RxMvvm.Observable
         /// <exception cref="Exception">Throws the exception held in the discriminated union if there is one.</exception>
         public static T GetValueOrThrowException<T>(this IDiscriminatedUnion<object, T, Exception> o)
         {
+            Contract.Requires<ArgumentNullException>(o != null, "o");
+
             return o.Switch(v => v, e => { throw e; });
         }
 

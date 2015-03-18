@@ -69,6 +69,10 @@ namespace MorseCode.RxMvvm.Observable
         /// </returns>
         public static IChainedObservableHelperBase<IDiscriminatedUnion<object, TNew, Exception>> AddByFlatteningAndPropagatingException<T, TNew>(this IChainedObservableHelperBase<IDiscriminatedUnion<object, IDiscriminatedUnion<object, T, Exception>, Exception>> helper, Func<T, IObservable<TNew>> getObservable)
         {
+            Contract.Requires<ArgumentNullException>(helper != null, "helper");
+            Contract.Requires<ArgumentNullException>(getObservable != null, "getObservable");
+            Contract.Ensures(Contract.Result<IChainedObservableHelperBase<IDiscriminatedUnion<object, TNew, Exception>>>() != null);
+
             return helper.Add(v => v.Flatten().Switch(x => getObservable(x).Select(DiscriminatedUnion.First<object, TNew, Exception>), e => Observable.Return(DiscriminatedUnion.Second<object, TNew, Exception>(e))));
         }
 
@@ -111,6 +115,10 @@ namespace MorseCode.RxMvvm.Observable
         /// </returns>
         public static IChainedObservableHelperBase<IDiscriminatedUnion<object, TNew, Exception>> AddByPropagatingException<T, TNew>(this IChainedObservableHelperBase<IDiscriminatedUnion<object, T, Exception>> helper, Func<T, IObservable<TNew>> getObservable)
         {
+            Contract.Requires<ArgumentNullException>(helper != null, "helper");
+            Contract.Requires<ArgumentNullException>(getObservable != null, "getObservable");
+            Contract.Ensures(Contract.Result<IChainedObservableHelperBase<IDiscriminatedUnion<object, TNew, Exception>>>() != null);
+
             return helper.Add(v => v.Switch(x => getObservable(x).Select(DiscriminatedUnion.First<object, TNew, Exception>), e => Observable.Return(DiscriminatedUnion.Second<object, TNew, Exception>(e))));
         }
 
@@ -129,7 +137,7 @@ namespace MorseCode.RxMvvm.Observable
         public static IChainedObservableInitialHelper<T> BeginChain<T>(this IObservable<T> observable)
         {
             Contract.Requires<ArgumentNullException>(observable != null, "observable");
-            Contract.Ensures(Contract.Result<ChainedObservableInitialHelper<T>>() != null);
+            Contract.Ensures(Contract.Result<IChainedObservableInitialHelper<T>>() != null);
 
             return new ChainedObservableInitialHelper<T>(skipFirst => skipFirst ? observable.Skip(1) : observable, skipFirst => skipFirst ? observable.Select(DiscriminatedUnion.First<object, T, NonComputable>).Skip(1) : observable.Select(DiscriminatedUnion.First<object, T, NonComputable>));
         }
@@ -153,43 +161,31 @@ namespace MorseCode.RxMvvm.Observable
 
             IObservable<IDiscriminatedUnion<object, T, NonComputable>> IChainedObservableHelper<T>.Complete()
             {
-                Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T, NonComputable>>>() != null);
-
                 return this.CompleteInternal();
             }
 
             IObservable<IDiscriminatedUnion<object, T, NonComputable>> IChainedObservableHelper<T>.Complete(bool notifyLeafOnly)
             {
-                Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T, NonComputable>>>() != null);
-
                 return this.CompleteInternal(notifyLeafOnly);
             }
 
             IObservable<IDiscriminatedUnion<object, T, NonComputable>> IChainedObservableHelper<T>.Complete(bool notifyLeafOnly, bool provideAllNotifications)
             {
-                Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, T, NonComputable>>>() != null);
-
                 return this.CompleteInternal(notifyLeafOnly, provideAllNotifications);
             }
 
             IObservable<T> IChainedObservableHelper<T>.CompleteWithDefaultIfNotComputable()
             {
-                Contract.Ensures(Contract.Result<IObservable<T>>() != null);
-
                 return this.CompleteWithDefaultIfNotComputableInternal();
             }
 
             IObservable<T> IChainedObservableHelper<T>.CompleteWithDefaultIfNotComputable(bool notifyLeafOnly)
             {
-                Contract.Ensures(Contract.Result<IObservable<T>>() != null);
-
                 return this.CompleteWithDefaultIfNotComputableInternal(notifyLeafOnly);
             }
 
             IObservable<T> IChainedObservableHelper<T>.CompleteWithDefaultIfNotComputable(bool notifyLeafOnly, bool provideAllNotifications)
             {
-                Contract.Ensures(Contract.Result<IObservable<T>>() != null);
-
                 return this.CompleteWithDefaultIfNotComputableInternal(notifyLeafOnly, provideAllNotifications);
             }
 
@@ -223,56 +219,50 @@ namespace MorseCode.RxMvvm.Observable
 
             IChainedObservableHelper<TNew> IChainedObservableHelperBase<T>.Add<TNew>(Func<T, IObservable<TNew>> getObservable)
             {
-                Contract.Requires<ArgumentNullException>(getObservable != null, "getObservable");
-                Contract.Ensures(Contract.Result<ChainedObservableHelper<TNew>>() != null);
-
                 return new ChainedObservableHelper<TNew>(
                     skipFirst => this.setupPreviousNonComputableObservable(false).Select(
                         v =>
+                        {
+                            IObservable<TNew> o = this.GetInnerObservable(getObservable, x => x, () => default(TNew))(v);
+                            if (skipFirst)
                             {
-                                IObservable<TNew> o = this.GetInnerObservable(getObservable, x => x, () => default(TNew))(v);
-                                if (skipFirst)
-                                {
-                                    o = o.Skip(1);
-                                }
+                                o = o.Skip(1);
+                            }
 
-                                return o;
-                            }).Switch(),
+                            return o;
+                        }).Switch(),
                     skipFirst => this.setupPreviousNonComputableObservable(false).Select(
                         v =>
+                        {
+                            IObservable<IDiscriminatedUnion<object, TNew, NonComputable>> o = this.GetInnerObservable(getObservable, DiscriminatedUnion.First<object, TNew, NonComputable>, () => DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value))(v);
+                            if (skipFirst)
                             {
-                                IObservable<IDiscriminatedUnion<object, TNew, NonComputable>> o = this.GetInnerObservable(getObservable, DiscriminatedUnion.First<object, TNew, NonComputable>, () => DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value))(v);
-                                if (skipFirst)
-                                {
-                                    o = o.Skip(1);
-                                }
+                                o = o.Skip(1);
+                            }
 
-                                return o;
-                            }).Switch());
+                            return o;
+                        }).Switch());
             }
 
             IObservable<IDiscriminatedUnion<object, TNew, NonComputable>> IChainedObservableHelperBase<T>.AddLeafAndCompleteWithoutEvaluation<TNew>(Func<T, TNew> getObservable)
             {
-                Contract.Requires<ArgumentNullException>(getObservable != null, "getObservable");
-                Contract.Ensures(Contract.Result<IObservable<IDiscriminatedUnion<object, TNew, NonComputable>>>() != null);
-
                 IObservable<IDiscriminatedUnion<object, TNew, NonComputable>> observable = this.setupPreviousNonComputableObservable(false).Select(
                     o => o.Switch(
                         v =>
+                        {
+                            if (ReferenceEquals(v, null))
                             {
-                                if (ReferenceEquals(v, null))
-                                {
-                                    return DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value);
-                                }
+                                return DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value);
+                            }
 
-                                TNew o2 = getObservable(v);
-                                if (o2 == null)
-                                {
-                                    return DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value);
-                                }
+                            TNew o2 = getObservable(v);
+                            if (o2 == null)
+                            {
+                                return DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value);
+                            }
 
-                                return DiscriminatedUnion.First<object, TNew, NonComputable>(o2);
-                            },
+                            return DiscriminatedUnion.First<object, TNew, NonComputable>(o2);
+                        },
                         v => DiscriminatedUnion.Second<object, TNew, NonComputable>(NonComputable.Value)));
                 if (observable == null)
                 {
@@ -528,15 +518,15 @@ namespace MorseCode.RxMvvm.Observable
 
                 return o => o.Switch(
                     v =>
+                    {
+                        if (ReferenceEquals(v, null))
                         {
-                            if (ReferenceEquals(v, null))
-                            {
-                                return ObservableRxMvvm.Always(getNonComputableInnerValue());
-                            }
+                            return ObservableRxMvvm.Always(getNonComputableInnerValue());
+                        }
 
-                            IObservable<TNew> o2 = getObservable(v);
-                            return o2 == null ? ObservableRxMvvm.Always(getNonComputableInnerValue()) : o2.Select(getInnerValue);
-                        },
+                        IObservable<TNew> o2 = getObservable(v);
+                        return o2 == null ? ObservableRxMvvm.Always(getNonComputableInnerValue()) : o2.Select(getInnerValue);
+                    },
                     v => ObservableRxMvvm.Always(getNonComputableInnerValue()));
             }
 

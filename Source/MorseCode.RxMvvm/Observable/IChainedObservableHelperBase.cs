@@ -15,6 +15,7 @@
 namespace MorseCode.RxMvvm.Observable
 {
     using System;
+    using System.Diagnostics.Contracts;
 
     using MorseCode.RxMvvm.Common.DiscriminatedUnion;
 
@@ -24,6 +25,7 @@ namespace MorseCode.RxMvvm.Observable
     /// <typeparam name="T">
     /// The type of the value of the last observable in the chain.
     /// </typeparam>
+    [ContractClass(typeof(ChainedObservableHelperBaseContract<>))]
     public interface IChainedObservableHelperBase<out T>
     {
         #region Public Methods and Operators

@@ -102,6 +102,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChainedObservableHelperBaseContract.cs" />
+    <Compile Include="ChainedObservableHelperContract.cs" />
+    <Compile Include="ChainedObservableInitialHelperContract.cs" />
     <Compile Include="DiscriminatedUnionExtensionMethods.cs" />
     <Compile Include="Collection\CollectionObservable.cs" />
     <Compile Include="Collection\IItemWithObservedValue.cs" />

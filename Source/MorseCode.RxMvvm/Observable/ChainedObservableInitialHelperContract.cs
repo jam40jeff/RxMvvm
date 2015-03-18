@@ -14,16 +14,26 @@
 
 namespace MorseCode.RxMvvm.Observable
 {
+    using System;
     using System.Diagnostics.Contracts;
 
-    /// <summary>
-    /// An interface providing methods for building chained observables.
-    /// </summary>
-    /// <typeparam name="T">
-    /// The type of the value of the last observable in the chain.
-    /// </typeparam>
-    [ContractClass(typeof(ChainedObservableInitialHelperContract<>))]
-    public interface IChainedObservableInitialHelper<out T> : IChainedObservableHelperBase<T>
+    using MorseCode.RxMvvm.Common.DiscriminatedUnion;
+
+    [ContractClassFor(typeof(IChainedObservableInitialHelper<>))]
+    internal abstract class ChainedObservableInitialHelperContract<T> : IChainedObservableInitialHelper<T>
     {
+        #region Public Methods and Operators
+
+        public IChainedObservableHelper<TNew> Add<TNew>(Func<T, IObservable<TNew>> getObservable)
+        {
+            return null;
+        }
+
+        public IObservable<IDiscriminatedUnion<object, TNew, NonComputable>> AddLeafAndCompleteWithoutEvaluation<TNew>(Func<T, TNew> getObservable) where TNew : class
+        {
+            return null;
+        }
+
+        #endregion
     }
 }
