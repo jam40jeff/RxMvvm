@@ -124,6 +124,9 @@
     <Compile Include="Collection\ObservableCollectionContract{T}.cs" />
     <Compile Include="Collection\ObservableCollectionFactory.cs" />
     <Compile Include="Collection\ObservableCollection{T}.cs" />
+    <Compile Include="IChainedObservableHelper.cs" />
+    <Compile Include="IChainedObservableHelperBase.cs" />
+    <Compile Include="IChainedObservableInitialHelper.cs" />
     <Compile Include="NonComputable.cs" />
     <Compile Include="NonComputableExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
