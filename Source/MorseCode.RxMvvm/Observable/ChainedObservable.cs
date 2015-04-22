@@ -72,7 +72,7 @@ namespace MorseCode.RxMvvm.Observable
             Contract.Requires<ArgumentNullException>(getObservable != null, "getObservable");
             Contract.Ensures(Contract.Result<IChainedObservableHelperBase<IDiscriminatedUnion<object, TNew, Exception>>>() != null);
 
-            return helper.Add(v => v.Flatten().Switch(x => getObservable(x).Select(DiscriminatedUnion.First<object, TNew, Exception>), e => Observable.Return(DiscriminatedUnion.Second<object, TNew, Exception>(e))));
+            return helper.Add(v => ReferenceEquals(v, null) ? null : v.Flatten().Switch(x => getObservable(x).Select(DiscriminatedUnion.First<object, TNew, Exception>), e => Observable.Return(DiscriminatedUnion.Second<object, TNew, Exception>(e))));
         }
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace MorseCode.RxMvvm.Observable
             Contract.Requires<ArgumentNullException>(getObservable != null, "getObservable");
             Contract.Ensures(Contract.Result<IChainedObservableHelperBase<IDiscriminatedUnion<object, TNew, Exception>>>() != null);
 
-            return helper.Add(v => v.Switch(x => getObservable(x).Select(DiscriminatedUnion.First<object, TNew, Exception>), e => Observable.Return(DiscriminatedUnion.Second<object, TNew, Exception>(e))));
+            return helper.Add(v => ReferenceEquals(v, null) ? null : v.Switch(x => getObservable(x).Select(DiscriminatedUnion.First<object, TNew, Exception>), e => Observable.Return(DiscriminatedUnion.Second<object, TNew, Exception>(e))));
         }
 
         /// <summary>
